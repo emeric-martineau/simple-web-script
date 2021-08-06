@@ -1,3 +1,4 @@
+program SimpleWebScript;
 {*******************************************************************************
  * Copyright (C) 2007 MARTINEAU Emeric (php4php@free.fr)
  *
@@ -16,13 +17,35 @@
  * this program; if not, write to the Free Software Foundation, Inc., 59 Temple
  * Place, Suite 330, Boston, MA 02111-1307 USA
  *
+ ******************************************************************************
+ *
+ * Variables names :
+ *  xyZZZZZ :
+ *            x : l : local variable
+ *                g : global variable/public variable
+ *                p : private/protected variable
+ *                a : argument variable
+ *
+ *            y : s : string
+ *                i : integer
+ *                f : fload
+ *                d : double
+ *                a : array
+ *                l : list<>
+ *                o : object
+ *                b : bool
+ *                c : char
+ *                l : long
+ *
+ *           ZZZZ : name of variable
  *******************************************************************************
  * Main program. It check argument and lauch execute of code
  ******************************************************************************}
-program SimpleWebScript;
 
 {$IFNDEF FPC}
     {$APPTYPE CONSOLE}
+{$ELSE}
+    {$mode objfpc}{$H+}
 {$ENDIF}
 
 uses
@@ -35,7 +58,7 @@ uses
   Variable,
   UserFunction,
   UserLabel,
-  CoreFunctions,
+  UnitCore,
   InternalFunction,
   ListPointerOfTVariables,
   Extension,
@@ -47,35 +70,38 @@ uses
   GetPostCookieFileData,
   UnitOS,
   IniFiles,
-  UnitHtml;
+  UnitHtml,
+  Constantes;
 
 {$I config.inc}
 
 {$I path_ini.inc}
 
 var
-    FileName : string ;
-    EndCondition : TStringList ;
-    CheminIni : String ;
-    FichierIni : TIniFile ;
-    DefaultType : String ;
-    ListDisabledFunctions : TStringList ;
-    i : Integer ;
+    lsFileName : string ;
+    loEndCondition : TStringList ;
+    lsCheminIni : String ;
+    {$IFNDEF COMMANDLINE}
+    loFichierIni : TIniFile ;
+    {$ENDIF}
+    lsDefaultType : String ;
+    loListDisabledFunctions : TStringList ;
+    liIndex : Integer ;
     {$IFDEF COMMANDLINE}
-    Arguments : Integer ;
+    liArguments : Integer ;
     {$ENDIF}
 begin
 //    FileMode := fmOpenWrite ;
 //    AssignFile(OutPut, 'debug.log') ;
 //    Rewrite(OutPut) ;
 
-    FileName := '' ;
-    isHeaderSend := False ;
-    isOriginalHeaderClear := False ;
-    Warning := True ;
+    lsFileName := '' ;
+    gbIsHeaderSend := False ;
+    gbIsOriginalHeaderClear := False ;
+    gbWarning := True ;
     Header := TStringList.Create ;
-    LineWhereHeaderSend := 0 ;
-    isOutPuBuffered := False ;
+    giLineWhereHeaderSend := 0 ;
+    gbIsOutPuBuffered := False ;
 
     { Force les date en anglais }
     setShortDayName ;
@@ -84,159 +110,185 @@ begin
     setLongMonthName ;
 
     { Définit les dates/mois du script par défaut }
-    UserShortDayNames[1] := 'Sun' ;
-    UserShortDayNames[2] := 'Mon' ;
-    UserShortDayNames[3] := 'Tue' ;
-    UserShortDayNames[4] := 'Wed' ;
-    UserShortDayNames[5] := 'Thu' ;
-    UserShortDayNames[6] := 'Fri' ;
-    UserShortDayNames[7] := 'Sat' ;
+    gaUserShortDayNames[1] := 'Sun' ;
+    gaUserShortDayNames[2] := 'Mon' ;
+    gaUserShortDayNames[3] := 'Tue' ;
+    gaUserShortDayNames[4] := 'Wed' ;
+    gaUserShortDayNames[5] := 'Thu' ;
+    gaUserShortDayNames[6] := 'Fri' ;
+    gaUserShortDayNames[7] := 'Sat' ;
 
-    UserShortMonthNames[1] := 'Jan' ;
-    UserShortMonthNames[2] := 'Feb' ;
-    UserShortMonthNames[3] := 'Mar' ;
-    UserShortMonthNames[4] := 'Apr' ;
-    UserShortMonthNames[5] := 'May' ;
-    UserShortMonthNames[6] := 'Jun' ;
-    UserShortMonthNames[7] := 'Jul' ;
-    UserShortMonthNames[8] := 'Aug' ;
-    UserShortMonthNames[9] := 'Sep' ;
-    UserShortMonthNames[10] := 'Oct' ;
-    UserShortMonthNames[11] := 'Nov' ;
-    UserShortMonthNames[12] := 'Dec' ;
+    gaUserShortMonthNames[1] := 'Jan' ;
+    gaUserShortMonthNames[2] := 'Feb' ;
+    gaUserShortMonthNames[3] := 'Mar' ;
+    gaUserShortMonthNames[4] := 'Apr' ;
+    gaUserShortMonthNames[5] := 'May' ;
+    gaUserShortMonthNames[6] := 'Jun' ;
+    gaUserShortMonthNames[7] := 'Jul' ;
+    gaUserShortMonthNames[8] := 'Aug' ;
+    gaUserShortMonthNames[9] := 'Sep' ;
+    gaUserShortMonthNames[10] := 'Oct' ;
+    gaUserShortMonthNames[11] := 'Nov' ;
+    gaUserShortMonthNames[12] := 'Dec' ;
 
     DateSeparator := '/' ;
     TimeSeparator := ':' ;
 
-    FloatSeparator := '.' ;
-    MillierSeparator := ',' ;
+    gsFloatSeparator := '.' ;
+    gsMillierSeparator := ',' ;
 
-    DefaultCharset := 'iso-8859-1' ;
+    gsDefaultCharset := 'iso-8859-1' ;
 
     {$IFNDEF COMMANDLINE}
     if (IniPath = '')
     then begin
-        CheminIni := ExtractFileDir(ParamStr(0)) ;
+        lsCheminIni := ExtractFileDir(ParamStr(0)) ;
     end
     else begin
-        CheminIni := IniPath ;
+        lsCheminIni := IniPath ;
     end ;
     {$ELSE}
-    CheminIni := ExtractFileDir(ParamStr(0)) ;
+    lsCheminIni := ExtractFileDir(ParamStr(0)) ;
     {$ENDIF}
-
-    CheminIni := OsAddFinalDirSeparator(CheminIni)  ;
-
-    FichierIni := TIniFile.Create(CheminIni + 'sws.ini') ;
 
     {$IFDEF COMMANDLINE}
-    doc_root := GetCurrentDir ;
+    gsDocRoot := GetCurrentDir ;
+    
+    giMaxMemorySize :=  -1;
+
+    lsDefaultType := 'text/html' ;
+
+    gsDisabledFunctions := '' ;
+
+    giMaxPostSize := 2 ;
+
+    gsExtDir := OSAddFinalDirSeparator('ext') ;
+
+    gsTmpDir := '' ;
+
+    gbHideCfg := true ;
+
+    gbFileUpload := true ;
+
+    giUploadMaxFilesize := 2 ;
+
+    gbSafeMode := false ;
+    
+    giElapseTime := -1 ;
     {$ELSE}
-    doc_root := OsAddFinalDirSeparator(RealPath(FichierIni.ReadString('general', 'doc_root', ''))) ;
+    lsCheminIni := OsAddFinalDirSeparator(lsCheminIni)  ;
 
-    if doc_root = ''
-    then
-        doc_root := GetCurrentDir ;
-    {$ENDIF}
+    loFichierIni := TIniFile.Create(lsCheminIni + 'sws.ini') ;
 
-    ElapseTime := FichierIni.ReadInteger('general', 'max_execution_time', 30) ;
+    gsDocRoot := OsAddFinalDirSeparator(RealPath(loFichierIni.ReadString('general', 'doc_root', ''))) ;
+
+    if gsDocRoot = ''
+    then begin
+        gsDocRoot := GetCurrentDir ;
+    end ;
+
+    giElapseTime := loFichierIni.ReadInteger('general', 'max_execution_time', 30) ;
 
     { On ajoute la taille avant lecture du script pour alloué exactement la taille souhaitée au script }
-    MaxMemorySize := (FichierIni.ReadInteger('general', 'memory_limit', 8) * 1024 * 1024) + OSUsageMemory;
+    giMaxMemorySize := (loFichierIni.ReadInteger('general', 'memory_limit', 8) * 1024 * 1024) + OSUsageMemory;
 
-    DefaultType := FichierIni.ReadString('general', 'default_type', 'text/html') ;
+    lsDefaultType := loFichierIni.ReadString('general', 'default_type', 'text/html') ;
 
-    DisabledFunctions := FichierIni.ReadString('general', 'disabled_function', '') ;
+    gsDisabledFunctions := loFichierIni.ReadString('general', 'disabled_function', '') ;
 
-    MaxPostSize := FichierIni.ReadInteger('general', 'post_max_size', 2) ;
+    giMaxPostSize := loFichierIni.ReadInteger('general', 'post_max_size', 2) ;
 
-    ExtDir := OSAddFinalDirSeparator(RealPath(FichierIni.ReadString('general', 'ext_path', ''))) ;
+    gsExtDir := OSAddFinalDirSeparator(RealPath(loFichierIni.ReadString('general', 'ext_path', ''))) ;
 
-    tmpDir := OSAddFinalDirSeparator(RealPath(FichierIni.ReadString('general', 'tmp_dir', ''))) ;
+    gsTmpDir := OSAddFinalDirSeparator(RealPath(loFichierIni.ReadString('general', 'tmp_dir', ''))) ;
 
-    hideCfg := (FichierIni.ReadString('general', 'hide_cfg', 'true') = 'true') ;
+    gbHideCfg := (loFichierIni.ReadString('general', 'hide_cfg', 'true') = 'true') ;
 
-    fileUpload := (FichierIni.ReadString('general', 'file_uploads', 'true') = 'true') ;
+    gbFileUpload := (loFichierIni.ReadString('general', 'file_uploads', 'true') = 'true') ;
 
-    uploadMaxFilesize := FichierIni.ReadInteger('general', 'upload_max_filesize', 2) ;
+    giUploadMaxFilesize := loFichierIni.ReadInteger('general', 'upload_max_filesize', 2) ;
 
-    SafeMode := (FichierIni.ReadString('general', 'safe_mode', 'true') = 'true') ;
+    gbSafeMode := (loFichierIni.ReadString('general', 'safe_mode', 'true') = 'true') ;
 
-    FichierIni.Free ;
-
+    loFichierIni.Free ;
+    {$ENDIF}
+    
     {$IFDEF COMMANDLINE}
-    Debug := False ;
-    Arguments := ParamCount ;
+    gbDebug := False ;
+    liArguments := ParamCount ;
 
     if ParamCount > 0
     then begin
-        i := 1 ;
+        liIndex := 1 ;
 
-        while i <= ParamCount do
+        while liIndex <= ParamCount do
         begin
-            if ParamStr(i) = '-debug'
-            then
-                Debug := True
-            else if ParamStr(i) = '-params'
+            if ParamStr(liIndex) = '-debug'
             then begin
-                Arguments := i ;
+                gbDebug := True ;
+            end
+            else if ParamStr(liIndex) = '-params'
+            then begin
+                liArguments := liIndex ;
                 break ;
             end
-            else if ParamStr(i) = '-file'
+            else if ParamStr(liIndex) = '-file'
             then begin
-                FileName := ParamStr(i + 1) ;
-                Inc(i) ;
+                lsFileName := ParamStr(liIndex + 1) ;
+                Inc(liIndex) ;
             end ;
 
-            Inc(i) ;
+            Inc(liIndex) ;
         end ;
     end ;
     {$ELSE}
-    Header.Add('Content-Type: ' + DefaultType) ;
+    Header.Add('Content-Type: ' + lsDefaultType) ;
     Header.Add('') ;
     {$ENDIF}
 
-    Variables := TVariables.Create ;
-    VarGetPostCookieFileData := TGetPostCookieFileData.Create(MaxPostSize * 1024 * 1024, uploadMaxFilesize * 1024 * 1024) ;
+    goVariables := TVariables.Create ;
 
     {$IFNDEF COMMANDLINE}
-    FileName := VarGetPostCookieFileData.getFileNameOfScript ;
+    goVarGetPostCookieFileData := TGetPostCookieFileData.Create(giMaxPostSize * 1024 * 1024, giUploadMaxFilesize * 1024 * 1024, gbFileUpload) ;
+    {$ELSE}
+    goVarGetPostCookieFileData := TGetPostCookieFileData.Create() ;
     {$ENDIF}
 
-    if FileName = ''
+    {$IFNDEF COMMANDLINE}
+    lsFileName := goVarGetPostCookieFileData.getFileNameOfScript ;
+    {$ENDIF}
+
+    if lsFileName = ''
     then begin
         {$IFDEF COMMANDLINE}
         Writeln(ExtractFileName(ParamStr(0)) + ' name_of_file') ;
         {$ELSE}
-        OutPutString(sNoFileInput, false) ;
+        OutPutString(csNoFileInput, false) ;
         {$ENDIF}
-
-        Variables.Free ;
-        VarGetPostCookieFileData.Free ;
-        Header.Free ;
     end
     else begin
         OsInstallTrapOfCtrlC ;
 
-        CodeList := TStringList.Create ;
+        goCodeList := TStringList.Create ;
 
-        ListOfFile := TStringList.Create ;
-        LineToFileLine := TStringList.Create ;
-        LineToFile := TStringList.Create ;
-        ListFunction := TInternalFunction.Create ;
-        PointerOfVariables := TPointerOfTVariable.Create ;
-        ListOfExtension := TExtension.Create ;
-        ListCookie := TStringList.Create ;
-        CurrentRootOfFile := TStringList.Create ;
+        goListOfFile := TStringList.Create ;
+        goLineToFileLine := TStringList.Create ;
+        goLineToFile := TStringList.Create ;
+        goInternalFunction := TInternalFunction.Create ;
+        goPointerOfVariables := TPointerOfTVariable.Create ;
+        goListOfExtension := TExtension.Create ;
+        goCurrentRootOfFile := TStringList.Create ;
+        goConstantes := TDoubleStrings.Create;
+        
+        goConstantes.Add('#_version', csVersion) ;
 
-        CurrentFunctionName := TStringList.Create ;
-        CurrentFunctionName.Add('main script') ;
+        goCurrentFunctionName := TStringList.Create ;
+        goCurrentFunctionName.Add('main script') ;
 
-        FirstVariables := Variables ;
-        GlobalVariable := TStringList.Create ;
+        goFirstVariables := goVariables ;
 
-        ListLabel := TUserLabel.Create ;
-        ListProcedure := TUserFunction.Create ;
+        goListLabel := TUserLabel.Create ;
+        goListProcedure := TUserFunction.Create ;
 
         CoreFunctionsInit ;
         StrFunctionsInit ;
@@ -245,67 +297,67 @@ begin
         MiscellaneousFunctionsInit ;
         HtmlFunctionsInit ;
 
-        if DisabledFunctions <> ''
+        if gsDisabledFunctions <> ''
         then begin
-            ListDisabledFunctions := TStringList.Create ;
+            loListDisabledFunctions := TStringList.Create ;
 
-            Explode(DisabledFunctions, ListDisabledFunctions, ',') ;
+            Explode(gsDisabledFunctions, loListDisabledFunctions, ',') ;
 
-            for i := 0 to ListDisabledFunctions.count - 1 do
+            for liIndex := 0 to loListDisabledFunctions.count - 1 do
             begin
                 {$IFNDEF FPC}
-                ListFunction.Change(ListDisabledFunctions[i], FunctionDisabled, false);
+                goInternalFunction.Change(loListDisabledFunctions[liIndex], FunctionDisabled, false);
                 {$ELSE}
-                ListFunction.Change(ListDisabledFunctions[i], @FunctionDisabled, false);
+                goInternalFunction.Change(loListDisabledFunctions[liIndex], @FunctionDisabled, false);
                 {$ENDIF}
             end ;
 
-            ListDisabledFunctions.Free ;
+            loListDisabledFunctions.Free ;
         end ;
 
         { Initialise l'heure de début du script }
-        StartTime := now ;
+        goStartTime := Now ;
 
-        LabelReading := False ;
+        gbLabelReading := False ;
 
-        if LoadCode(FileName, 0)
+        if LoadCode(lsFileName, 0)
         then begin
-            GlobalError := False ;
-            GlobalQuit := False ;
+            gbError := False ;
+            gbQuit := False ;
 
-            Variables.Add('$true', trueValue);
-            Variables.Add('$false', FalseValue);
-            Variables.Add('$_version', version);
+            goVariables.Add('$true', csTrueValue);
+            goVariables.Add('$false', csFalseValue);
+            goVariables.Add('$_version', csVersion);
 
             {$IFDEF COMMANDLINE}
-            if ParamCount > Arguments
+            if ParamCount > liArguments
             then begin
-                Variables.Add('$argcount', IntToStr(ParamCount - Arguments)) ;
+                goVariables.Add('$argcount', IntToStr(ParamCount - liArguments)) ;
 
-                for i := Arguments + 1 to ParamCount do
+                for liIndex := liArguments + 1 to ParamCount do
                 begin
-                    Variables.Add('$args[' + IntToStr(i - Arguments) + ']', ParamStr(i)) ;
+                    goVariables.Add('$args[' + IntToStr(liIndex - liArguments) + ']', ParamStr(liIndex)) ;
                 end ;
             end ;
             {$ENDIF}
 
-            EndCondition := TStringList.Create ;
-            EndCondition.Add('exit') ;
+            loEndCondition := TStringList.Create ;
+            loEndCondition.Add('exit') ;
 
             { On commence par du code HTML et pas du code exécutable }
-            isExecutableCode := False ;
+            gbIsExecutableCode := False ;
 
             { Exécute le code }
-            ReadCode(0, EndCondition, CodeList) ;
+            ReadCode(0, loEndCondition, goCodeList) ;
             
-            EndCondition.Free ;
+            loEndCondition.Free ;
         end ;
-
-        FinishProgramm ;
-
     end ;
+    
+    FinishProgram ;
 
-    if GlobalError = true
-    then
+    if gbError = true
+    then begin
         Exitcode := -1 ;
+    end ;
 end.

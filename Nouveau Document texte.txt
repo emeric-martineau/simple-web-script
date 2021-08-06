@@ -1,0 +1,40 @@
+Support des tableaux associatif. Ajouter key($tab, indice), foreach et showData doit afficher la clef
+Fonction dans Variable à modifier :
+ - Explode (et tout ce qui les utilisent)
+ - InternalLength
+ - CreateArray
+ - internalExplodeNumber,
+
+Fonction dans functions.pas :
+ - SetVar,
+ - GetVar, (vérifie si c'est un nombre entre crochet)
+ - DeleteVar,
+ - ShowData,
+
+mettre nom dans index des fichiers téléchargés.
+------------------------
+Session
+MD5(REMOTE_ADDR + HTTP_USER_AGENT + uniqid + rand)
+[session]
+method=cookie/get/post
+path=c:/machin.../tmp
+cookie_secure=on/off (https)
+cookie_path = /
+; Whether or not to add the httpOnly flag to the cookie, which makes it inaccessible to browser scripting languages such as JavaScript.
+cookie_httponly =
+expire = 180
+name = SWSSESSID
+
+Cache
+-----
+Créer un exécutable qui charge le doc via LoadCode, Fait un explodeString et enregistre le tout dans un
+fichier commençant par EOF (27), SWS 0x01, 0x00
+Change ligne est enregistée sur commande, 27, commande 0x00
+Finir par 0x00, 0x00,
+
+Utilider LoadFile qui appèle si fichier commence par EOF, SWS, 0x01, 0x00 LoadCache sinon LoadCode
+LoadCache charge tout dans goCodeCache.
+Dans ReadCode au niveau du ExplodeString du code :
+ - si goCodeCache.Give(x) <> nil on prend,
+ - sinon on utilise ExplodeString et on enregistre de goCodeCache.Add()
+Rechercher tous les ExplodeStrings pour voir lequel il faut remplacer.

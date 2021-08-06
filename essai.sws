@@ -1,3 +1,5 @@
 <@
-echo md5('password')
+echo "truc2" = "truc" ? "yes" : "no" ;
+
+echo "fin" ;
 @>

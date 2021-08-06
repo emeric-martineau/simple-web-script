@@ -7,7 +7,7 @@
 <h2>Pointer and array structure<a name="structure"></a></h2>
 <h3>Pointer </h3>
 <p>Pointer begin by"p{" end end by "}". Between, you find 
-  internal id who point on TVaraibles and variable name.la variable.</p>
+  internal id who point on TVariables and variable name.</p>
 <h3>Array</h3>
 <p>Array begin by "a{" end end by"}". Each item are in "" 
   and separeted by ;</p>
@@ -48,13 +48,196 @@
   Parameter 3 : name script of current script (string with 0 terminate)<br>
   Parameter 4 : version of Simple Web Script (string with 0 terminate)<br>
   Parameter 5 : current line number (Integer)<br>
-  Parameter 6 : Length of result (if result is string, do not add 0 at end) (Pointer 
-  on integer)<br>
-  Parameter 7 : if error occur (Pointer on boolean)</p>
+  Parameter 6 : if error occur (Pointer on boolean)</p>
 <h3>GetResult</h3>
 <p>First parameter is pointeur of char who contain result (no 0 at end). Return length of result.</p>
 <h3>Init</h3>
 <p>This fonction copy parameters of Simple Web Script. There have 3
 parameters. DocRoot, TmpDir and SafeMode. Function must copy parameters
 in internal.</p>
+<h2>Clean Coding<a name="cleancoding"></a></h2>
+<p>
+Clean coding is not new programming method, like Extreme programming (http://fr.wikipedia.org/wiki/Extreme_programming). It's juste some rule to write code to not create bug.
+Idea comme me in work, when I debug because people have bad writing some code.</p>
+
+<h3>1 - Name of variable</h3>
+
+<p>
+Name of variable must be named like xyZzzzZzzz (2 firsts char in lower case)
+<br />
+<br />
+xyZZZZZ :<br />
+<pre>
+           x : l : local variable
+               g : global variable/public variable
+               p : private/protected variable
+               a : argument variable
+               c : constante
+               
+           y : s : string
+               i : integer
+               f : fload
+               d : double
+               a : array
+               l : list<>
+               o : object
+               b : bool/byte
+               c : char
+               l : long
+               c : cardinal
+               e : extend
+               
+          ZZZZ : name of variable
+</pre>
+Never use underscore (_). Each word start by upper case : goIsEnd<br />
+Name of var must be significative.</p>
+
+<h3>2 - Name of function/procedure</h3>
+
+<p>To easy distinct variable ant function/procedure, function name start by upper case. But, pascal are not case sensitive, it's just better to read.<br />
+Never use underscore (_).</p>
+
+<h3>3 - Indentation</h3>
+
+<p>This is a sensitive subjet cause developper's world have divergence. I must be choice a solution to have same presentation on all configuration. I've choice 4 space to indent.
+<br />
+<pre>
+function truc()
+begin
+    if 1 = 1
+    then begin
+        writeln("coucou") ;
+    end ;
+end ;</pre>
+</p>
+
+<h3>4 - Readability of code</h3>
+
+<p>To have good readability of code, we must aerate code.<br />
+Seprate instruction who have not link<br />
+Space after comma (,).<br />
+Space before semicolon.<br />
+Space after and before :=, =, >, <>, <, +, - ....<br />
+<pre>
+function machin()
+var
+    { Compteur de boucle }
+    liIndex : Integer ;
+begin
+    liIndex := 1 ;
+    
+    for liIndex := 1 to 3 do
+    begin
+        MaFonction(1, 2, 3) ;
+    end ;
+end ;</pre>
+
+<h3>5 - Header of function</h3>
+
+<p>Function must be have header except function to implement SimpleWebScript command (like strPrintF).
+Header are below :<br />
+<pre>
+{*****************************************************************************
+ * Name of function
+ * Author, date
+ *
+ * Desciptif
+ *
+ * Input parameter :
+ *   - aiTruc : explication
+ *
+ * Output parameter :
+ *   - asMachin : explication
+ *
+ * Return : nombre de bidule
+ *****************************************************************************}
+</pre>
+</p>
+
+<h3>6 - One enter, one exit</h3>
+ 
+<p>Function/procedure have one enter. To easy read code, function/procedure must be have one exit, except if one exit complicates code.</p>
+ 
+<h3>7 - Comments</h3>
+ 
+<p>We must comment code, especially if code are compliqued.<br />
+We must be comment variable declaration.</p>
+
+<h3>8 - Operator += -=...</h3>
+
+<p>Pascal dont have operator : +=, -=, &=, |=, *= and it good cause, there operator make code hard to read.</p>
+
+<h3>9 - Loop counter</h3>
+
+<p>In scool or in literature, you can see i, j, k to loop counter. Problem, it's not significative and, if you have loop in loop, you can reverse counter.<br />
+Prefer use liIndexChar or other.</p>
+
+<h3>10 - Delimitation of if/while/repeat/for</h3>
+
+<p>ALWAYS use begin/end in if/while/repeat/for operator. It's better to read, and avoids bugs.</p>
+
+<pre>
+if (truc() = 1)
+then
+    for liIndexItemArray := 0 to 120 do
+    begin
+        ...       
+        ...
+        ...
+        ...
+        ...
+        ...
+        ...
+        ...
+        ...
+        ...
+        ...
+        ...
+        ...
+        ...
+        ...
+        ...
+        ...
+        ...        
+    end ;
+ // pourquoi est-ce indenté ? Il faut remonter jusqu'en haut pour le savoir
+</pre>
+
+<p>Moreover, we must align begin with end, except with if, cause is more fine :</p>
+<pre>
+for liIndexItemArray := 0 to 120 do
+begin
+end ;
+
+while truc()  do
+begin
+end ;
+
+// Not fine
+if 1 = 1 then
+begin
+end
+else
+begin
+
+// Better fine
+if 1 = 1
+then begin
+end
+else begin
+end ;
+end ;
+</pre>
+
+<h3>11 - More small is better</h3>
+
+<p>When you coding, to lite code, use function or procedure, but, dont create a function with have only function cause, the code becomes unreadable.</p>
+
+<h3>12 - Allways compare to value</h3>
+
+<p>For if/while/repeat, allways compare to value, except if true or false.</p>
+
+<h3>13 - Not infinity loop</h3>
+
+<p>In loop, allways compare the condition to value, never have while (true).</p>
 </body></html>

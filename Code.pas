@@ -1,5 +1,5 @@
 unit Code;
-{*******************************************************************************
+{******************************************************************************
  * Copyright (C) 2007 MARTINEAU Emeric (php4php@free.fr)
  *
  * Simple Web Script
@@ -17,334 +17,404 @@ unit Code;
  * this program; if not, write to the Free Software Foundation, Inc., 59 Temple
  * Place, Suite 330, Boston, MA 02111-1307 USA
  *
- *******************************************************************************
+ ******************************************************************************
+ *
+ * Variables names :
+ *  xyZZZZZ :
+ *            x : l : local variable
+ *                g : global variable/public variable
+ *                p : private/protected variable
+ *                a : argument variable
+ *                c : constante
+ *                
+ *            y : s : string
+ *                i : integer
+ *                f : fload
+ *                d : double
+ *                a : array
+ *                l : list<>
+ *                o : object
+ *                b : bool
+ *                c : char
+ *                l : long
+ *                
+ *           ZZZZ : name of variable 
+ ******************************************************************************
  * This unit run code
  ******************************************************************************}
 interface
 
 {$I config.inc}
 
-uses SysUtils, CoreFunctions, Variable, classes,
-     UserFunction, UserLabel, UnitMessages, GetPostCookieFileData ;
+{$IFDEF FPC}
+    {$mode objfpc}{$H+}
+{$ENDIF}
+
+uses SysUtils, UnitCore, Variable, classes,
+     {$IFDEF COMMANDLINE}
+     UserFunction, UserLabel,
+     {$ENDIF}
+     UnitMessages,
+     Constantes ;
 
 Const
-      trueValue : string = '1' ;
-      falseValue : string = '0' ;
-      version : string = '0.0.5' ;
-      StartSwsTag : String = '<@' ;
-      EndSwsTag : String = '@>' ;
+      csTrueValue : string = '1' ;
+      csFalseValue : string = '0' ;
+      csVersion : string = '0.1.1' ;
+      csStartSwsTag : String = '<@' ;
+      csEndSwsTag : String = '@>' ;
+      csMultiLineCommentStart : String = '/*' ;
+      csMultiLineCommentStop : String = '*/' ;
+      csSingleComment : String = '//' ;
 
-Var { Contietn le code à exécuter }
-    CodeList : TStringList ;
+Var { Contient le code à exécuter }
+    goCodeList : TStringList ;
     { Indique si une erreur est survenue }
-    GlobalError : Boolean ;
+    gbError : Boolean ;
     { Indique si on doit quitter absolument (exemple si commande "quit" dans le
       debuggeur ou la fonction die() }
-    GlobalQuit : Boolean ;
+    gbQuit : Boolean ;
     {$IFDEF COMMANDLINE}
     { Indique si on est en mode debugger }
-    Debug : Boolean ;
+    gbDebug : Boolean ;
     {$ENDIF}
     { Indique s'il faut afficher ou non les warnings }
-    Warning : boolean ;
+    gbWarning : boolean ;
     { Ligne courante qu'on exécute dans CodeList }
-    CurrentLineNumber : Integer ;
+    giCurrentLineNumber : Integer ;
     { Liste des fichiers. Utilisé pour include_once et erreur }
-    ListOfFile : TStringList ;
+    goListOfFile : TStringList ;
     { Fait la corespondance entre ligne et n° de ligne dans le fichier }
-    LineToFileLine : TStringList ;
+    goLineToFileLine : TStringList ;
     { Fait la correspondance entre la ligne et le fichier }
-    LineToFile : TStringList ;
+    goLineToFile : TStringList ;
     { Resultat des fonctions }
-    ResultFunction : string ;
+    gsResultFunction : string ;
     { Pointeur sur la premier variable de type TVariables }
-    FirstVariables : TVariables ;
+    goFirstVariables : TVariables ;
     { Contient les variables passées en globales }
-    GlobalVariable : TStringList ;
+    goGlobalVariable : TStringList ;
     { Indique si les labels ont été lus }
-    LabelReading : Boolean ;
+    gbLabelReading : Boolean ;
     { Indique s'il s'agit d'un goto qui nous fait arrêter pour ne pas l'afficher
       deux fois en debug }
-    isGoto : Boolean ;
-    { Nom de la fonction }
-    CurrentFunctionName : TStringList ;
-    { Indique de ne pas tenir compte de l'erreur, sert pour loadcode }
-    NoError : Boolean ;
-    { Contient les données transmisent pas Get, Post, Cookie, File }
-    VarGetPostCookieFileData : TGetPostCookieFileData ;
+    gbIsGoto : Boolean ;
+    { Nom de la fonction utilisateur. Permet de faire le lien entre numéro de ligne
+      et nom de la fonction }
+    goCurrentFunctionName : TStringList ;
+    { Indique de ne pas tenir compte de l'erreur, sert pour ErrorMsg() }
+    gbNoError : Boolean ;
     { Indique si l'entête à déjà été envoyé }
-    isHeaderSend : boolean ;
+    gbIsHeaderSend : boolean ;
     { Indique si l'header original a été nettoyé }
-    isOriginalHeaderClear : boolean ;
+    gbIsOriginalHeaderClear : boolean ;
     { header }
     Header : TStringList ;
     { Indique où a été envoyé l'entête }
-    LineWhereHeaderSend : Integer ;
-    { Contient les cookiees à afficher }
-    ListCookie : TStringList ;
+    giLineWhereHeaderSend : Integer ;
     { répertoire de base du doc_root }
-    doc_root : String ;
+    gsDocRoot : String ;
     { Nombre de seconde maxi pour l'exécution du script }
-    ElapseTime : Integer ;
+    giElapseTime : Integer ;
     { Temps de début }
-    StartTime : TDateTime ;
+    goStartTime : TDateTime ;
     { Taille maximum en mémoire }
-    MaxMemorySize : Integer ;
+    giMaxMemorySize : Integer ;
     { Répertoire temporaire }
-    tmpDir : String ;
+    gsTmpDir : String ;
     { Taille maxi des données post }
-    MaxPostSize : Integer ;
+    giMaxPostSize : Integer ;
     { chemin des extensions }
-    ExtDir : String ;
+    gsExtDir : String ;
     { liste des fonctions désactivées }
-    DisabledFunctions : String ;
+    gsDisabledFunctions : String ;
     { Indique si on cache un partie de la configuration dans swsinfo() }
-    hideCfg : Boolean ;
+    gbHideCfg : Boolean ;
     { indique si l'upload de fichier est autorisé }
-    fileUpload : Boolean ;
+    gbFileUpload : Boolean ;
     { Taille maximuum du fichier à uploader }
-    uploadMaxFilesize : Integer ;
+    giUploadMaxFilesize : Integer ;
     { Contient le chemin relatif }
-    CurrentRootOfFile : TStrings ;
+    goCurrentRootOfFile : TStrings ;
     { Mode safe. Empache l'inclusion et la lecture de fichier en dehors du
       doc_root }
-    SafeMode : Boolean ;
+    gbSafeMode : Boolean ;
     { Indique si on est dans un code exécutable }
-    isExecutableCode : Boolean ;
+    gbIsExecutableCode : Boolean ;
     { Indique que la sortie est mise en tampon }
-    isOutPuBuffered : Boolean ;
+    gbIsOutPuBuffered : Boolean ;
     { Variables cotenant la sortie }
-    OutPutContent : String ;
+    gsOutPutContent : String ;
     { Nom de la fonction à appeler }
-    OutPutFunction : String ;
+    gsOutPutFunction : String ;
     { Tableau contenant les noms de mois et de jour du script. Utiliser pour
       basculer sur les dates anglaises lorsque setcookie est appelé }
-    UserShortMonthNames: array[1..12] of string;
-    UserShortDayNames: array[1..7] of string;
+    gaUserShortMonthNames: array[1..12] of string;
+    gaUserShortDayNames: array[1..7] of string;
     { Définit le séparateur de réel }
-    FloatSeparator : String ;
+    gsFloatSeparator : String ;
     { Séparateur de milliers }
-    MillierSeparator : String ;
+    gsMillierSeparator : String ;
     { Charset par défaut }
-    DefaultCharset : string ;
+    gsDefaultCharset : string ;
 
-function ReadCode(start : integer; endcondition : TStringList; VarCode : TStringList) : integer ;
+function ReadCode(aiStart : integer; aoEndCondition : TStringList; aoCode : TStringList) : integer ;
 
 implementation
 
-uses functions, InternalFunction ;
+uses Functions, InternalFunction ;
 
 {*******************************************************************************
  * Transforme une expression $var=vvv en set $var vvv
  ******************************************************************************}
-procedure AssignVarWithEqual(Ligne : TStringList) ;
-var Index : Integer ;
+procedure AssignVarWithEqual(aoLigne : TStringList) ;
+var liIndex : Integer ;
 begin
-    Index := Ligne.IndexOf('=') ;
+    liIndex := aoLigne.IndexOf('=') ;
 
-    if Index <> -1
+    if liIndex <> -1
     then begin
-        Ligne.Delete(Index) ;
-        setCommande(Ligne) ;
+        aoLigne.Delete(liIndex) ;
+        setCommande(aoLigne) ;
     end
     else begin
-        ErrorMsg(sAffectWithOutEqual) ;
+        ErrorMsg(csAffectWithOutEqual) ;
     end ;
 end ;
 
-{*******************************************************************************
- * Vérifier qu'il y a un nom en paramètre
- * Vérifier que le fichier existe
+{*****************************************************************************
+ * ReadCode
+ * MARTINEAU Emeric
  *
- * Pour chaque ligne du fichier
- *   séparer les divers élements
- *   appeler fonction correspondante
- * FinPour
- ******************************************************************************}
-function ReadCode(start : integer; endcondition : TStringList; VarCode : TStringList) : integer ;
-Var Line : Integer ;
-    i : Integer ;
-    CurrentLine : TStringList ;
-    tmp : string ;
-    Commande : string ;
+ * Exécute un code
+ *
+ * Paramètres d'entrée :
+ *   - aiStart : début du code,
+ *   - aoEndCondition : TStringList avec les commandes qui mettent fin à
+ *     l'exécution du code,
+ *   - aoCode : Code à écécuter,
+ *
+ * Retour : position de fin du code,
+ *****************************************************************************}
+function ReadCode(aiStart : integer; aoEndCondition : TStringList; aoCode : TStringList) : integer ;
+Var
+    { Inique le numéro de ligne à exécuter }
+    liLine : Integer ;
+    { Compteur de boucle et valeur de retour de fonction }
+    liIndex : Integer ;
+    { Ligne en cours d'exécution }
+    loCurrentLine : TStringList ;
+    { Variable temporaire pour certaine action (label...) }
+    lsTmp : string ;
+    { Commmande/Fonction à exécuter }
+    lsCommande : string ;
     {$IFDEF COMMANDLINE}
-    { Use for debug }
-    DebugCommand : string ;
-    MyCmdLineDebug : TStringList ;
-    tmpDebug : string ;
+    { Commande saisie dans la ligne de debug }
+    lsDebugCommand : string ;
+    { Liste Commmand + argument de debug }
+    loMyCmdLineDebug : TStringList ;
+    { Variable temporaire }
+    lsTmpDebug : string ;
     {$ENDIF}
-    isEnd : Boolean ;
-    fonction : ModelProcedure ;
+    { Indique s'il faut quitter la fonction (endfunc est rencontré) }
+    lbIsEnd : Boolean ;
+    { Fonction a exécuter }
+    lFonction : ModelProcedure ;
+
 label CheckIfCodeExecutable ;
 begin
-    isGoto := False ;
-    isEnd := False ;
-    Line := Start ;
-    CurrentLine := TStringList.Create ;
+    gbIsGoto := False ;
+    lbIsEnd := False ;
+    liLine := aiStart ;
+    loCurrentLine := TStringList.Create ;
 
     {$IFDEF COMMANDLINE}
-    if Debug
+    if gbDebug
     then begin
-        MyCmdLineDebug := TStringList.Create ;
+        loMyCmdLineDebug := TStringList.Create ;
     end ;
     {$ENDIF}
     
-    while Line < VarCode.Count do
+    while liLine < aoCode.Count do
     begin
         OverTimeAndMemory ;
 
         { Si une erreur dans une fonction }
-        if GlobalError or GlobalQuit
+        if gbError or gbQuit
         then begin
-            Line := -1 ;
+            liLine := -1 ;
             break ;
         end ;
 
-        if isGoto
+        if gbIsGoto
         then begin
-            Line := CurrentLineNumber ;
+            liLine := giCurrentLineNumber ;
         end ;
 
 CheckIfCodeExecutable :
-        if not isExecutableCode
+        if not gbIsExecutableCode
         then begin
             { Cherche un début de code }
-            while (Line < VarCode.Count) do
+            while (liLine < aoCode.Count) do
             begin
-                if (VarCode[Line] = StartSwsTag)
+                if (aoCode[liLine] = csStartSwsTag)
                 then begin
                     break ;
                 end ;
 
                 { Affiche la ligne HTML }
-                OutPutString(VarCode[Line], false) ;
+                OutPutString(aoCode[liLine], false) ;
                 
-                Inc(Line) ;
+                Inc(liLine) ;
             end ;
 
-            Inc(Line) ;
+            Inc(liLine) ;
 
-            isExecutableCode := not isExecutableCode ;
+            gbIsExecutableCode := not gbIsExecutableCode ;
             goto CheckIfCodeExecutable ;
         end
         else begin
             { Cherche une fin de code }
-            if Line < VarCode.Count
+            if liLine < aoCode.Count
             then begin
-                if VarCode[Line] = EndSwsTag
+                if aoCode[liLine] = csEndSwsTag
                 then begin
-                    Inc(Line) ;
+                    Inc(liLine) ;
 
-                    isExecutableCode := not isExecutableCode ;
+                    gbIsExecutableCode := not gbIsExecutableCode ;
 
                     goto CheckIfCodeExecutable ;
                 end ;
             end ;
         end ;
 
-        { Avec le code ci dessus Line peut être supérieur à VarCode.Count }
-        if Line > VarCode.Count
+        { Avec le code ci dessus liLine peut être supérieur à VarCode.Count }
+        if liLine > aoCode.Count
         then begin
             break ;
         end ;
 
-        CurrentLineNumber := Line ;
-        tmp := VarCode[Line] ;
+        giCurrentLineNumber := liLine ;
+        lsTmp := aoCode[liLine] ;
 
-        if (tmp[length(tmp)] <> ':')
+        if (lsTmp[length(lsTmp)] <> ':')
         then begin
             { Indique numéro de ligne }
-            Variables.Add('$_line', IntToStr(CurrentLineNumber + 1));
-            Variables.Add('$_scriptname', ListOfFile[MyStrToInt(LineToFile[CurrentLineNumber])]) ;
+            goConstantes.Add('#_line', IntToStr(giCurrentLineNumber + 1));
+            goConstantes.Add('#_scriptname', goListOfFile[MyStrToInt(goLineToFile[giCurrentLineNumber])]) ;
 
             {$IFDEF COMMANDLINE}
             { Debuggage }
-            if Debug and not isGoto
+            if gbDebug and not gbIsGoto
             then begin
                 repeat
-                    writeln('in ' + ListOfFile[MyStrToInt(LineToFile[CurrentLineNumber])]) ;
-                    writeln(Format('[%s] %s', [LineToFileLine[CurrentLineNumber], tmp])) ;
+                    writeln('') ;
+                    writeln('in ' + goListOfFile[MyStrToInt(goLineToFile[giCurrentLineNumber])]) ;
+                    writeln(Format('[%s] %s', [goLineToFileLine[giCurrentLineNumber], lsTmp])) ;
                     write('> ') ;
-                    readln(DebugCommand) ;
+                    readln(lsDebugCommand) ;
 
-                    if DebugCommand <> ''
+                    if lsDebugCommand <> ''
                     then begin
-                        ExplodeStrings(DebugCommand, MyCmdLineDebug) ;
+                        ExplodeStrings(lsDebugCommand, loMyCmdLineDebug) ;
 
-                        if LowerCase(MyCmdLineDebug[0]) = 'quit'
+                        if LowerCase(loMyCmdLineDebug[0]) = 'quit'
                         then begin
-                            GlobalQuit := True ;
-                            CurrentLine.Free ;
+                            gbQuit := True ;
+                            loCurrentLine.Free ;
                             Result := -1 ;
                             Exit ;
                         end
-                        else if LowerCase(MyCmdLineDebug[0]) = 'next'
+                        else if LowerCase(loMyCmdLineDebug[0]) = 'next'
                         then begin
                             // rien
                         end
-                        else if LowerCase(MyCmdLineDebug[0]) = 'skip'
+                        else if LowerCase(loMyCmdLineDebug[0]) = 'skip'
                         then begin
-                            Inc(Line) ;
-                            tmp := Trim(VarCode[Line]) ;
+                            Inc(liLine) ;
+                            lsTmp := Trim(aoCode[liLine]) ;
                         end
-                        else if LowerCase(MyCmdLineDebug[0]) = 'setvar'
+                        else if LowerCase(loMyCmdLineDebug[0]) = 'setvar'
                         then begin
-                            if MyCmdLineDebug.Count <> 3
+                            if loMyCmdLineDebug.Count <> 3
                             then begin
-                                writeln('Missing arguments or too arguments') ;
+                                writeln(csDebugToMany) ;
                             end
                             else begin
-                                if isVar(MyCmdLineDebug[1])
+                                if isVar(loMyCmdLineDebug[1])
                                 then begin
-                                    setVar(MyCmdLineDebug[1], MyCmdLineDebug[2]) ;
+                                    setVar(loMyCmdLineDebug[1], loMyCmdLineDebug[2]) ;
                                 end
                                 else begin
-                                    writeln(Format(sNotAVariable, [MyCmdLineDebug[1]])) ;
+                                    writeln(Format(csNotAVariable, [loMyCmdLineDebug[1]])) ;
                                 end ;
                             end ;
                         end
-                        else if LowerCase(MyCmdLineDebug[0]) = 'getvar'
+                        else if LowerCase(loMyCmdLineDebug[0]) = 'getvar'
                         then begin
-                            if MyCmdLineDebug.Count <> 2
+                            if loMyCmdLineDebug.Count <> 2
                             then begin
-                                writeln('Missing arguments or too arguments') ;
+                                writeln(csDebugToMany) ;
                             end
                             else begin
-                                if isVar(MyCmdLineDebug[1])
+                                if isVar(loMyCmdLineDebug[1])
                                 then begin
-                                    writeln(getVar(MyCmdLineDebug[1])) ;
+                                    writeln(getVar(loMyCmdLineDebug[1])) ;
                                 end
                                 else begin
-                                    writeln(Format(sNotAVariable, [MyCmdLineDebug[1]])) ;
+                                    writeln(Format(csNotAVariable, [loMyCmdLineDebug[1]])) ;
                                 end ;
                             end ;
                         end
-                        else if LowerCase(MyCmdLineDebug[0]) = 'showvar'
+                        else if LowerCase(loMyCmdLineDebug[0]) = 'showvar'
                         then begin
-                            for i := 0 to Variables.Count - 1 do
+                            for liIndex := 0 to goVariables.Count - 1 do
                             begin
-                                writeln(Variables.GiveVarNameByIndex(i)) ;
+                                writeln(goVariables.GiveVarNameByIndex(liIndex)) ;
                             end ;
                         end
-                        else if LowerCase(MyCmdLineDebug[0]) = 'showlabel'
+                        else if LowerCase(loMyCmdLineDebug[0]) = 'showlabel'
                         then begin
                             ReadLabel ;
 
-                            for i := 0 to ListLabel.Count - 1 do
+                            for liIndex := 0 to goListLabel.Count - 1 do
                             begin
-                                tmpDebug := ListLabel.GiveLabelNameByIndex(i) ;
-                                writeln(tmpDebug + ' ' +  IntToStr(ListLabel.Give(tmpDebug))) ;
+                                lsTmpDebug := goListLabel.GiveLabelNameByIndex(liIndex) ;
+                                writeln(lsTmpDebug + ' ' +  IntToStr(goListLabel.Give(lsTmpDebug))) ;
                             end ;
                         end
-                        else if LowerCase(MyCmdLineDebug[0]) = 'showproc'
+                        else if LowerCase(loMyCmdLineDebug[0]) = 'showproc'
                         then begin
-                            for i := 0 to ListProcedure.Count - 1 do
+                            for liIndex := 0 to goListProcedure.Count - 1 do
                             begin
-                                tmpDebug := ListProcedure.GiveFunctionNameByIndex(i) ;
-                                write(tmpDebug + ' ' +  IntToStr(ListProcedure.Give(tmpDebug))) ;
+                                lsTmpDebug := goListProcedure.GiveFunctionNameByIndex(liIndex) ;
+                                write(lsTmpDebug + ' ' +  IntToStr(goListProcedure.Give(lsTmpDebug))) ;
                             end ;
                         end
-                        else if LowerCase(MyCmdLineDebug[0]) = 'help'
+                        else if LowerCase(loMyCmdLineDebug[0]) = 'showconst'
+                        then begin
+                            for liIndex := 0 to goConstantes.Count - 1 do
+                            begin
+                                writeln(goConstantes.GiveVarNameByIndex(liIndex)) ;
+                            end ;
+                        end
+                        else if LowerCase(loMyCmdLineDebug[0]) = 'getconst'
+                        then begin
+                            if loMyCmdLineDebug.Count <> 2
+                            then begin
+                                writeln(csDebugToMany) ;
+                            end
+                            else begin
+                                if IsConst(loMyCmdLineDebug[1])
+                                then begin
+                                    writeln(GetConst(loMyCmdLineDebug[1])) ;
+                                end
+                                else begin
+                                    writeln(Format(csNotAConstante, [loMyCmdLineDebug[1]])) ;
+                                end ;
+                            end ;
+                        end
+                        else if LowerCase(loMyCmdLineDebug[0]) = 'help'
                         then begin
                             writeln('quit : stop program') ;
                             writeln('next : goto next instruction') ;
@@ -354,141 +424,147 @@ CheckIfCodeExecutable :
                             writeln('showvar : show list of variable') ;
                             writeln('showlabel : show list of label') ;
                             writeln('showproc : show list of procedure') ;
+                            writeln('showconst : show list of constante') ;
                         end
                         else begin
                             writeln('Unknow command') ;
                         end ;
                     end ;
-                until DebugCommand = 'next' ;
+                until lsDebugCommand = 'next' ;
             end ;
             {$ENDIF}
 
-            if isGoto
+            if gbIsGoto
             then begin
-                isGoto := False ;
+                gbIsGoto := False ;
             end ;
-
-            ExplodeStrings(tmp, CurrentLine) ;
-
+            
+            ExplodeStrings(lsTmp, loCurrentLine) ;
+            
             { Si une erreur dans ExplodeStrings}
-            if GlobalError or GlobalQuit
+            if gbError or gbQuit
             then begin
                 break ;
             end ;
 
-            Commande := LowerCase(CurrentLine[0]) ;
+            lsCommande := LowerCase(loCurrentLine[0]) ;
 
-            for i := 0 to EndCondition.Count - 1 do
+            for liIndex := 0 to aoEndCondition.Count - 1 do
             begin
-                if Commande = EndCondition[i]
+                if lsCommande = aoEndCondition[liIndex]
                 then begin
                     { Se position à la ligne suivante }
-                    Inc(Line) ;
-                    isEnd := True ;
+                    Inc(liLine) ;
+                    lbIsEnd := True ;
                     break ;
                 end ;
             end ;
 
-            if isEnd
+            if lbIsEnd
             then begin
                 break ;
             end ;
 
-            if Commande = '@'
+            { Si on ne doit pas afficher de warning, la command commence par @ }
+            if lsCommande = '@'
             then begin
-                Warning := False ;
-                CurrentLine.Delete(0) ;
-                Commande := LowerCase(CurrentLine[0]) ;
+                gbWarning := False ;
+                loCurrentLine.Delete(0) ;
+                lsCommande := LowerCase(loCurrentLine[0]) ;
             end
             else begin
-                Warning := True ;
+                gbWarning := True ;
             end ;
 
             {****** COMANDES ******}
-            if Commande = 'localgoto'
+            if lsCommande = 'localgoto'
             then begin
-                Line := gotoCommande(CurrentLine) ;
+                liLine := gotoCommande(loCurrentLine) ;
             end
-            else if Commande = 'function'
+            else if lsCommande = 'function'
             then begin
-                Line := FunctionCommande(CurrentLine) ;
+                liLine := FunctionCommande(loCurrentLine) ;
             end
-            else if Commande = 'exit'
+            else if lsCommande = 'exit'
             then begin
                 { Se position à la ligne suivante }
-                Inc(Line) ;
+                Inc(liLine) ;
                 break ;
             end
-            else if Commande = 'if'
+            else if lsCommande = 'if'
             then begin
-                Line := ifCommande(CurrentLine) ;
+                liLine := ifCommande(loCurrentLine) ;
             end
-            else if Commande = 'while'
+            else if lsCommande = 'while'
             then begin
-                Line := whileCommande(CurrentLine) ;
+                liLine := whileCommande(loCurrentLine) ;
             end
-            else if Commande = 'repeat'
+            else if lsCommande = 'repeat'
             then begin
-                Line := repeatUntilCommande(CurrentLine) ;
+                liLine := repeatUntilCommande(loCurrentLine) ;
             end
-            else if Commande = 'for'
+            else if lsCommande = 'for'
             then begin
-                Line := forCommande(CurrentLine) ;
+                liLine := forCommande(loCurrentLine) ;
             end
-            else if Commande = 'switch'
+            else if lsCommande = 'switch'
             then begin
-                Line := switchCommande(CurrentLine) ;
+                liLine := switchCommande(loCurrentLine) ;
             end
-            else if (Commande[1] = '$')
+            else if (lsCommande[1] = '$')
             then begin
-                AssignVarWithEqual(CurrentLine) ;
+                AssignVarWithEqual(loCurrentLine) ;
             end
-            else if (Commande[1] = '*')
+            else if (lsCommande[1] = '*')
             then begin
-                if Length(Commande) > 2
+                if Length(lsCommande) > 2
                 then begin
-                    if Commande[2] = '$'
+                    if lsCommande[2] = '$'
                     then begin
-                        AssignVarWithEqual(CurrentLine) ;
+                        AssignVarWithEqual(loCurrentLine) ;
                     end
                     else begin
-                        ErrorMsg(Format(sNotAVariable, [Commande[1]]))
+                        ErrorMsg(Format(csNotAVariable, [lsCommande[1]]))
                     end ;
                 end
                 else begin
-                     ErrorMsg(Format(sNotAVariable, [Commande[1]]))
+                     ErrorMsg(Format(csNotAVariable, [lsCommande[1]]))
                 end ;
             end
             else begin
-                Commande := CurrentLine[0] ;
-                CurrentLine.Delete(0) ;
-                DeleteVirguleAndParenthese(CurrentLine) ;
+                lsCommande := loCurrentLine[0] ;
+                loCurrentLine.Delete(0) ;
+                DeleteVirguleAndParenthese(loCurrentLine) ;
 
-                fonction := ListFunction.Give(Commande) ;
-                ResultFunction := '' ;
+                lFonction := goInternalFunction.Give(lsCommande) ;
+                gsResultFunction := '' ;
 
-                if @fonction <> nil
+                {$IFDEF FPC}
+                if lFonction <> nil
+                {$ELSE}
+                if @lFonction <> nil
+                {$ENDIF}
                 then begin
-                    if ListFunction.isParse(Commande)
+                    if goInternalFunction.isParse(lsCommande)
                     then begin
-                        GetValueOfStrings(CurrentLine) ;
+                        GetValueOfStrings(loCurrentLine) ;
                     end ;
                     
-                    fonction(CurrentLine) ;
+                    lFonction(loCurrentLine) ;
 
                     { Include et IncludeOnce modifie CurrentLineNumber }
-                    Line := CurrentLineNumber ;
+                    liLine := giCurrentLineNumber ;
                 end
                 else begin
-                    GetValueOfStrings(CurrentLine) ;
+                    GetValueOfStrings(loCurrentLine) ;
 
-                    if not CallExtension(Commande, CurrentLine)
+                    if not CallExtension(lsCommande, loCurrentLine)
                     then begin
-                        i := ExecuteUserProcedure(Commande, CurrentLine) ;
+                        liIndex := ExecuteUserProcedure(lsCommande, loCurrentLine) ;
 
-                        if i <> -1
+                        if liIndex <> -1
                         then begin
-                            Line := i ;
+                            liLine := liIndex ;
                         end ;
                     end ;
                 end ;
@@ -498,19 +574,19 @@ CheckIfCodeExecutable :
 
             { Le goto va se positionner sur la ligne. Si c'est extérieur à
               notre bloc on doit sortir }
-            if Line < Start
+            if liLine < aiStart
             then begin
                 break ;
             end ;
         end ;
 
-        Inc(Line) ;
+        Inc(liLine) ;
     end ;
 
     { Se position à la ligne suivante }
-    Result := Line ;
+    Result := liLine ;
 
-    CurrentLine.Free ;
+    loCurrentLine.Free ;
 end ;
 
 end.

@@ -29,1106 +29,1122 @@ interface
 
 {$I config.inc}
 
+{$IFDEF FPC}
+    {$mode objfpc}{$H+}
+{$ENDIF}
+
 uses Functions, UnitMessages, InternalFunction, classes, Math, Variable ;
 
 procedure MathFunctionsInit ;
-procedure ExtractIntPartCommande(arguments : TStringList) ;
-procedure ExtractFloatPartCommande(arguments : TStringList) ;
-procedure DecToHexCommande(arguments : TStringList) ;
-procedure DecToOctCommande(arguments : TStringList) ;
-procedure DecToBinCommande(arguments : TStringList) ;
-procedure PiCommande(arguments : TStringList) ;
-procedure uniqIdCommande(arguments : TStringList) ;
-procedure MaxCommande(arguments : TStringList) ;
-procedure MinCommande(arguments : TStringList) ;
-procedure BinToDecCommande(arguments : TStringList) ;
-procedure ExpCommande(arguments : TStringList) ;
-procedure LnCommande(arguments : TStringList) ;
-procedure oddCommande(arguments : TStringList) ;
-procedure cosCommande(arguments : TStringList) ;
-procedure acosCommande(arguments : TStringList) ;
-procedure acoshCommande(arguments : TStringList) ;
-procedure sinCommande(arguments : TStringList) ;
-procedure asinCommande(arguments : TStringList) ;
-procedure asinhCommande(arguments : TStringList) ;
-procedure tanCommande(arguments : TStringList) ;
-procedure atanCommande(arguments : TStringList) ;
-procedure atanhCommande(arguments : TStringList) ;
-procedure atan2Commande(arguments : TStringList) ;
-procedure absCommande(arguments : TStringList) ;
-procedure fracCommande(arguments : TStringList) ;
-procedure cotCommande(arguments : TStringList) ;
-procedure acotCommande(arguments : TStringList) ;
-procedure intCommande(arguments : TStringList) ;
-procedure roundCommande(arguments : TStringList) ;
-procedure sqrtCommande(arguments : TStringList) ;
-procedure sqrCommande(arguments : TStringList) ;
-procedure truncCommande(arguments : TStringList) ;
-procedure randCommande(arguments : TStringList) ;
-procedure ceilCommande(arguments : TStringList) ;
-procedure EnsureRangeCommande(arguments : TStringList) ;
-procedure floorCommande(arguments : TStringList) ;
-procedure FrexpCommande(arguments : TStringList) ;
-procedure InRangeCommande(arguments : TStringList) ;
-procedure LdExpCommande(arguments : TStringList) ;
-procedure LnXP1Commande(arguments : TStringList) ;
-procedure Log10Commande(arguments : TStringList) ;
-procedure Log2Commande(arguments : TStringList) ;
-procedure LogNCommande(arguments : TStringList) ;
-procedure PolyCommande(arguments : TStringList) ;
-procedure SameValueCommande(arguments : TStringList) ;
-procedure RoundToCommande(arguments : TStringList) ;
+procedure ExtractIntPartCommande(aoArguments : TStringList) ;
+procedure ExtractFloatPartCommande(aoArguments : TStringList) ;
+procedure DecToHexCommande(aoArguments : TStringList) ;
+procedure DecToOctCommande(aoArguments : TStringList) ;
+procedure DecToBinCommande(aoArguments : TStringList) ;
+procedure PiCommande(aoArguments : TStringList) ;
+procedure uniqIdCommande(aoArguments : TStringList) ;
+procedure MaxCommande(aoArguments : TStringList) ;
+procedure MinCommande(aoArguments : TStringList) ;
+procedure BinToDecCommande(aoArguments : TStringList) ;
+procedure ExpCommande(aoArguments : TStringList) ;
+procedure LnCommande(aoArguments : TStringList) ;
+procedure oddCommande(aoArguments : TStringList) ;
+procedure cosCommande(aoArguments : TStringList) ;
+procedure acosCommande(aoArguments : TStringList) ;
+procedure acoshCommande(aoArguments : TStringList) ;
+procedure sinCommande(aoArguments : TStringList) ;
+procedure asinCommande(aoArguments : TStringList) ;
+procedure asinhCommande(aoArguments : TStringList) ;
+procedure tanCommande(aoArguments : TStringList) ;
+procedure atanCommande(aoArguments : TStringList) ;
+procedure atanhCommande(aoArguments : TStringList) ;
+procedure atan2Commande(aoArguments : TStringList) ;
+procedure absCommande(aoArguments : TStringList) ;
+procedure fracCommande(aoArguments : TStringList) ;
+procedure cotCommande(aoArguments : TStringList) ;
+procedure acotCommande(aoArguments : TStringList) ;
+procedure intCommande(aoArguments : TStringList) ;
+procedure roundCommande(aoArguments : TStringList) ;
+procedure sqrtCommande(aoArguments : TStringList) ;
+procedure sqrCommande(aoArguments : TStringList) ;
+procedure truncCommande(aoArguments : TStringList) ;
+procedure randCommande(aoArguments : TStringList) ;
+procedure ceilCommande(aoArguments : TStringList) ;
+procedure EnsureRangeCommande(aoArguments : TStringList) ;
+procedure floorCommande(aoArguments : TStringList) ;
+procedure FrexpCommande(aoArguments : TStringList) ;
+procedure InRangeCommande(aoArguments : TStringList) ;
+procedure LdExpCommande(aoArguments : TStringList) ;
+procedure LnXP1Commande(aoArguments : TStringList) ;
+procedure Log10Commande(aoArguments : TStringList) ;
+procedure Log2Commande(aoArguments : TStringList) ;
+procedure LogNCommande(aoArguments : TStringList) ;
+procedure PolyCommande(aoArguments : TStringList) ;
+procedure SameValueCommande(aoArguments : TStringList) ;
+procedure RoundToCommande(aoArguments : TStringList) ;
 
 implementation
 
 uses Code, SysUtils ;
 
 
-procedure ExtractIntPartCommande(arguments : TStringList) ;
+procedure ExtractIntPartCommande(aoArguments : TStringList) ;
 begin
-    if arguments.count = 1
+    if aoArguments.count = 1
     then begin
-        if isFloat(arguments[0])
-        then
-            ResultFunction := ExtractIntPart(arguments[0])
-        else
-            WarningMsg(sNotAFloatValue) ;
+        if isFloat(aoArguments[0])
+        then begin
+            gsResultFunction := ExtractIntPart(aoArguments[0])
     end
-    else if arguments.count < 1
-    then begin
-        ErrorMsg(sMissingargument) ;
+        else begin
+            WarningMsg(csNotAFloatValue) ;
+    end ;
     end
-    else if arguments.count > 1
+    else if aoArguments.count < 1
     then begin
-        ErrorMsg(sTooArguments) ;
+        ErrorMsg(csMissingargument) ;
+    end
+    else if aoArguments.count > 1
+    then begin
+        ErrorMsg(csTooArguments) ;
     end ;
 end ;
 
-procedure ExtractFloatPartCommande(arguments : TStringList) ;
+procedure ExtractFloatPartCommande(aoArguments : TStringList) ;
 begin
-    if arguments.count = 1
+    if aoArguments.count = 1
     then begin
-        if isFloat(arguments[0])
-        then
-            ResultFunction := '0.' + ExtractFloatPart(arguments[0])
-        else
-            WarningMsg(sNotAFloatValue) ;
+        if isFloat(aoArguments[0])
+        then begin
+            gsResultFunction := '0.' + ExtractFloatPart(aoArguments[0])
+        end
+        else begin
+            WarningMsg(csNotAFloatValue) ;
+        end ;
     end
-    else if arguments.count < 1
+    else if aoArguments.count < 1
     then begin
-        ErrorMsg(sMissingargument) ;
+        ErrorMsg(csMissingargument) ;
     end
-    else if arguments.count > 1
+    else if aoArguments.count > 1
     then begin
-        ErrorMsg(sTooArguments) ;
+        ErrorMsg(csTooArguments) ;
     end ;
 end ;
 
-procedure DecToHexCommande(arguments : TStringList) ;
+procedure DecToHexCommande(aoArguments : TStringList) ;
 var valeur : Integer ;
 begin
-    if arguments.count = 1
+    if aoArguments.count = 1
     then begin
-        if isFloat(arguments[0])
+        if isFloat(aoArguments[0])
         then begin
-            valeur := MyStrToInt(ExtractIntPart(arguments[0])) ;
-            ResultFunction := DecToHex(valeur) ;
+            valeur := MyStrToInt(ExtractIntPart(aoArguments[0])) ;
+            gsResultFunction := DecToHex(valeur) ;
         end
-        else
-            WarningMsg(sNotAFloatValue) ;
+        else begin
+            WarningMsg(csNotAFloatValue) ;
+    end ;
     end
-    else if arguments.count < 1
+    else if aoArguments.count < 1
     then begin
-        ErrorMsg(sMissingargument) ;
+        ErrorMsg(csMissingargument) ;
     end
-    else if arguments.count > 1
+    else if aoArguments.count > 1
     then begin
-        ErrorMsg(sTooArguments) ;
+        ErrorMsg(csTooArguments) ;
     end ;
 end ;
 
-procedure DecToOctCommande(arguments : TStringList) ;
+procedure DecToOctCommande(aoArguments : TStringList) ;
 var valeur : Integer ;
 begin
-    if arguments.count = 1
+    if aoArguments.count = 1
     then begin
-        if isFloat(arguments[0])
+        if isFloat(aoArguments[0])
         then begin
-            valeur := MyStrToInt(ExtractIntPart(arguments[0])) ;
-            ResultFunction := DecToOct(valeur) ;
+            valeur := MyStrToInt(ExtractIntPart(aoArguments[0])) ;
+            gsResultFunction := DecToOct(valeur) ;
         end
-        else
-            WarningMsg(sNotAFloatValue) ;
+        else begin
+            WarningMsg(csNotAFloatValue) ;
+        end ;
     end
-    else if arguments.count < 1
+    else if aoArguments.count < 1
     then begin
-        ErrorMsg(sMissingargument) ;
+        ErrorMsg(csMissingargument) ;
     end
-    else if arguments.count > 1
+    else if aoArguments.count > 1
     then begin
-        ErrorMsg(sTooArguments) ;
+        ErrorMsg(csTooArguments) ;
     end ;
 end ;
 
-procedure DecToBinCommande(arguments : TStringList) ;
+procedure DecToBinCommande(aoArguments : TStringList) ;
 var valeur : Integer ;
 begin
-    if arguments.count = 1
+    if aoArguments.count = 1
     then begin
-        if isFloat(arguments[0])
+        if isFloat(aoArguments[0])
         then begin
-            valeur := MyStrToInt(ExtractIntPart(arguments[0])) ;
-            ResultFunction := DecToBin(valeur) ;
+            valeur := MyStrToInt(ExtractIntPart(aoArguments[0])) ;
+            gsResultFunction := DecToBin(valeur) ;
         end
-        else
-            WarningMsg(sNotAFloatValue) ;
+        else begin
+            WarningMsg(csNotAFloatValue) ;
+    end ;
     end
-    else if arguments.count < 1
+    else if aoArguments.count < 1
     then begin
-        ErrorMsg(sMissingargument) ;
+        ErrorMsg(csMissingargument) ;
     end
-    else if arguments.count > 1
+    else if aoArguments.count > 1
     then begin
-        ErrorMsg(sTooArguments) ;
+        ErrorMsg(csTooArguments) ;
     end ;
 end ;
 
-procedure PiCommande(arguments : TStringList) ;
+procedure PiCommande(aoArguments : TStringList) ;
 begin
-    if arguments.count = 0
+    if aoArguments.count = 0
     then begin
-        ResultFunction := MyFloatToStr(Pi) ;
+        gsResultFunction := MyFloatToStr(Pi) ;
     end
-    else if arguments.count < 0
+    else if aoArguments.count < 0
     then begin
-        ErrorMsg(sMissingargument) ;
+        ErrorMsg(csMissingargument) ;
     end
-    else if arguments.count > 0
+    else if aoArguments.count > 0
     then begin
-        ErrorMsg(sTooArguments) ;
+        ErrorMsg(csTooArguments) ;
     end ;
 end ;
 
-procedure uniqIdCommande(arguments : TStringList) ;
+procedure uniqIdCommande(aoArguments : TStringList) ;
 begin
-    if arguments.count = 0
+    if aoArguments.count = 0
     then begin
-        ResultFunction := UniqId ;
+        gsResultFunction := UniqId ;
     end
-    else if arguments.count < 0
+    else if aoArguments.count < 0
     then begin
-        ErrorMsg(sMissingargument) ;
+        ErrorMsg(csMissingargument) ;
     end
-    else if arguments.count > 0
+    else if aoArguments.count > 0
     then begin
-        ErrorMsg(sTooArguments) ;
+        ErrorMsg(csTooArguments) ;
     end ;
 end ;
 
-procedure MaxCommande(arguments : TStringList) ;
+procedure MaxCommande(aoArguments : TStringList) ;
 var i : Integer ;
     MaxValue : Integer ;
     CurrentValue : Integer ;
 begin
-    if arguments.count > 0
+    if aoArguments.count > 0
     then begin
-        if isFloat(arguments[0])
+        if isFloat(aoArguments[0])
         then begin
-            MaxValue := MyStrToInt(arguments[0]) ;
-            ResultFunction := arguments[0] ;
+            MaxValue := MyStrToInt(aoArguments[0]) ;
+            gsResultFunction := aoArguments[0] ;
 
-            for i := 1 to arguments.Count - 1 do
+            for i := 1 to aoArguments.Count - 1 do
             begin
-                if isFloat(arguments[i])
+                if isFloat(aoArguments[i])
                 then begin
-                    CurrentValue := MyStrToInt(arguments[i]) ;
+                    CurrentValue := MyStrToInt(aoArguments[i]) ;
 
                     if CurrentValue > MaxValue
                     then begin
                         MaxValue := CurrentValue ;
-                        ResultFunction := arguments[i] ;
+                        gsResultFunction := aoArguments[i] ;
                     end ;
                 end
                 else begin
-                    ErrorMsg(sMustBeNumber + ' ' + arguments[i]) ;
+                    ErrorMsg(csMustBeNumber + ' ' + aoArguments[i]) ;
                     break ;
                 end ;
             end ;
         end
         else begin
-            ErrorMsg(sMustBeNumber) ;
+            ErrorMsg(csMustBeNumber) ;
         end ;
     end
-    else if arguments.count < 0
+    else if aoArguments.count < 0
     then begin
-        ErrorMsg(sMissingargument) ;
+        ErrorMsg(csMissingargument) ;
     end ;
 end ;
 
-procedure MinCommande(arguments : TStringList) ;
+procedure MinCommande(aoArguments : TStringList) ;
 var i : Integer ;
     MinValue : Integer ;
     CurrentValue : Integer ;
 begin
-    if arguments.count > 0
+    if aoArguments.count > 0
     then begin
-        if isFloat(arguments[0])
+        if isFloat(aoArguments[0])
         then begin
-            MinValue := MyStrToInt(arguments[0]) ;
-            ResultFunction := arguments[0] ;
+            MinValue := MyStrToInt(aoArguments[0]) ;
+            gsResultFunction := aoArguments[0] ;
 
-            for i := 1 to arguments.Count - 1 do
+            for i := 1 to aoArguments.Count - 1 do
             begin
-                if isFloat(arguments[i])
+                if isFloat(aoArguments[i])
                 then begin
-                    CurrentValue := MyStrToInt(arguments[i]) ;
+                    CurrentValue := MyStrToInt(aoArguments[i]) ;
 
                     if CurrentValue < MinValue
                     then begin
                         MinValue := CurrentValue ;
-                        ResultFunction := arguments[i] ;
+                        gsResultFunction := aoArguments[i] ;
                     end ;
                 end
                 else begin
-                    ErrorMsg(sMustBeNumber + ' ' + arguments[i]) ;
+                    ErrorMsg(csMustBeNumber + ' ' + aoArguments[i]) ;
                     break ;
                 end ;
             end ;
         end
         else begin
-            ErrorMsg(sMustBeNumber) ;
+            ErrorMsg(csMustBeNumber) ;
         end ;
     end
-    else if arguments.count < 0
+    else if aoArguments.count < 0
     then begin
-        ErrorMsg(sMissingargument) ;
+        ErrorMsg(csMissingargument) ;
     end ;
 end ;
 
-procedure BinToDecCommande(arguments : TStringList) ;
+procedure BinToDecCommande(aoArguments : TStringList) ;
 var i : Integer ;
     val : Integer ;
     index : Integer ;
 begin
-    if arguments.count = 1
+    if aoArguments.count = 1
     then begin
         val := 0 ;
         index := 0 ;
-        for i := Length(arguments[0]) downto 1 do
+        for i := Length(aoArguments[0]) downto 1 do
         begin
-            if (arguments[0][i] = '1') or (arguments[0][i] = '0')
+            if (aoArguments[0][i] = '1') or (aoArguments[0][i] = '0')
             then begin
-                val := val + StrToInt(arguments[0][i]) * Trunc(caree(2, index)) ;
+                val := val + StrToInt(aoArguments[0][i]) * Trunc(caree(2, index)) ;
                 Inc(index) ;
             end
             else begin
-                ErrorMsg(sMustBeOneOrZero) ;
+                ErrorMsg(csMustBeOneOrZero) ;
                 break ;
             end ;
         end ;
 
-        ResultFunction := IntToStr(val) ;
+        gsResultFunction := IntToStr(val) ;
     end
-    else if arguments.count < 1
+    else if aoArguments.count < 1
     then begin
-        ErrorMsg(sMissingargument) ;
+        ErrorMsg(csMissingargument) ;
     end
-    else if arguments.count > 1
+    else if aoArguments.count > 1
     then begin
-        ErrorMsg(sTooArguments) ;
+        ErrorMsg(csTooArguments) ;
     end ;
 end ;
 
-procedure ExpCommande(arguments : TStringList) ;
+procedure ExpCommande(aoArguments : TStringList) ;
 begin
-    if arguments.count = 1
+    if aoArguments.count = 1
     then begin
-        if isFloat(arguments[0])
+        if isFloat(aoArguments[0])
         then begin
-            ResultFunction := MyFloatToStr(exp(MyStrToFloat(arguments[0]))) ;
+            gsResultFunction := MyFloatToStr(exp(MyStrToFloat(aoArguments[0]))) ;
         end
         else begin
-            ErrorMsg(sNotAFloatValue) ;
+            ErrorMsg(csNotAFloatValue) ;
         end ;
     end
-    else if arguments.count < 1
+    else if aoArguments.count < 1
     then begin
-        ErrorMsg(sMissingargument) ;
+        ErrorMsg(csMissingargument) ;
     end
-    else if arguments.count > 1
+    else if aoArguments.count > 1
     then begin
-        ErrorMsg(sTooArguments) ;
+        ErrorMsg(csTooArguments) ;
     end ;
 end ;
 
-procedure LnCommande(arguments : TStringList) ;
+procedure LnCommande(aoArguments : TStringList) ;
 begin
-    if arguments.count = 1
+    if aoArguments.count = 1
     then begin
-        if isFloat(arguments[0])
+        if isFloat(aoArguments[0])
         then begin
-            ResultFunction := MyFloatToStr(Ln(MyStrToFloat(arguments[0]))) ;
+            gsResultFunction := MyFloatToStr(Ln(MyStrToFloat(aoArguments[0]))) ;
         end
         else begin
-            ErrorMsg(sNotAFloatValue) ;
+            ErrorMsg(csNotAFloatValue) ;
         end ;
     end
-    else if arguments.count < 1
+    else if aoArguments.count < 1
     then begin
-        ErrorMsg(sMissingargument) ;
+        ErrorMsg(csMissingargument) ;
     end
-    else if arguments.count > 1
+    else if aoArguments.count > 1
     then begin
-        ErrorMsg(sTooArguments) ;
+        ErrorMsg(csTooArguments) ;
     end ;
 end ;
 
-procedure oddCommande(arguments : TStringList) ;
+procedure oddCommande(aoArguments : TStringList) ;
 begin
-    if arguments.count = 1
+    if aoArguments.count = 1
     then begin
-        if isInteger(arguments[0])
+        if isInteger(aoArguments[0])
         then begin
-            if Odd(MyStrToInt(arguments[0]))
-            then
-                ResultFunction := trueValue
-            else
-                ResultFunction := FalseValue ;
+            if Odd(MyStrToInt(aoArguments[0]))
+            then begin
+                gsResultFunction := csTrueValue ;
+            end
+            else begin
+                gsResultFunction := csFalseValue ;
+            end ;
         end
         else begin
-            ErrorMsg(sMustBeInteger) ;
+            ErrorMsg(csMustBeInteger) ;
         end ;
     end
-    else if arguments.count < 1
+    else if aoArguments.count < 1
     then begin
-        ErrorMsg(sMissingargument) ;
+        ErrorMsg(csMissingargument) ;
     end
-    else if arguments.count > 1
+    else if aoArguments.count > 1
     then begin
-        ErrorMsg(sTooArguments) ;
+        ErrorMsg(csTooArguments) ;
     end ;
 end ;
 
-procedure cosCommande(arguments : TStringList) ;
+procedure cosCommande(aoArguments : TStringList) ;
 begin
-    if arguments.count = 1
+    if aoArguments.count = 1
     then begin
-        if isFloat(arguments[0])
+        if isFloat(aoArguments[0])
         then begin
-            ResultFunction := MyFloatToStr(cos(MyStrToFloat(arguments[0]))) ;
+            gsResultFunction := MyFloatToStr(cos(MyStrToFloat(aoArguments[0]))) ;
         end
         else begin
-            ErrorMsg(sNotAFloatValue) ;
+            ErrorMsg(csNotAFloatValue) ;
         end ;
     end
-    else if arguments.count < 1
+    else if aoArguments.count < 1
     then begin
-        ErrorMsg(sMissingargument) ;
+        ErrorMsg(csMissingargument) ;
     end
-    else if arguments.count > 1
+    else if aoArguments.count > 1
     then begin
-        ErrorMsg(sTooArguments) ;
+        ErrorMsg(csTooArguments) ;
     end ;
 end ;
 
-procedure acosCommande(arguments : TStringList) ;
+procedure acosCommande(aoArguments : TStringList) ;
 begin
-    if arguments.count = 1
+    if aoArguments.count = 1
     then begin
-        if isFloat(arguments[0])
+        if isFloat(aoArguments[0])
         then begin
-            ResultFunction := MyFloatToStr(ArcCos(MyStrToFloat(arguments[0]))) ;
+            gsResultFunction := MyFloatToStr(ArcCos(MyStrToFloat(aoArguments[0]))) ;
         end
         else begin
-            ErrorMsg(sNotAFloatValue) ;
+            ErrorMsg(csNotAFloatValue) ;
         end ;
     end
-    else if arguments.count < 1
+    else if aoArguments.count < 1
     then begin
-        ErrorMsg(sMissingargument) ;
+        ErrorMsg(csMissingargument) ;
     end
-    else if arguments.count > 1
+    else if aoArguments.count > 1
     then begin
-        ErrorMsg(sTooArguments) ;
+        ErrorMsg(csTooArguments) ;
     end ;
 end ;
 
-procedure acoshCommande(arguments : TStringList) ;
+procedure acoshCommande(aoArguments : TStringList) ;
 begin
-    if arguments.count = 1
+    if aoArguments.count = 1
     then begin
-        if isFloat(arguments[0])
+        if isFloat(aoArguments[0])
         then begin
-            ResultFunction := MyFloatToStr(ArcCosh(MyStrToFloat(arguments[0]))) ;
+            gsResultFunction := MyFloatToStr(ArcCosh(MyStrToFloat(aoArguments[0]))) ;
         end
         else begin
-            ErrorMsg(sNotAFloatValue) ;
+            ErrorMsg(csNotAFloatValue) ;
         end ;
     end
-    else if arguments.count < 1
+    else if aoArguments.count < 1
     then begin
-        ErrorMsg(sMissingargument) ;
+        ErrorMsg(csMissingargument) ;
     end
-    else if arguments.count > 1
+    else if aoArguments.count > 1
     then begin
-        ErrorMsg(sTooArguments) ;
+        ErrorMsg(csTooArguments) ;
     end ;
 end ;
 
-procedure sinCommande(arguments : TStringList) ;
+procedure sinCommande(aoArguments : TStringList) ;
 begin
-    if arguments.count = 1
+    if aoArguments.count = 1
     then begin
-        if isFloat(arguments[0])
+        if isFloat(aoArguments[0])
         then begin
-            ResultFunction := MyFloatToStr(sin(MyStrToFloat(arguments[0]))) ;
+            gsResultFunction := MyFloatToStr(sin(MyStrToFloat(aoArguments[0]))) ;
         end
         else begin
-            ErrorMsg(sNotAFloatValue) ;
+            ErrorMsg(csNotAFloatValue) ;
         end ;
     end
-    else if arguments.count < 1
+    else if aoArguments.count < 1
     then begin
-        ErrorMsg(sMissingargument) ;
+        ErrorMsg(csMissingargument) ;
     end
-    else if arguments.count > 1
+    else if aoArguments.count > 1
     then begin
-        ErrorMsg(sTooArguments) ;
+        ErrorMsg(csTooArguments) ;
     end ;
 end ;
 
-procedure asinCommande(arguments : TStringList) ;
+procedure asinCommande(aoArguments : TStringList) ;
 begin
-    if arguments.count = 1
+    if aoArguments.count = 1
     then begin
-        if isFloat(arguments[0])
+        if isFloat(aoArguments[0])
         then begin
-            ResultFunction := MyFloatToStr(Arcsin(MyStrToFloat(arguments[0]))) ;
+            gsResultFunction := MyFloatToStr(Arcsin(MyStrToFloat(aoArguments[0]))) ;
         end
         else begin
-            ErrorMsg(sNotAFloatValue) ;
+            ErrorMsg(csNotAFloatValue) ;
         end ;
     end
-    else if arguments.count < 1
+    else if aoArguments.count < 1
     then begin
-        ErrorMsg(sMissingargument) ;
+        ErrorMsg(csMissingargument) ;
     end
-    else if arguments.count > 1
+    else if aoArguments.count > 1
     then begin
-        ErrorMsg(sTooArguments) ;
+        ErrorMsg(csTooArguments) ;
     end ;
 end ;
 
-procedure asinhCommande(arguments : TStringList) ;
+procedure asinhCommande(aoArguments : TStringList) ;
 begin
-    if arguments.count = 1
+    if aoArguments.count = 1
     then begin
-        if isFloat(arguments[0])
+        if isFloat(aoArguments[0])
         then begin
-            ResultFunction := MyFloatToStr(Arcsinh(MyStrToFloat(arguments[0]))) ;
+            gsResultFunction := MyFloatToStr(Arcsinh(MyStrToFloat(aoArguments[0]))) ;
         end
         else begin
-            ErrorMsg(sNotAFloatValue) ;
+            ErrorMsg(csNotAFloatValue) ;
         end ;
     end
-    else if arguments.count < 1
+    else if aoArguments.count < 1
     then begin
-        ErrorMsg(sMissingargument) ;
+        ErrorMsg(csMissingargument) ;
     end
-    else if arguments.count > 1
+    else if aoArguments.count > 1
     then begin
-        ErrorMsg(sTooArguments) ;
+        ErrorMsg(csTooArguments) ;
     end ;
 end ;
 
-procedure tanCommande(arguments : TStringList) ;
+procedure tanCommande(aoArguments : TStringList) ;
 begin
-    if arguments.count = 1
+    if aoArguments.count = 1
     then begin
-        if isFloat(arguments[0])
+        if isFloat(aoArguments[0])
         then begin
-            ResultFunction := MyFloatToStr(tan(MyStrToFloat(arguments[0]))) ;
+            gsResultFunction := MyFloatToStr(tan(MyStrToFloat(aoArguments[0]))) ;
         end
         else begin
-            ErrorMsg(sNotAFloatValue) ;
+            ErrorMsg(csNotAFloatValue) ;
         end ;
     end
-    else if arguments.count < 1
+    else if aoArguments.count < 1
     then begin
-        ErrorMsg(sMissingargument) ;
+        ErrorMsg(csMissingargument) ;
     end
-    else if arguments.count > 1
+    else if aoArguments.count > 1
     then begin
-        ErrorMsg(sTooArguments) ;
+        ErrorMsg(csTooArguments) ;
     end ;
 end ;
 
-procedure atanCommande(arguments : TStringList) ;
+procedure atanCommande(aoArguments : TStringList) ;
 begin
-    if arguments.count = 1
+    if aoArguments.count = 1
     then begin
-        if isFloat(arguments[0])
+        if isFloat(aoArguments[0])
         then begin
-            ResultFunction := MyFloatToStr(Arctan(MyStrToFloat(arguments[0]))) ;
+            gsResultFunction := MyFloatToStr(Arctan(MyStrToFloat(aoArguments[0]))) ;
         end
         else begin
-            ErrorMsg(sNotAFloatValue) ;
+            ErrorMsg(csNotAFloatValue) ;
         end ;
     end
-    else if arguments.count < 1
+    else if aoArguments.count < 1
     then begin
-        ErrorMsg(sMissingargument) ;
+        ErrorMsg(csMissingargument) ;
     end
-    else if arguments.count > 1
+    else if aoArguments.count > 1
     then begin
-        ErrorMsg(sTooArguments) ;
+        ErrorMsg(csTooArguments) ;
     end ;
 end ;
 
-procedure atanhCommande(arguments : TStringList) ;
+procedure atanhCommande(aoArguments : TStringList) ;
 begin
-    if arguments.count = 1
+    if aoArguments.count = 1
     then begin
-        if isFloat(arguments[0])
+        if isFloat(aoArguments[0])
         then begin
-            ResultFunction := MyFloatToStr(Arctanh(MyStrToFloat(arguments[0]))) ;
+            gsResultFunction := MyFloatToStr(Arctanh(MyStrToFloat(aoArguments[0]))) ;
         end
         else begin
-            ErrorMsg(sNotAFloatValue) ;
+            ErrorMsg(csNotAFloatValue) ;
         end ;
     end
-    else if arguments.count < 1
+    else if aoArguments.count < 1
     then begin
-        ErrorMsg(sMissingargument) ;
+        ErrorMsg(csMissingargument) ;
     end
-    else if arguments.count > 1
+    else if aoArguments.count > 1
     then begin
-        ErrorMsg(sTooArguments) ;
+        ErrorMsg(csTooArguments) ;
     end ;
 end ;
 
-procedure atan2Commande(arguments : TStringList) ;
+procedure atan2Commande(aoArguments : TStringList) ;
 begin
-    if arguments.count = 2
+    if aoArguments.count = 2
     then begin
-        if isFloat(arguments[0]) and isFloat(arguments[1])
+        if isFloat(aoArguments[0]) and isFloat(aoArguments[1])
         then begin
-            ResultFunction := MyFloatToStr(Arctan2(MyStrToFloat(arguments[0]), MyStrToFloat(arguments[1]))) ;
+            gsResultFunction := MyFloatToStr(Arctan2(MyStrToFloat(aoArguments[0]), MyStrToFloat(aoArguments[1]))) ;
         end
         else begin
-            ErrorMsg(sNotAFloatValue) ;
+            ErrorMsg(csNotAFloatValue) ;
         end ;
     end
-    else if arguments.count < 2
+    else if aoArguments.count < 2
     then begin
-        ErrorMsg(sMissingargument) ;
+        ErrorMsg(csMissingargument) ;
     end
-    else if arguments.count > 2
+    else if aoArguments.count > 2
     then begin
-        ErrorMsg(sTooArguments) ;
+        ErrorMsg(csTooArguments) ;
     end ;
 end ;
 
-procedure absCommande(arguments : TStringList) ;
+procedure absCommande(aoArguments : TStringList) ;
 begin
-    if arguments.count = 1
+    if aoArguments.count = 1
     then begin
-        if isFloat(arguments[0])
+        if isFloat(aoArguments[0])
         then begin
-            ResultFunction := MyFloatToStr(abs(MyStrToFloat(arguments[0]))) ;
+            gsResultFunction := MyFloatToStr(abs(MyStrToFloat(aoArguments[0]))) ;
         end
         else begin
-            ErrorMsg(sNotAFloatValue) ;
+            ErrorMsg(csNotAFloatValue) ;
         end ;
     end
-    else if arguments.count < 1
+    else if aoArguments.count < 1
     then begin
-        ErrorMsg(sMissingargument) ;
+        ErrorMsg(csMissingargument) ;
     end
-    else if arguments.count > 1
+    else if aoArguments.count > 1
     then begin
-        ErrorMsg(sTooArguments) ;
+        ErrorMsg(csTooArguments) ;
     end ;
 end ;
 
-procedure fracCommande(arguments : TStringList) ;
+procedure fracCommande(aoArguments : TStringList) ;
 begin
-    if arguments.count = 1
+    if aoArguments.count = 1
     then begin
-        if isFloat(arguments[0])
+        if isFloat(aoArguments[0])
         then begin
-            ResultFunction := MyFloatToStr(frac(MyStrToFloat(arguments[0]))) ;
+            gsResultFunction := MyFloatToStr(frac(MyStrToFloat(aoArguments[0]))) ;
         end
         else begin
-            ErrorMsg(sNotAFloatValue) ;
+            ErrorMsg(csNotAFloatValue) ;
         end ;
     end
-    else if arguments.count < 1
+    else if aoArguments.count < 1
     then begin
-        ErrorMsg(sMissingargument) ;
+        ErrorMsg(csMissingargument) ;
     end
-    else if arguments.count > 1
+    else if aoArguments.count > 1
     then begin
-        ErrorMsg(sTooArguments) ;
+        ErrorMsg(csTooArguments) ;
     end ;
 end ;
 
-procedure cotCommande(arguments : TStringList) ;
+procedure cotCommande(aoArguments : TStringList) ;
 begin
-    if arguments.count = 1
+    if aoArguments.count = 1
     then begin
-        if isFloat(arguments[0])
+        if isFloat(aoArguments[0])
         then begin
-            ResultFunction := MyFloatToStr(cot(MyStrToFloat(arguments[0]))) ;
+            gsResultFunction := MyFloatToStr(cot(MyStrToFloat(aoArguments[0]))) ;
         end
         else begin
-            ErrorMsg(sNotAFloatValue) ;
+            ErrorMsg(csNotAFloatValue) ;
         end ;
     end
-    else if arguments.count < 1
+    else if aoArguments.count < 1
     then begin
-        ErrorMsg(sMissingargument) ;
+        ErrorMsg(csMissingargument) ;
     end
-    else if arguments.count > 1
+    else if aoArguments.count > 1
     then begin
-        ErrorMsg(sTooArguments) ;
+        ErrorMsg(csTooArguments) ;
     end ;
 end ;
 
-procedure acotCommande(arguments : TStringList) ;
+procedure acotCommande(aoArguments : TStringList) ;
 begin
-    if arguments.count = 1
+    if aoArguments.count = 1
     then begin
-        if isFloat(arguments[0])
+        if isFloat(aoArguments[0])
         then begin
-            ResultFunction := MyFloatToStr(Tan(1 / MyStrToFloat(arguments[0]))) ;
+            gsResultFunction := MyFloatToStr(Tan(1 / MyStrToFloat(aoArguments[0]))) ;
         end
         else begin
-            ErrorMsg(sNotAFloatValue) ;
+            ErrorMsg(csNotAFloatValue) ;
         end ;
     end
-    else if arguments.count < 1
+    else if aoArguments.count < 1
     then begin
-        ErrorMsg(sMissingargument) ;
+        ErrorMsg(csMissingargument) ;
     end
-    else if arguments.count > 1
+    else if aoArguments.count > 1
     then begin
-        ErrorMsg(sTooArguments) ;
+        ErrorMsg(csTooArguments) ;
     end ;
 end ;
 
-procedure intCommande(arguments : TStringList) ;
+procedure intCommande(aoArguments : TStringList) ;
 begin
-    if arguments.count = 1
+    if aoArguments.count = 1
     then begin
-        if isFloat(arguments[0])
+        if isFloat(aoArguments[0])
         then begin
-            ResultFunction := MyFloatToStr(int(MyStrToFloat(arguments[0]))) ;
+            gsResultFunction := MyFloatToStr(int(MyStrToFloat(aoArguments[0]))) ;
         end
         else begin
-            ErrorMsg(sNotAFloatValue) ;
+            ErrorMsg(csNotAFloatValue) ;
         end ;
     end
-    else if arguments.count < 1
+    else if aoArguments.count < 1
     then begin
-        ErrorMsg(sMissingargument) ;
+        ErrorMsg(csMissingargument) ;
     end
-    else if arguments.count > 1
+    else if aoArguments.count > 1
     then begin
-        ErrorMsg(sTooArguments) ;
+        ErrorMsg(csTooArguments) ;
     end ;
 end ;
 
-procedure roundCommande(arguments : TStringList) ;
+procedure roundCommande(aoArguments : TStringList) ;
 begin
-    if arguments.count = 1
+    if aoArguments.count = 1
     then begin
-        if isFloat(arguments[0])
+        if isFloat(aoArguments[0])
         then begin
-            ResultFunction := MyFloatToStr(round(MyStrToFloat(arguments[0]))) ;
+            gsResultFunction := MyFloatToStr(round(MyStrToFloat(aoArguments[0]))) ;
         end
         else begin
-            ErrorMsg(sNotAFloatValue) ;
+            ErrorMsg(csNotAFloatValue) ;
         end ;
     end
-    else if arguments.count < 1
+    else if aoArguments.count < 1
     then begin
-        ErrorMsg(sMissingargument) ;
+        ErrorMsg(csMissingargument) ;
     end
-    else if arguments.count > 1
+    else if aoArguments.count > 1
     then begin
-        ErrorMsg(sTooArguments) ;
+        ErrorMsg(csTooArguments) ;
     end ;
 end ;
 
-procedure sqrtCommande(arguments : TStringList) ;
+procedure sqrtCommande(aoArguments : TStringList) ;
 begin
-    if arguments.count = 1
+    if aoArguments.count = 1
     then begin
-        if isFloat(arguments[0])
+        if isFloat(aoArguments[0])
         then begin
-            ResultFunction := MyFloatToStr(sqrt(MyStrToFloat(arguments[0]))) ;
+            gsResultFunction := MyFloatToStr(sqrt(MyStrToFloat(aoArguments[0]))) ;
         end
         else begin
-            ErrorMsg(sNotAFloatValue) ;
+            ErrorMsg(csNotAFloatValue) ;
         end ;
     end
-    else if arguments.count < 1
+    else if aoArguments.count < 1
     then begin
-        ErrorMsg(sMissingargument) ;
+        ErrorMsg(csMissingargument) ;
     end
-    else if arguments.count > 1
+    else if aoArguments.count > 1
     then begin
-        ErrorMsg(sTooArguments) ;
+        ErrorMsg(csTooArguments) ;
     end ;
 end ;
 
-procedure sqrCommande(arguments : TStringList) ;
+procedure sqrCommande(aoArguments : TStringList) ;
 begin
-    if arguments.count = 1
+    if aoArguments.count = 1
     then begin
-        if isFloat(arguments[0])
+        if isFloat(aoArguments[0])
         then begin
-            ResultFunction := MyFloatToStr(sqr(MyStrToFloat(arguments[0]))) ;
+            gsResultFunction := MyFloatToStr(sqr(MyStrToFloat(aoArguments[0]))) ;
         end
         else begin
-            ErrorMsg(sNotAFloatValue) ;
+            ErrorMsg(csNotAFloatValue) ;
         end ;
     end
-    else if arguments.count < 1
+    else if aoArguments.count < 1
     then begin
-        ErrorMsg(sMissingargument) ;
+        ErrorMsg(csMissingargument) ;
     end
-    else if arguments.count > 1
+    else if aoArguments.count > 1
     then begin
-        ErrorMsg(sTooArguments) ;
+        ErrorMsg(csTooArguments) ;
     end ;
 end ;
 
-procedure truncCommande(arguments : TStringList) ;
+procedure truncCommande(aoArguments : TStringList) ;
 begin
-    if arguments.count = 1
+    if aoArguments.count = 1
     then begin
-        if isFloat(arguments[0])
+        if isFloat(aoArguments[0])
         then begin
-            ResultFunction := MyFloatToStr(trunc(MyStrToFloat(arguments[0]))) ;
+            gsResultFunction := MyFloatToStr(trunc(MyStrToFloat(aoArguments[0]))) ;
         end
         else begin
-            ErrorMsg(sNotAFloatValue) ;
+            ErrorMsg(csNotAFloatValue) ;
         end ;
     end
-    else if arguments.count < 1
+    else if aoArguments.count < 1
     then begin
-        ErrorMsg(sMissingargument) ;
+        ErrorMsg(csMissingargument) ;
     end
-    else if arguments.count > 1
+    else if aoArguments.count > 1
     then begin
-        ErrorMsg(sTooArguments) ;
+        ErrorMsg(csTooArguments) ;
     end ;
 end ;
 
-procedure randCommande(arguments : TStringList) ;
+procedure randCommande(aoArguments : TStringList) ;
 var aMax, aMin : Integer ;
 begin
-    if (arguments.count = 1) or (arguments.count = 2)
+    if (aoArguments.count = 1) or (aoArguments.count = 2)
     then begin
-        if isInteger(arguments[0])
+        if isInteger(aoArguments[0])
         then begin
             Randomize ;
 
-            if (arguments.count = 1)
+            if (aoArguments.count = 1)
             then begin
-                ResultFunction := MyFloatToStr(Random(MyStrToInt(arguments[0]))) ;
+                gsResultFunction := MyFloatToStr(Random(MyStrToInt(aoArguments[0]))) ;
             end
             else begin
-                if isInteger(arguments[1])
+                if isInteger(aoArguments[1])
                 then begin
-                    aMin := MyStrToInt(arguments[0]) ;
-                    aMax := MyStrToInt(arguments[1]) ;
-                    ResultFunction := MyFloatToStr(Random(aMax-aMin) + aMin) ;
+                    aMin := MyStrToInt(aoArguments[0]) ;
+                    aMax := MyStrToInt(aoArguments[1]) ;
+                    gsResultFunction := MyFloatToStr(Random(aMax-aMin) + aMin) ;
                 end
                 else
-                    ErrorMsg(sMustBeInteger) ;
+                    ErrorMsg(csMustBeInteger) ;
             end ;
         end
-        else
-            ErrorMsg(sMustBeInteger) ;
-    end
-    else if arguments.count < 1
-    then begin
-        ErrorMsg(sMissingargument) ;
-    end
-    else if arguments.count > 2
-    then begin
-        ErrorMsg(sTooArguments) ;
-    end ;
-end ;
-
-procedure ceilCommande(arguments : TStringList) ;
-begin
-    if arguments.count = 1
-    then begin
-        if isFloat(arguments[0])
-        then begin
-            ResultFunction := MyFloatToStr(ceil(MyStrToFloat(arguments[0]))) ;
-        end
         else begin
-            ErrorMsg(sNotAFloatValue) ;
+            ErrorMsg(csMustBeInteger) ;
         end ;
     end
-    else if arguments.count < 1
+    else if aoArguments.count < 1
     then begin
-        ErrorMsg(sMissingargument) ;
+        ErrorMsg(csMissingargument) ;
     end
-    else if arguments.count > 1
+    else if aoArguments.count > 2
     then begin
-        ErrorMsg(sTooArguments) ;
+        ErrorMsg(csTooArguments) ;
     end ;
 end ;
 
-procedure EnsureRangeCommande(arguments : TStringList) ;
+procedure ceilCommande(aoArguments : TStringList) ;
 begin
-    if arguments.count = 3
+    if aoArguments.count = 1
     then begin
-        if isFloat(arguments[0]) and isFloat(arguments[1]) and isFloat(arguments[2])
+        if isFloat(aoArguments[0])
         then begin
-            ResultFunction := MyFloatToStr(EnsureRange(MyStrToFloat(arguments[0]), MyStrToFloat(arguments[1]), MyStrToFloat(arguments[2]))) ;
+            gsResultFunction := MyFloatToStr(ceil(MyStrToFloat(aoArguments[0]))) ;
         end
         else begin
-            ErrorMsg(sNotAFloatValue) ;
+            ErrorMsg(csNotAFloatValue) ;
         end ;
     end
-    else if arguments.count < 3
+    else if aoArguments.count < 1
     then begin
-        ErrorMsg(sMissingargument) ;
+        ErrorMsg(csMissingargument) ;
     end
-    else if arguments.count > 3
+    else if aoArguments.count > 1
     then begin
-        ErrorMsg(sTooArguments) ;
+        ErrorMsg(csTooArguments) ;
     end ;
 end ;
 
-procedure floorCommande(arguments : TStringList) ;
+procedure EnsureRangeCommande(aoArguments : TStringList) ;
 begin
-    if arguments.count = 1
+    if aoArguments.count = 3
     then begin
-        if isFloat(arguments[0])
+        if isFloat(aoArguments[0]) and isFloat(aoArguments[1]) and isFloat(aoArguments[2])
         then begin
-            ResultFunction := MyFloatToStr(floor(MyStrToFloat(arguments[0]))) ;
+            gsResultFunction := MyFloatToStr(EnsureRange(MyStrToFloat(aoArguments[0]), MyStrToFloat(aoArguments[1]), MyStrToFloat(aoArguments[2]))) ;
         end
         else begin
-            ErrorMsg(sNotAFloatValue) ;
+            ErrorMsg(csNotAFloatValue) ;
         end ;
     end
-    else if arguments.count < 1
+    else if aoArguments.count < 3
     then begin
-        ErrorMsg(sMissingargument) ;
+        ErrorMsg(csMissingargument) ;
     end
-    else if arguments.count > 1
+    else if aoArguments.count > 3
     then begin
-        ErrorMsg(sTooArguments) ;
+        ErrorMsg(csTooArguments) ;
     end ;
 end ;
 
-procedure FrexpCommande(arguments : TStringList) ;
+procedure floorCommande(aoArguments : TStringList) ;
+begin
+    if aoArguments.count = 1
+    then begin
+        if isFloat(aoArguments[0])
+        then begin
+            gsResultFunction := MyFloatToStr(floor(MyStrToFloat(aoArguments[0]))) ;
+        end
+        else begin
+            ErrorMsg(csNotAFloatValue) ;
+        end ;
+    end
+    else if aoArguments.count < 1
+    then begin
+        ErrorMsg(csMissingargument) ;
+    end
+    else if aoArguments.count > 1
+    then begin
+        ErrorMsg(csTooArguments) ;
+    end ;
+end ;
+
+procedure FrexpCommande(aoArguments : TStringList) ;
 var Mantissa : Extended ;
     Exponent : Integer ;
 begin
-    if arguments.count = 3
+    if aoArguments.count = 3
     then begin
-        if isFloat(arguments[0])
+        if isFloat(aoArguments[0])
         then begin
-            if isVar(arguments[1])
+            if isVar(aoArguments[1])
             then begin
-                if isVar(arguments[2])
+                if isVar(aoArguments[2])
                 then begin
                     { Supprime les warning pour Lazarus }
                     Mantissa := 0 ;
                     Exponent := 0 ;
-                    Frexp(MyStrToFloat(arguments[0]), Mantissa, Exponent) ;
+                    Frexp(MyStrToFloat(aoArguments[0]), Mantissa, Exponent) ;
 
-                    SetVar(arguments[1], MyFloatToStr(Mantissa)) ;
-                    SetVar(arguments[2], IntToStr(Exponent)) ;                    
+                    SetVar(aoArguments[1], MyFloatToStr(Mantissa)) ;
+                    SetVar(aoArguments[2], IntToStr(Exponent)) ;
                 end
                 else begin
-                    ErrorMsg(Format(sNotAVariable, [arguments[1]])) ;
+                    ErrorMsg(Format(csNotAVariable, [aoArguments[1]])) ;
                 end ;
             end
             else begin
-                ErrorMsg(Format(sNotAVariable, [arguments[0]])) ;
+                ErrorMsg(Format(csNotAVariable, [aoArguments[0]])) ;
             end ;
         end
         else begin
-            ErrorMsg(sNotAFloatValue) ;
+            ErrorMsg(csNotAFloatValue) ;
         end ;
     end
-    else if arguments.count < 3
+    else if aoArguments.count < 3
     then begin
-        ErrorMsg(sMissingargument) ;
+        ErrorMsg(csMissingargument) ;
     end
-    else if arguments.count > 3
+    else if aoArguments.count > 3
     then begin
-        ErrorMsg(sTooArguments) ;
+        ErrorMsg(csTooArguments) ;
     end ;
 end ;
 
-procedure InRangeCommande(arguments : TStringList) ;
+procedure InRangeCommande(aoArguments : TStringList) ;
 begin
-    if arguments.count = 3
+    if aoArguments.count = 3
     then begin
-        if isFloat(arguments[0]) and isFloat(arguments[1]) and isFloat(arguments[2])
+        if isFloat(aoArguments[0]) and isFloat(aoArguments[1]) and isFloat(aoArguments[2])
         then begin
-            if InRange(MyStrToFloat(arguments[0]), MyStrToFloat(arguments[1]), MyStrToFloat(arguments[2]))
+            if InRange(MyStrToFloat(aoArguments[0]), MyStrToFloat(aoArguments[1]), MyStrToFloat(aoArguments[2]))
+            then begin
+                gsResultFunction := csTrueValue ;
+            end
+            else begin
+                gsResultFunction := csFalseValue ;
+            end ;
+        end
+        else begin
+            ErrorMsg(csNotAFloatValue) ;
+        end ;
+    end
+    else if aoArguments.count < 3
+    then begin
+        ErrorMsg(csMissingargument) ;
+    end
+    else if aoArguments.count > 3
+    then begin
+        ErrorMsg(csTooArguments) ;
+    end ;
+end ;
+
+procedure LdExpCommande(aoArguments : TStringList) ;
+begin
+    if aoArguments.count = 3
+    then begin
+        if isFloat(aoArguments[0])
+        then begin
+            if isFloat(aoArguments[1])
             then
-                ResultFunction := trueValue
+                gsResultFunction := MyFloatToStr(LdExp(MyStrToFloat(aoArguments[0]), MyStrToInt(aoArguments[1])))
             else
-                ResultFunction := falseValue ; 
+                ErrorMsg(csMustBeInteger) ;
         end
         else begin
-            ErrorMsg(sNotAFloatValue) ;
+            ErrorMsg(csNotAFloatValue) ;
         end ;
     end
-    else if arguments.count < 3
+    else if aoArguments.count < 3
     then begin
-        ErrorMsg(sMissingargument) ;
+        ErrorMsg(csMissingargument) ;
     end
-    else if arguments.count > 3
+    else if aoArguments.count > 3
     then begin
-        ErrorMsg(sTooArguments) ;
+        ErrorMsg(csTooArguments) ;
     end ;
 end ;
 
-procedure LdExpCommande(arguments : TStringList) ;
+procedure LnXP1Commande(aoArguments : TStringList) ;
 begin
-    if arguments.count = 3
+    if aoArguments.count = 1
     then begin
-        if isFloat(arguments[0])
+        if isFloat(aoArguments[0])
         then begin
-            if isFloat(arguments[1])
-            then
-                ResultFunction := MyFloatToStr(LdExp(MyStrToFloat(arguments[0]), MyStrToInt(arguments[1])))
-            else
-                ErrorMsg(sMustBeInteger) ;
+            gsResultFunction := MyFloatToStr(LnXP1(MyStrToFloat(aoArguments[0]))) ;
         end
         else begin
-            ErrorMsg(sNotAFloatValue) ;
+            ErrorMsg(csNotAFloatValue) ;
         end ;
     end
-    else if arguments.count < 3
+    else if aoArguments.count < 1
     then begin
-        ErrorMsg(sMissingargument) ;
+        ErrorMsg(csMissingargument) ;
     end
-    else if arguments.count > 3
+    else if aoArguments.count > 1
     then begin
-        ErrorMsg(sTooArguments) ;
+        ErrorMsg(csTooArguments) ;
     end ;
 end ;
 
-procedure LnXP1Commande(arguments : TStringList) ;
+procedure Log10Commande(aoArguments : TStringList) ;
 begin
-    if arguments.count = 1
+    if aoArguments.count = 1
     then begin
-        if isFloat(arguments[0])
+        if isFloat(aoArguments[0])
         then begin
-            ResultFunction := MyFloatToStr(LnXP1(MyStrToFloat(arguments[0]))) ;
+            gsResultFunction := MyFloatToStr(Log10(MyStrToFloat(aoArguments[0]))) ;
         end
         else begin
-            ErrorMsg(sNotAFloatValue) ;
+            ErrorMsg(csNotAFloatValue) ;
         end ;
     end
-    else if arguments.count < 1
+    else if aoArguments.count < 1
     then begin
-        ErrorMsg(sMissingargument) ;
+        ErrorMsg(csMissingargument) ;
     end
-    else if arguments.count > 1
+    else if aoArguments.count > 1
     then begin
-        ErrorMsg(sTooArguments) ;
+        ErrorMsg(csTooArguments) ;
     end ;
 end ;
 
-procedure Log10Commande(arguments : TStringList) ;
+procedure Log2Commande(aoArguments : TStringList) ;
 begin
-    if arguments.count = 1
+    if aoArguments.count = 1
     then begin
-        if isFloat(arguments[0])
+        if isFloat(aoArguments[0])
         then begin
-            ResultFunction := MyFloatToStr(Log10(MyStrToFloat(arguments[0]))) ;
+            gsResultFunction := MyFloatToStr(Log2(MyStrToFloat(aoArguments[0]))) ;
         end
         else begin
-            ErrorMsg(sNotAFloatValue) ;
+            ErrorMsg(csNotAFloatValue) ;
         end ;
     end
-    else if arguments.count < 1
+    else if aoArguments.count < 1
     then begin
-        ErrorMsg(sMissingargument) ;
+        ErrorMsg(csMissingargument) ;
     end
-    else if arguments.count > 1
+    else if aoArguments.count > 1
     then begin
-        ErrorMsg(sTooArguments) ;
+        ErrorMsg(csTooArguments) ;
     end ;
 end ;
 
-procedure Log2Commande(arguments : TStringList) ;
+procedure LogNCommande(aoArguments : TStringList) ;
 begin
-    if arguments.count = 1
+    if aoArguments.count = 2
     then begin
-        if isFloat(arguments[0])
+        if isFloat(aoArguments[0]) and isFloat(aoArguments[1])
         then begin
-            ResultFunction := MyFloatToStr(Log2(MyStrToFloat(arguments[0]))) ;
+            gsResultFunction := MyFloatToStr(LogN(MyStrToFloat(aoArguments[0]), MyStrToFloat(aoArguments[1]))) ;
         end
         else begin
-            ErrorMsg(sNotAFloatValue) ;
+            ErrorMsg(csNotAFloatValue) ;
         end ;
     end
-    else if arguments.count < 1
+    else if aoArguments.count < 2
     then begin
-        ErrorMsg(sMissingargument) ;
+        ErrorMsg(csMissingargument) ;
     end
-    else if arguments.count > 1
+    else if aoArguments.count > 2
     then begin
-        ErrorMsg(sTooArguments) ;
+        ErrorMsg(csTooArguments) ;
     end ;
 end ;
 
-procedure LogNCommande(arguments : TStringList) ;
-begin
-    if arguments.count = 2
-    then begin
-        if isFloat(arguments[0]) and isFloat(arguments[1])
-        then begin
-            ResultFunction := MyFloatToStr(LogN(MyStrToFloat(arguments[0]), MyStrToFloat(arguments[1]))) ;
-        end
-        else begin
-            ErrorMsg(sNotAFloatValue) ;
-        end ;
-    end
-    else if arguments.count < 2
-    then begin
-        ErrorMsg(sMissingargument) ;
-    end
-    else if arguments.count > 2
-    then begin
-        ErrorMsg(sTooArguments) ;
-    end ;
-end ;
-
-procedure PolyCommande(arguments : TStringList) ;
+procedure PolyCommande(aoArguments : TStringList) ;
 var  Resultat : Extended ;
      i : Integer ;
      Liste : TStringList ;
      X : Extended ;
 begin
-    if arguments.count = 2
+    if aoArguments.count = 2
     then begin
-        if isFloat(arguments[0]) and Variables.InternalisArray(arguments[1])
+        if isFloat(aoArguments[0]) and goVariables.InternalisArray(aoArguments[1])
         then begin
             Liste := TStringList.Create ;
 
-            Variables.explode(Liste, arguments[1]) ;
+            goVariables.explode(Liste, aoArguments[1]) ;
 
-            if not GlobalError
+            if not gbError
             then begin
-                X := MyStrToFloat(arguments[0]) ;
+                X := MyStrToFloat(aoArguments[0]) ;
 
                 Resultat := 0 ;
 
@@ -1136,135 +1152,138 @@ begin
                 begin
                     Resultat := Resultat + MyStrToFloat(Liste[i]) * Power(X, i) ;
 
-                    if GlobalError
-                    then
+                    if gbError
+                    then begin
                         break ;
+                    end ;
                 end ;
 
-                ResultFunction := MyFloatToStr(Resultat) ;
+                gsResultFunction := MyFloatToStr(Resultat) ;
 
             end ;
 
             Liste.Free ;
         end
         else begin
-            ErrorMsg(sNotAFloatValue) ;
+            ErrorMsg(csNotAFloatValue) ;
         end ;
     end
-    else if arguments.count < 2
+    else if aoArguments.count < 2
     then begin
-        ErrorMsg(sMissingargument) ;
+        ErrorMsg(csMissingargument) ;
     end
-    else if arguments.count > 2
+    else if aoArguments.count > 2
     then begin
-        ErrorMsg(sTooArguments) ;
+        ErrorMsg(csTooArguments) ;
     end ;
 end ;
 
-procedure SameValueCommande(arguments : TStringList) ;
+procedure SameValueCommande(aoArguments : TStringList) ;
 begin
-    if arguments.count = 3
+    if aoArguments.count = 3
     then begin
-        if isFloat(arguments[0]) and isFloat(arguments[1]) and isFloat(arguments[2])
+        if isFloat(aoArguments[0]) and isFloat(aoArguments[1]) and isFloat(aoArguments[2])
         then begin
-            if SameValue(MyStrToFloat(arguments[0]), MyStrToFloat(arguments[1]), MyStrToFloat(arguments[2]))
-            then
-                ResultFunction := trueValue
-            else
-                ResultFunction := falseValue ;
-        end
-        else begin
-            ErrorMsg(sNotAFloatValue) ;
-        end ;
-    end
-    else if arguments.count < 3
-    then begin
-        ErrorMsg(sMissingargument) ;
-    end
-    else if arguments.count > 3
-    then begin
-        ErrorMsg(sTooArguments) ;
-    end ;
-end ;
-
-procedure RoundToCommande(arguments : TStringList) ;
-var F : Extended ;
-begin
-    if arguments.count = 2
-    then begin
-        if isFloat(arguments[0])
-        then begin
-            if isInteger(arguments[1])
+            if SameValue(MyStrToFloat(aoArguments[0]), MyStrToFloat(aoArguments[1]), MyStrToFloat(aoArguments[2]))
             then begin
-                F := IntPower(10, MyStrToInt(arguments[1])) ;
-                ResultFunction := MyFloatToStr(Round(MyStrToFloat(arguments[0]) /F) * F) ;
+                gsResultFunction := csTrueValue ;
             end
             else begin
-                ErrorMsg(sMustBeInteger) ;
+                gsResultFunction := csFalseValue ;
+        end ;
+        end
+        else begin
+            ErrorMsg(csNotAFloatValue) ;
+        end ;
+    end
+    else if aoArguments.count < 3
+    then begin
+        ErrorMsg(csMissingargument) ;
+    end
+    else if aoArguments.count > 3
+    then begin
+        ErrorMsg(csTooArguments) ;
+    end ;
+end ;
+
+procedure RoundToCommande(aoArguments : TStringList) ;
+var F : Extended ;
+begin
+    if aoArguments.count = 2
+    then begin
+        if isFloat(aoArguments[0])
+        then begin
+            if isInteger(aoArguments[1])
+            then begin
+                F := IntPower(10, MyStrToInt(aoArguments[1])) ;
+                gsResultFunction := MyFloatToStr(Round(MyStrToFloat(aoArguments[0]) /F) * F) ;
+            end
+            else begin
+                ErrorMsg(csMustBeInteger) ;
             end ;
         end
         else begin
-            ErrorMsg(sNotAFloatValue) ;
+            ErrorMsg(csNotAFloatValue) ;
         end ;
     end
-    else if arguments.count < 3
+    else if aoArguments.count < 3
     then begin
-        ErrorMsg(sMissingargument) ;
+        ErrorMsg(csMissingargument) ;
     end
-    else if arguments.count > 3
+    else if aoArguments.count > 3
     then begin
-        ErrorMsg(sTooArguments) ;
+        ErrorMsg(csTooArguments) ;
     end ;
 end ;
 
 procedure MathFunctionsInit ;
 begin
-    ListFunction.Add('extractintpart', @ExtractIntPartCommande, true) ;
-    ListFunction.Add('extractfloatpart', @ExtractFloatPartCommande, true) ;
-    ListFunction.Add('dectohex', @DecToHexCommande, true) ;
-    ListFunction.Add('dectooct', @DecToOctCommande, true) ;
-    ListFunction.Add('dectobin', @DecToBinCommande, true) ;
-    ListFunction.Add('pi', @PiCommande, true) ;
-    ListFunction.Add('uniqid', @uniqIdCommande, true) ;
-    ListFunction.Add('max', @MaxCommande, true) ;
-    ListFunction.Add('min', @MinCommande, true) ;
-    ListFunction.Add('bintodec', @BinToDecCommande, true) ;
-    ListFunction.Add('exp', @ExpCommande, true) ;
-    ListFunction.Add('ln', @LnCommande, true) ;
-    ListFunction.Add('odd', @oddCommande, true) ;
-    ListFunction.Add('cos', @cosCommande, true) ;
-    ListFunction.Add('acos', @acosCommande, true) ;
-    ListFunction.Add('acosh', @acoshCommande, true) ;
-    ListFunction.Add('sin', @sinCommande, true) ;
-    ListFunction.Add('asin', @asinCommande, true) ;
-    ListFunction.Add('asinh', @asinhCommande, true) ;
-    ListFunction.Add('tan', @tanCommande, true) ;
-    ListFunction.Add('atan', @atanCommande, true) ;
-    ListFunction.Add('atanh', @atanhCommande, true) ;
-    ListFunction.Add('atan2', @atan2Commande, true) ;
-    ListFunction.Add('abs', @absCommande, true) ;
-    ListFunction.Add('frac', @absCommande, true) ;
-    ListFunction.Add('cot', @cotCommande, true) ;
-    ListFunction.Add('acot', @acotCommande, true) ;
-    ListFunction.Add('int', @intCommande, true) ;
-    ListFunction.Add('round', @roundCommande, true) ;
-    ListFunction.Add('sqrt', @sqrtCommande, true) ;
-    ListFunction.Add('sqr', @sqrCommande, true) ;
-    ListFunction.Add('trunc', @truncCommande, true) ;
-    ListFunction.Add('rand', @randCommande, true) ;
-    ListFunction.Add('ceil', @ceilCommande, true) ;
-    ListFunction.Add('ensurerange', @EnsureRangeCommande, true) ;
-    ListFunction.Add('floor', @FloorCommande, true) ;
-    ListFunction.Add('frexp', @FrexpCommande, false) ;
-    ListFunction.Add('inrange', @InRangeCommande, true) ;
-    ListFunction.Add('ldexp', @LdExpCommande, true) ;
-    ListFunction.Add('lnxp1', @LnXP1Commande, true) ;
-    ListFunction.Add('log10', @Log10Commande, true) ;
-    ListFunction.Add('log2', @Log2Commande, true) ;
-    ListFunction.Add('logn', @LogNCommande, true) ;
-    ListFunction.Add('poly', @PolyCommande, true) ;
-    ListFunction.Add('samevalue', @SameValueCommande, true) ;
-    ListFunction.Add('roundto', @RoundToCommande, true) ;                
+    goInternalFunction.Add('extractintpart', @ExtractIntPartCommande, true) ;
+    goInternalFunction.Add('extractfloatpart', @ExtractFloatPartCommande, true) ;
+    goInternalFunction.Add('dectohex', @DecToHexCommande, true) ;
+    goInternalFunction.Add('dectooct', @DecToOctCommande, true) ;
+    goInternalFunction.Add('dectobin', @DecToBinCommande, true) ;
+    goInternalFunction.Add('pi', @PiCommande, true) ;
+    goInternalFunction.Add('uniqid', @uniqIdCommande, true) ;
+    goInternalFunction.Add('max', @MaxCommande, true) ;
+    goInternalFunction.Add('min', @MinCommande, true) ;
+    goInternalFunction.Add('bintodec', @BinToDecCommande, true) ;
+    goInternalFunction.Add('exp', @ExpCommande, true) ;
+    goInternalFunction.Add('ln', @LnCommande, true) ;
+    goInternalFunction.Add('odd', @oddCommande, true) ;
+    goInternalFunction.Add('cos', @cosCommande, true) ;
+    goInternalFunction.Add('acos', @acosCommande, true) ;
+    goInternalFunction.Add('acosh', @acoshCommande, true) ;
+    goInternalFunction.Add('sin', @sinCommande, true) ;
+    goInternalFunction.Add('asin', @asinCommande, true) ;
+    goInternalFunction.Add('asinh', @asinhCommande, true) ;
+    goInternalFunction.Add('tan', @tanCommande, true) ;
+    goInternalFunction.Add('atan', @atanCommande, true) ;
+    goInternalFunction.Add('atanh', @atanhCommande, true) ;
+    goInternalFunction.Add('atan2', @atan2Commande, true) ;
+    goInternalFunction.Add('abs', @absCommande, true) ;
+    goInternalFunction.Add('frac', @absCommande, true) ;
+    goInternalFunction.Add('cot', @cotCommande, true) ;
+    goInternalFunction.Add('acot', @acotCommande, true) ;
+    goInternalFunction.Add('int', @intCommande, true) ;
+    goInternalFunction.Add('round', @roundCommande, true) ;
+    goInternalFunction.Add('sqrt', @sqrtCommande, true) ;
+    goInternalFunction.Add('sqr', @sqrCommande, true) ;
+    goInternalFunction.Add('trunc', @truncCommande, true) ;
+    goInternalFunction.Add('rand', @randCommande, true) ;
+    goInternalFunction.Add('ceil', @ceilCommande, true) ;
+    goInternalFunction.Add('ensurerange', @EnsureRangeCommande, true) ;
+    goInternalFunction.Add('floor', @FloorCommande, true) ;
+    goInternalFunction.Add('frexp', @FrexpCommande, false) ;
+    goInternalFunction.Add('inrange', @InRangeCommande, true) ;
+    goInternalFunction.Add('ldexp', @LdExpCommande, true) ;
+    goInternalFunction.Add('lnxp1', @LnXP1Commande, true) ;
+    goInternalFunction.Add('log10', @Log10Commande, true) ;
+    goInternalFunction.Add('log2', @Log2Commande, true) ;
+    goInternalFunction.Add('logn', @LogNCommande, true) ;
+    goInternalFunction.Add('poly', @PolyCommande, true) ;
+    goInternalFunction.Add('samevalue', @SameValueCommande, true) ;
+    goInternalFunction.Add('roundto', @RoundToCommande, true) ;
 end ;
 
 end.

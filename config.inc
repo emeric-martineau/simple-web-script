@@ -4,6 +4,3 @@
 {$DEFINE COMMANDLINE}
 
 // Don't modify
-{$IFDEF FPC}
-    {$mode objfpc}{$H+}
-{$ENDIF}

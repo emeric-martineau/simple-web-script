@@ -44,1601 +44,2368 @@ interface
 
 {$I config.inc}
 
+{$IFDEF FPC}
+    {$mode objfpc}{$H+}
+{$ENDIF}
+
 uses classes, Functions, UnitMessages, InternalFunction, Math ;
 
 procedure StrFunctionsInit ;
-procedure echoCommande(arguments : TStringList) ;
-procedure dieCommande(arguments : TStringList) ;
-procedure strTrimCommande(arguments : TStringList) ;
-procedure strTrimLeftCommande(arguments : TStringList) ;
-procedure strTrimRightCommande(arguments : TStringList) ;
-procedure strReplaceCommande(arguments : TStringList) ;
-procedure strDeleteCommande(arguments : TStringList) ;
-procedure strInsertCommande(arguments : TStringList) ;
-procedure strExplodeCommande(arguments : TStringList) ;
-procedure strImplodeCommande(arguments : TStringList) ;
-procedure strLoadFromFileCommande(arguments : TStringList) ;
-procedure strSaveToFileCommande(arguments : TStringList) ;
-procedure strAddSlashesCommande(arguments : TStringList) ;
-procedure strDeleteSlashesCommande(arguments : TStringList) ;
-procedure strPrintRCommande(arguments : TStringList) ;
-procedure strRepeatStringCommande(arguments : TStringList) ;
-procedure strPrintFCommande(arguments : TStringList) ;
-procedure strBase64EncodeCommande(arguments : TStringList) ;
-procedure strSoundExCommande(arguments : TStringList) ;
-procedure strUcFirstCommande(arguments : TStringList) ;
-procedure struppercaseCommande(arguments : TStringList) ;
-procedure strlowercaseCommande(arguments : TStringList) ;
-procedure strUcWordsCommande(arguments : TStringList) ;
-procedure striReplaceCommande(arguments : TStringList) ;
-procedure strReplaceGlobalCommande(arguments : TStringList; SensitiveCase : Boolean) ;
-procedure strposGlobalCommande(arguments : TStringList; CaseSensitive : Boolean; StartEnd : Boolean) ;
-procedure striposCommande(arguments : TStringList) ;
-procedure strrposCommande(arguments : TStringList) ;
-procedure strriposCommande(arguments : TStringList) ;
-procedure strtrCommande(arguments : TStringList) ;
-procedure strrevCommande(arguments : TStringList) ;
-procedure strcspnCommande(arguments : TStringList) ;
-procedure strspnCommande(arguments : TStringList) ;
-procedure strNumberFormatCommande(arguments : TStringList) ;
+procedure echoCommande(aoArguments : TStringList) ;
+procedure dieCommande(aoArguments : TStringList) ;
+procedure strTrimCommande(aoArguments : TStringList) ;
+procedure strTrimLeftCommande(aoArguments : TStringList) ;
+procedure strTrimRightCommande(aoArguments : TStringList) ;
+procedure strReplaceCommande(aoArguments : TStringList) ;
+procedure strDeleteCommande(aoArguments : TStringList) ;
+procedure strInsertCommande(aoArguments : TStringList) ;
+procedure strExplodeCommande(aoArguments : TStringList) ;
+procedure strImplodeCommande(aoArguments : TStringList) ;
+procedure strLoadFromFileCommande(aoArguments : TStringList) ;
+procedure strSaveToFileCommande(aoArguments : TStringList) ;
+procedure strAddSlashesCommande(aoArguments : TStringList) ;
+procedure strDeleteSlashesCommande(aoArguments : TStringList) ;
+procedure strPrintRCommande(aoArguments : TStringList) ;
+procedure strRepeatStringCommande(aoArguments : TStringList) ;
+procedure strPrintFCommande(aoArguments : TStringList) ;
+procedure strBase64EncodeCommande(aoArguments : TStringList) ;
+procedure strSoundExCommande(aoArguments : TStringList) ;
+procedure strUcFirstCommande(aoArguments : TStringList) ;
+procedure struppercaseCommande(aoArguments : TStringList) ;
+procedure strlowercaseCommande(aoArguments : TStringList) ;
+procedure strUcWordsCommande(aoArguments : TStringList) ;
+procedure striReplaceCommande(aoArguments : TStringList) ;
+procedure striposCommande(aoArguments : TStringList) ;
+procedure strrposCommande(aoArguments : TStringList) ;
+procedure strriposCommande(aoArguments : TStringList) ;
+procedure strtrCommande(aoArguments : TStringList) ;
+procedure strrevCommande(aoArguments : TStringList) ;
+procedure strcspnCommande(aoArguments : TStringList) ;
+procedure strspnCommande(aoArguments : TStringList) ;
+procedure strReplaceAccentCommande(aoArguments : TStringList) ;
+procedure strNumberFormatCommande(aoArguments : TStringList) ;
+procedure printfCommande(aoArguments : TStringList) ;
+procedure strEmptyCommande(aoArguments : TStringList) ;
+procedure strLeftCommande(aoArguments : TStringList) ;
+procedure strRightCommande(aoArguments : TStringList) ;
+procedure strStartWithCommande(aoArguments : TStringList) ;
+procedure strEndWithCommande(aoArguments : TStringList) ;
 
-procedure configParameter(var start : integer; var len : integer; var search : TStringList; arguments : TStringList) ;
+procedure configParameter(var aiStart : integer; var aiLength : integer; var aoSearch : TStringList; aoArguments : TStringList) ;
+procedure strposGlobalCommande(aoArguments : TStringList; lbCaseSensitive : Boolean; lbStartEnd : Boolean) ;
+procedure strReplaceGlobalCommande(aoArguments : TStringList; lbCaseSensitive : Boolean) ;
+function Encode64(asString : string): string;
+function Decode64(asString: string): string;
+function Soundex(asString : String) : String ;
+function UpperChar(acChar : Char) : Char ;
+function ReplaceAccent(asStr : string) : string ;
 
 implementation
 
 uses Code, SysUtils, Variable ;
 
-procedure echoCommande(arguments : TStringList) ;
-begin
-    if arguments.count <= 1
-    then begin
-        if arguments.count <> 0
-        then
-            OutPutString(arguments[0], false) ;
-    end
-    else begin
-        ErrorMsg(sTooArguments) ;
-    end ;
-end ;
+const
+    Code64 = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/';
 
-procedure dieCommande(arguments : TStringList) ;
-begin
-    if arguments.count <= 1
-    then begin
-        if arguments.count <> 0
-        then
-            OutPutString(arguments[0], false) ;
-
-        GlobalQuit := True ;
-    end
-    else begin
-        ErrorMsg(sTooArguments) ;
-    end ;
-end ;
-
-procedure struppercaseCommande(arguments : TStringList) ;
-begin
-    if arguments.count = 1
-    then begin
-        ResultFunction := AnsiUpperCase(arguments[0]) ;
-    end
-    else if arguments.count < 1
-    then begin
-        ErrorMsg(sMissingargument) ;
-    end
-    else if arguments.count > 1
-    then begin
-        ErrorMsg(sTooArguments) ;
-    end ;
-end ;
-
-procedure strlowercaseCommande(arguments : TStringList) ;
-begin
-    if arguments.count = 1
-    then begin
-        ResultFunction := AnsiLowerCase(arguments[0]) ;
-    end
-    else if arguments.count < 1
-    then begin
-        ErrorMsg(sMissingargument) ;
-    end
-    else if arguments.count > 1
-    then begin
-        ErrorMsg(sTooArguments) ;
-    end ;
-end ;
-
-procedure strcopyCommande(arguments : TStringList) ;
-var startpos, endpos : integer ;
-begin
-    if arguments.count = 3
-    then begin
-        startpos := MyStrToInt(arguments[1]) ;
-        endpos := MyStrToInt(arguments[2]) ;
-
-        if startpos = 0
-        then
-            ErrorMsg(sStartValNotValidNum)
-        else if endpos = 0
-        then
-            ErrorMsg(sEndValNotValidNum)
-        else
-            ResultFunction := Copy(arguments[0], startpos, startpos - endpos) ;
-    end
-    else if arguments.count < 3
-    then begin
-        ErrorMsg(sMissingargument) ;
-    end
-    else if arguments.count > 3
-    then begin
-        ErrorMsg(sTooArguments) ;
-    end ;
-end ;
-
-procedure strposCommande(arguments : TStringList) ;
-begin
-    strposGlobalCommande(arguments, true, false) ;
-end ;
-
-procedure striposCommande(arguments : TStringList) ;
-begin
-    strposGlobalCommande(arguments, false, false) ;
-end ;
-
-procedure strrposCommande(arguments : TStringList) ;
-begin
-    strposGlobalCommande(arguments, true, true) ;
-end ;
-
-procedure strriposCommande(arguments : TStringList) ;
-begin
-    strposGlobalCommande(arguments, false, true) ;
-end ;
-
-procedure strposGlobalCommande(arguments : TStringList; CaseSensitive : Boolean; StartEnd : Boolean) ;
-var Index : Integer ;
-begin
-    if (arguments.count > 1) and (arguments.count < 4)
-    then begin
-        if arguments.count = 3
-        then begin
-            if isInteger(arguments[2])
-            then
-                Index := MyStrToInt(arguments[2])
-            else
-                Index := 0 ;
-        end
-        else begin
-            if StartEnd
-            then
-                Index := Length(arguments[1])
-            else
-                Index := 1 ;
-        end ;
-
-        if Index > 0
-        then begin
-            if StartEnd
-            then
-                ResultFunction := IntToStr(PosrString(arguments[0], arguments[1], Index, CaseSensitive))
-            else
-                ResultFunction := IntToStr(PosString(arguments[0], arguments[1], Index, CaseSensitive)) ;
-        end
-        else begin
-            ErrorMsg(sInvalidIndex) ;
-        end ;
-    end
-    else if arguments.count < 2
-    then begin
-        ErrorMsg(sMissingargument) ;
-    end
-    else if arguments.count > 3
-    then begin
-        ErrorMsg(sTooArguments) ;
-    end ;
-end ;
-
-procedure strTrimCommande(arguments : TStringList) ;
-begin
-    if arguments.count = 1
-    then begin
-        ResultFunction := Trim(arguments[0]) ; 
-    end
-    else if arguments.count < 1
-    then begin
-        ErrorMsg(sMissingargument) ;
-    end
-    else if arguments.count > 1
-    then begin
-        ErrorMsg(sTooArguments) ;
-    end ;
-end ;
-
-procedure strTrimLeftCommande(arguments : TStringList) ;
-begin
-    if arguments.count = 1
-    then begin
-        ResultFunction := TrimLeft(arguments[0]) ;
-    end
-    else if arguments.count < 1
-    then begin
-        ErrorMsg(sMissingargument) ;
-    end
-    else if arguments.count > 1
-    then begin
-        ErrorMsg(sTooArguments) ;
-    end ;
-end ;
-
-procedure strTrimRightCommande(arguments : TStringList) ;
-begin
-    if arguments.count = 1
-    then begin
-        ResultFunction := TrimRight(arguments[0]) ;
-    end
-    else if arguments.count < 1
-    then begin
-        ErrorMsg(sMissingargument) ;
-    end
-    else if arguments.count > 1
-    then begin
-        ErrorMsg(sTooArguments) ;
-    end ;
-end ;
-
-procedure strReplaceCommande(arguments : TStringList) ;
-begin
-    strReplaceGlobalCommande(arguments, true) ;
-end ;
-
-procedure striReplaceCommande(arguments : TStringList) ;
-begin
-    strReplaceGlobalCommande(arguments, false) ;
-end ;
-
-procedure strReplaceGlobalCommande(arguments : TStringList; SensitiveCase : Boolean) ;
+{*****************************************************************************
+ * Encode64
+ * MARTINEAU Emeric
+ *
+ * Convertit une chaine binaire en Base64
+ *
+ * Paramètres d'entrée :
+ *   - asString : chaine à convertir
+ *
+ * Retour : valeur sous forme base64
+ *****************************************************************************}
+function Encode64(asString: string): string;
 var
-  position : integer ;
-  countvar : string ;
-  count : Cardinal ;
-  SubStr, Str, ReplaceStr : String ;
-  Liste : TStringList ;
+    { Chaine à encoder }
+    lsTmp : string ;
+    { Compteur de boucle }
+    liIndex : Integer ;
+
+    function Block64Encode(asString : string) : string ;
+    var liLength : SmallInt ;
+        liIndex : Integer ;
+    begin
+        { Par défaut si on n'a rien, on retourne des = }
+        Result := '====' ;
+        liLength := Length(asString) ;
+        liIndex := 1 ;
+
+        if liLength > 0
+        then begin
+            Result[1] := Code64[(Ord(asString[1]) shr 2) + 1 ] ;
+            liIndex := (Ord(asString[1]) and 3) shl 4 ;
+            Result[2] := Code64[ liIndex + 1 ] ;
+        end ;
+
+        if liLength > 1
+        then begin
+            liIndex := liIndex + (Ord(asString[2]) shr 4) ;
+            Result[2] := Code64[ liIndex + 1 ] ;
+            liIndex := (Ord(asString[2]) and 15) shl 2 ;
+            Result[3] := Code64[ liIndex + 1 ] ;
+        end ;
+
+        if liLength > 2
+        then begin
+            liIndex := liIndex + (Ord(asString[3]) shr 6) ;
+
+            Result[3] := Code64[ liIndex + 1 ] ;
+            Result[4] := Code64[(Ord(asString[3]) and 63) + 1] ;
+        end ;
+    end ;
+begin
+    Result := '' ;
+    lsTmp := '' ;
+
+    for liIndex := 1 to Length(asString) do
+    begin
+        if (liIndex mod 3) = 0
+        then begin
+            lsTmp := lsTmp + asString[liIndex] ;
+            { On encode par paquet de 3 carctères }
+            Result := Result + Block64Encode(lsTmp) ;
+            lsTmp := '' ;
+        end
+        else begin
+            lsTmp := lsTmp + asString[liIndex] ;
+        end ;
+    end ;
+
+    if lsTmp <> ''
+    then begin
+        Result := Result + Block64Encode(lsTmp) ;
+    end ;
+end ;
+
+{*****************************************************************************
+ * Encode64
+ * MARTINEAU Emeric
+ *
+ * Convertit une chaine Base64 en chaine binaire
+ *
+ * Paramètres d'entrée :
+ *   - asString : chaine à convertir
+ *
+ * Retour : valeur sous forme binaire
+ *****************************************************************************}
+function Decode64(asString : String) : String ;
+var
+    { Chaine décodée }
+    lsTmp : String ;
+    { Compteur de boucle }
+    liIndex : Integer ;
+
+    function GetValueOfBase64(lcChar : char) : SmallInt ;
+    var liIndex : SmallInt ;
+    begin
+        Result := 0 ;
+
+        for liIndex := 1 to length(Code64) do
+        begin
+            if lcChar = Code64[liIndex]
+            then begin
+                Result := liIndex - 1 ;
+                break ;
+            end ;
+        end ;
+    end ;
+
+    function Block64Decode(asString : String) : String ;
+    var liIndex : Integer ;
+        liLength : Integer ;
+    begin
+        Result := '' ;
+        liLength := Length(asString) ;
+
+        if liLength > 0
+        then begin
+            if asString[1] <> '='
+            then begin
+                liIndex := GetValueOfBase64(asString[1]) ;
+                liIndex := liIndex shl 2 ;
+                Result := char( liIndex ) ;
+            end ;
+        end ;
+
+        if liLength > 1
+        then begin
+            if asString[2] <> '='
+            then begin
+                if Length(Result) > 0
+                then begin
+                    liIndex := GetValueOfBase64(asString[2]) shr 4 ;
+                    Result[1] := Char(Ord(Result[1]) + liIndex) ;
+                end ;
+
+                liIndex := GetValueOfBase64(asString[2]) shl 4 ;
+                Result := Result + char( liIndex ) ;
+            end ;
+        end ;
+
+        if liLength > 2
+        then begin
+            if asString[3] <> '='
+            then begin
+                if Length(Result) > 1
+                then begin
+                    liIndex := GetValueOfBase64(asString[3]) shr 2 ;
+                    Result[2] := Char(Ord(Result[2]) + liIndex) ;
+                end ;
+
+                liIndex := GetValueOfBase64(asString[3]) shl 6 ;
+
+                Result := Result + char( liIndex ) ;
+            end ;
+        end ;
+
+        if liLength > 3
+        then begin
+            if asString[4] <> '='
+            then begin
+                if Length(Result) > 2
+                then begin
+                    liIndex := GetValueOfBase64(asString[4]) ;
+                    Result[3] := Char(Ord(Result[3]) + liIndex) ;
+                end ;
+            end ;
+        end ;
+    end ;
+begin
+    Result := '' ;
+    lsTmp := '' ;
+
+    for liIndex := 1 to Length(asString) do
+    begin
+        if (liIndex mod 4) = 0
+        then begin
+            lsTmp := lsTmp + asString[liIndex] ;
+            { On décode par paquet de 4 caractères }
+            Result := Result + Block64Decode(lsTmp) ;
+            lsTmp := '' ;
+        end
+        else begin
+            lsTmp := lsTmp + asString[liIndex] ;
+        end ;
+    end ;
+
+    if lsTmp <> ''
+    then begin
+        Result := Result + Block64Decode(lsTmp) ;
+    end ;
+end ;
+
+{*****************************************************************************
+ * Soundex
+ * MARTINEAU Emeric
+ *
+ * Convertit une chaine en équivalent soundex
+ *
+ * Paramètres d'entrée :
+ *   - asString : chaine à traiter
+ *
+ * Retour : chaine soundex
+ *****************************************************************************}
+function Soundex(asString : String) : String ;
+const soundex_table : array[0..25] of char =
+    (#0,   // A
+     '1',  // B
+     '2',  // C
+     '3',  // D
+     #0,   // E
+     '1',  // F
+     '2',  // G
+     #0,   // H
+     #0,   // I
+     '2',  // J
+     '2',  // K
+     '4',  // L
+     '5',  // M
+     '5',  // N
+     #0,   // O
+     '1',  // P
+     '2',  // Q
+     '6',  // R
+     '2',  // S
+     '3',  // T
+     #0,   // U
+     '1',  // V
+     #0,   // W
+     '2',  // X
+     #0,   // Y
+     '2'); // Z
+
+var
+    { Compteur de boucle }
+    liIndex : Integer ;
+    { Caractère à traiter }
+    lcChar : Char ;
+    { Position du caractère dans le tableau de résultat }
+    liPosInResult : SmallInt ;
+    { Dernier caractère traiter }
+    lcLastChar : Char ;
+    { Resultat 4 caractères  }
+    laResultat : array[0..3] of char ;
+begin
+    Result := '' ;
+    liPosInResult := 0 ;
+    lcLastChar := #0 ;
+
+    for liIndex := 0 to High(laResultat) do
+    begin
+        laResultat[liIndex] := #0 ;
+    end ;
+
+    asString := UpperCase(asString) ;
+
+    for liIndex := 1 to Length(asString) do
+    begin
+        lcChar := asString[liIndex] ;
+
+        { on ne prend en compte que les lettres. C'est idiot car la langue
+          française par exemple contient des caractères spéciaux }
+        if lcChar in ['A'..'Z']
+        then begin
+            if liPosInResult = 0
+            then begin
+                laResultat[liPosInResult] := lcChar ;
+                Inc(liPosInResult) ;
+                lcLastChar := soundex_table[Ord(lcChar) - Ord('A')] ;
+            end
+            else begin
+                lcChar := soundex_table[Ord(lcChar) - Ord('A')] ;
+
+                if (lcChar <> lcLastChar)
+                then begin
+                    if lcChar <> #0
+                    then begin
+                        laResultat[liPosInResult] := lcChar;
+                        Inc(liPosInResult) ;
+                    end ;
+                end ;
+            end ;
+        end ;
+    end ;
+
+    Result := '' ;
+
+    for liIndex := 0 to 3 do
+    begin
+        if laResultat[liIndex] <> #0
+        then begin
+            Result := Result + laResultat[liIndex] ;
+        end
+        else begin
+            Result := Result + '0' ;
+        end ;
+    end ;
+end ;
+
+{*****************************************************************************
+ * UpperChar
+ * MARTINEAU Emeric
+ *
+ * Convertit un caractère en majuscule et retourne un caractère
+ *
+ * Paramètres d'entrée :
+ *   - acChar : caractère à traiter
+ *
+ * Retour : caractère en majuscule
+ *****************************************************************************}
+function UpperChar(acChar : Char) : Char ;
+var lsTmp : String ;
+begin
+    lsTmp := AnsiUpperCase(acChar) ;
+    Result := lsTmp[1] ;
+end ;
+
+procedure echoCommande(aoArguments : TStringList) ;
+begin
+    if aoArguments.count <= 1
+    then begin
+        if aoArguments.count <> 0
+        then begin
+            OutPutString(aoArguments[0], false) ;
+        end ;
+    end
+    else begin
+        ErrorMsg(csTooArguments) ;
+    end ;
+end ;
+
+{*****************************************************************************
+ * ReplaceAccent
+ * MARTINEAU Emeric
+ *
+ * Remplace les caractères accentués dans une chaine
+ *
+ * Paramètres d'entrée :
+ *   - asStr           : chaine à dans laquel il faut chercher
+ *
+ * Retour : chaine dont les accents sont convertit
+ *****************************************************************************}
+function ReplaceAccent(asStr : string) : string ;
+const csAccent : string = 'ÀÁÂÃÄÅÆÇÈÉÊËÌÍÎÏÐÑÒÓÔÕÖØÙÚÛÜÝÞßàáâãäåæçèéêëìíîïðñòóôõöøùúûýýþÿ' ;
+      csNoAccent : string = 'AAAAAAACEEEEIIIIDNOOOOOOUUUUYbsaaaaaaaceeeeiiiidnoooooouuuyyby' ;
+var
+    { Compteur de boucle }
+    liIndex : Integer ;
+    { Position du caractère }
+    liPosition : Integer ;
+begin
+    Result := '' ;
+
+    for liIndex := 0 to length(asStr) do
+    begin
+        liPosition := pos(asStr[liIndex], csAccent) ;
+
+        if liPosition = 0
+        then begin
+            Result := Result + asStr[liIndex] ;
+        end
+        else begin
+            Result := Result + csNoAccent[liPosition] ;
+        end ;
+    end ;
+end ;
+
+procedure dieCommande(aoArguments : TStringList) ;
+begin
+    if aoArguments.count <= 1
+    then begin
+        if aoArguments.count <> 0
+        then begin
+            OutPutString(aoArguments[0], false) ;
+        end ;
+
+        gbQuit := True ;
+    end
+    else begin
+        ErrorMsg(csTooArguments) ;
+    end ;
+end ;
+
+procedure struppercaseCommande(aoArguments : TStringList) ;
+begin
+    if aoArguments.count = 1
+    then begin
+        gsResultFunction := AnsiUpperCase(aoArguments[0]) ;
+    end
+    else if aoArguments.count < 1
+    then begin
+        ErrorMsg(csMissingargument) ;
+    end
+    else if aoArguments.count > 1
+    then begin
+        ErrorMsg(csTooArguments) ;
+    end ;
+end ;
+
+procedure strlowercaseCommande(aoArguments : TStringList) ;
+begin
+    if aoArguments.count = 1
+    then begin
+        gsResultFunction := AnsiLowerCase(aoArguments[0]) ;
+    end
+    else if aoArguments.count < 1
+    then begin
+        ErrorMsg(csMissingargument) ;
+    end
+    else if aoArguments.count > 1
+    then begin
+        ErrorMsg(csTooArguments) ;
+    end ;
+end ;
+
+procedure strcopyCommande(aoArguments : TStringList) ;
+var
+    { Position de départ }
+    liStartPos : Integer ;
+    { Longueur à copier }
+    liLength : integer ;
+begin
+    if (aoArguments.count = 2) or (aoArguments.count = 3)
+    then begin
+        liStartPos := MyStrToInt(aoArguments[1]) + 1 ;
+        
+        if aoArguments.count = 3
+        then begin
+            liLength := MyStrToInt(aoArguments[2]) ;
+        end
+        else begin
+            liLength := Length(aoArguments[0]) ;
+        end ;
+
+        if liStartPos < 0
+        then begin
+            ErrorMsg(csStartValNotValidNum)
+        end
+        else if liLength < 0
+        then begin
+            ErrorMsg(csEndValNotValidNum)
+        end
+        else begin
+            gsResultFunction := Copy(aoArguments[0], liStartPos, liLength - liStartPos) ;
+        end ;
+    end
+    else if aoArguments.count < 2
+    then begin
+        ErrorMsg(csMissingargument) ;
+    end
+    else if aoArguments.count > 3
+    then begin
+        ErrorMsg(csTooArguments) ;
+    end ;
+end ;
+
+procedure strposCommande(aoArguments : TStringList) ;
+begin
+    strposGlobalCommande(aoArguments, true, false) ;
+end ;
+
+procedure striposCommande(aoArguments : TStringList) ;
+begin
+    strposGlobalCommande(aoArguments, false, false) ;
+end ;
+
+procedure strrposCommande(aoArguments : TStringList) ;
+begin
+    strposGlobalCommande(aoArguments, true, true) ;
+end ;
+
+procedure strriposCommande(aoArguments : TStringList) ;
+begin
+    strposGlobalCommande(aoArguments, false, true) ;
+end ;
+
+{*****************************************************************************
+ * strposGlobalCommande
+ * MARTINEAU Emeric
+ *
+ * Recherche une sous-chaine dans une chaine.
+ * Appel PosrString() ou PosString()
+ *
+ * Paramètres d'entrée :
+ *   - aoArguments : aoArguments passé en commande depuis le script,
+ *   - lbCaseSensitive : doit-on être sensible à la case,
+ *   - lbStartEnd : indique s'il faut commencer par la fin,
+ *
+ *****************************************************************************}
+procedure strposGlobalCommande(aoArguments : TStringList; lbCaseSensitive : Boolean; lbStartEnd : Boolean) ;
+var
+    { Position à laquelle il faut commencer }
+    liIndex : Integer ;
+begin
+    if (aoArguments.count > 1) and (aoArguments.count < 4)
+    then begin
+        if aoArguments.count = 3
+        then begin
+            if isInteger(aoArguments[2])
+            then begin
+                liIndex := MyStrToInt(aoArguments[2]) + 1 ;
+            end
+            else begin
+                liIndex := 1 ;
+            end ;
+        end
+        else begin
+            if lbStartEnd
+            then begin
+                liIndex := Length(aoArguments[1]) ;
+            end
+            else begin
+                liIndex := 1 ;
+            end ;
+        end ;
+
+        if liIndex > 0
+        then begin
+            if lbStartEnd
+            then begin
+                gsResultFunction := IntToStr(PosrString(aoArguments[0], aoArguments[1], liIndex, lbCaseSensitive) - 1) ;
+            end
+            else begin
+                gsResultFunction := IntToStr(PosString(aoArguments[0], aoArguments[1], liIndex, lbCaseSensitive) - 1) ;
+            end ;
+        end
+        else begin
+            ErrorMsg(csInvalidIndex) ;
+        end ;
+    end
+    else if aoArguments.count < 2
+    then begin
+        ErrorMsg(csMissingargument) ;
+    end
+    else if aoArguments.count > 3
+    then begin
+        ErrorMsg(csTooArguments) ;
+    end ;
+end ;
+
+procedure strTrimCommande(aoArguments : TStringList) ;
+begin
+    if aoArguments.count = 1
+    then begin
+        gsResultFunction := Trim(aoArguments[0]) ;
+    end
+    else if aoArguments.count < 1
+    then begin
+        ErrorMsg(csMissingargument) ;
+    end
+    else if aoArguments.count > 1
+    then begin
+        ErrorMsg(csTooArguments) ;
+    end ;
+end ;
+
+procedure strTrimLeftCommande(aoArguments : TStringList) ;
+begin
+    if aoArguments.count = 1
+    then begin
+        gsResultFunction := TrimLeft(aoArguments[0]) ;
+    end
+    else if aoArguments.count < 1
+    then begin
+        ErrorMsg(csMissingargument) ;
+    end
+    else if aoArguments.count > 1
+    then begin
+        ErrorMsg(csTooArguments) ;
+    end ;
+end ;
+
+procedure strTrimRightCommande(aoArguments : TStringList) ;
+begin
+    if aoArguments.count = 1
+    then begin
+        gsResultFunction := TrimRight(aoArguments[0]) ;
+    end
+    else if aoArguments.count < 1
+    then begin
+        ErrorMsg(csMissingargument) ;
+    end
+    else if aoArguments.count > 1
+    then begin
+        ErrorMsg(csTooArguments) ;
+    end ;
+end ;
+
+procedure strReplaceCommande(aoArguments : TStringList) ;
+begin
+    strReplaceGlobalCommande(aoArguments, true) ;
+end ;
+
+procedure striReplaceCommande(aoArguments : TStringList) ;
+begin
+    strReplaceGlobalCommande(aoArguments, false) ;
+end ;
+
+{*****************************************************************************
+ * strReplaceGlobalCommande
+ * MARTINEAU Emeric
+ *
+ * Remplace une sous-chaine dans une chaine.
+  *
+ * Paramètres d'entrée :
+ *   - aoArguments : aoArguments passé en commande depuis le script,
+ *   - lbCaseSensitive : doit-on être sensible à la case,
+ *
+ *****************************************************************************}
+procedure strReplaceGlobalCommande(aoArguments : TStringList; lbCaseSensitive : Boolean) ;
+var
+    { Position du dernier argument }
+    liPositionDernierArgument : integer ;
+    { Variable script recevant le nombre de d'occurence remplacée }
+    lsCountVar : string ;
+    { Nombre d'occurence remplacée }
+    lcCount : Cardinal ;
+    { Chaine à rechercher }
+    lsSubStr : String ;
+    { Chaine à lire }
+    lsStr : String ;
+    { Chaine de remplacement }
+    lsReplaceStr : String ;
+    { Liste d'élément à remplacer }
+    loListeAREmplacer : TStringList ;
 begin
     // strReplace(substr, str, replacetext [, $count])
-    if (arguments.count > 2)
+    if (aoArguments.count > 2)
     then begin
         { Le dernier élément peut contenir le compteur }
-        Position := arguments.count - 1 ;
-        count := 0 ;
-        countvar := arguments[Position] ;
+        liPositionDernierArgument := aoArguments.count - 1 ;
+        lcCount := 0 ;
+        lsCountVar := aoArguments[liPositionDernierArgument] ;
 
-        if isVar(countvar)
+        if isVar(lsCountVar)
         then begin
             { On efface la variable pour ne pas avoir l'affichage comme quoi la
               variable n'existe pas.
-              On ne supprime SURTOUT pas arguments[Position] car cela permet de
+              On ne supprime SURTOUT pas aoArguments[Position] car cela permet de
               vérifier le nombre total d'arguement }
-            arguments[Position] := '' ;
+            aoArguments[liPositionDernierArgument] := '' ;
         end
         else begin
-            countvar := ''
+            lsCountVar := ''
         end ;
 
         { Parse les données }
-        GetValueOfStrings(arguments) ;
+        GetValueOfStrings(aoArguments) ;
 
-        if (arguments.count = 4) and (countvar = '')
+        if (aoArguments.count = 4) and (lsCountVar = '')
         then begin
-            ErrorMsg(Format(sNotAVariable, [countvar])) ;
+            ErrorMsg(Format(csNotAVariable, [lsCountVar])) ;
         end
-        else if (arguments.count > 4)
+        else if (aoArguments.count > 4)
         then begin
-            ErrorMsg(sTooArguments) ;
+            ErrorMsg(csTooArguments) ;
         end
         else begin
             { Est un tableau ou une chaine }
-            SubStr := arguments[0] ;
-            Str := arguments[1] ;
-            ReplaceStr := arguments[2] ;
+            lsSubStr := aoArguments[0] ;
+            lsStr := aoArguments[1] ;
+            lsReplaceStr := aoArguments[2] ;
 
-            if Variables.InternalisArray(SubStr)
+            if goVariables.InternalisArray(lsSubStr)
             then begin
-                Liste := TStringList.Create() ;
-                Variables.explode(Liste, SubStr);
+                loListeAREmplacer := TStringList.Create() ;
+                goVariables.explode(loListeAREmplacer, lsSubStr);
 
-                if Liste.Count > 0
+                if loListeAREmplacer.Count > 0
                 then begin
-                    for position := 0 to Liste.Count - 1 do
+                    for liPositionDernierArgument := 0 to loListeAREmplacer.Count - 1 do
                     begin
-                        count := count + ReplaceOneOccurence(Liste[position], Str, ReplaceStr, SensitiveCase) ;
+                        lcCount := lcCount + ReplaceOneOccurence(loListeAREmplacer[liPositionDernierArgument], lsStr, lsReplaceStr, lbCaseSensitive) ;
                     end ;
                 end ;
 
-                Liste.Free ;
+                loListeAREmplacer.Free ;
             end
             else begin
-               count := count + ReplaceOneOccurence(Substr, Str, ReplaceStr, SensitiveCase) ;
+               lcCount := lcCount + ReplaceOneOccurence(lsSubstr, lsStr, lsReplaceStr, lbCaseSensitive) ;
             end ;
 
-            ResultFunction := Str ;
+            gsResultFunction := lsStr ;
 
-            if countvar <> ''
-            then
-                Variables.Add(countvar, IntToStr(count));
+            if lsCountVar <> ''
+            then begin
+                goVariables.Add(lsCountVar, IntToStr(lcCount));
+            end ;
         end ;
     end
-    else if arguments.count < 2
+    else if aoArguments.count < 2
     then begin
-        ErrorMsg(sMissingargument) ;
+        ErrorMsg(csMissingargument) ;
     end ;
 end ;
 
-procedure strInsertCommande(arguments : TStringList) ;
-var index : integer ;
-    tmp : string ;
+procedure strInsertCommande(aoArguments : TStringList) ;
+var
+    { Postion où insérer le text }
+    liStartPos : integer ;
+    { Variable temporaire de résultat }
+    lsTmp : string ;
 begin
-    if arguments.count = 3
+    if aoArguments.count = 3
     then begin
-        index := MyStrToInt(arguments[2]) ;
+        liStartPos := MyStrToInt(aoArguments[2]) + 1 ;
 
-        if index > 0
+        if liStartPos >= 0
         then begin
-            tmp := arguments[1] ;
-            Insert(arguments[0], tmp, index) ;
-            ResultFunction := tmp ;
+            lsTmp := aoArguments[1] ;
+            Insert(aoArguments[0], lsTmp, liStartPos) ;
+            gsResultFunction := lsTmp ;
         end
-        else
-            ErrorMsg(sInvalidIndex) ;
+        else begin
+            ErrorMsg(csInvalidIndex) ;
+        end ;
     end
-    else if arguments.count < 3
+    else if aoArguments.count < 3
     then begin
-        ErrorMsg(sMissingargument) ;
+        ErrorMsg(csMissingargument) ;
     end
-    else if arguments.count > 3
+    else if aoArguments.count > 3
     then begin
-        ErrorMsg(sTooArguments) ;
+        ErrorMsg(csTooArguments) ;
     end ;
 end ;
 
-procedure strDeleteCommande(arguments : TStringList) ;
-var index, count : integer ;
-    tmp : string ;
+procedure strDeleteCommande(aoArguments : TStringList) ;
+var
+    { Position de départ }
+    liStart : Integer ;
+    { Longueur à supprimer }
+    liLength : integer ;
+    { Variable temporaire pour supprimer les caractère }
+    lsTmp : string ;
 begin
-    if arguments.count = 3
+    if aoArguments.count = 3
     then begin
-        index := MyStrToInt(arguments[1]) ;
-        count := MyStrToInt(arguments[2]) ;
+        liStart := MyStrToInt(aoArguments[1]) + 1 ;
+        liLength := MyStrToInt(aoArguments[2]) ;
 
-        if (index > 0) and (count > 0)
+        if aoArguments.count = 3
         then begin
-            tmp := arguments[0] ;
-            Delete(tmp, index, count) ;
-            ResultFunction := tmp ;
+            liLength := MyStrToInt(aoArguments[2]) ;
         end
-        else
-            ErrorMsg(sInvalidIndex) ;
+        else begin
+            liLength := Length(aoArguments[0]) ;
+        end ;
+
+        if liStart < 0
+        then begin
+            ErrorMsg(csStartValNotValidNum)
+        end
+        else if liLength < 0
+        then begin
+            ErrorMsg(csEndValNotValidNum)
+        end
+        else begin
+            lsTmp := aoArguments[0] ;
+            Delete(lsTmp, liStart, liLength) ;
+            gsResultFunction := lsTmp ;
+        end ;
     end
-    else if arguments.count < 3
+    else if aoArguments.count < 3
     then begin
-        ErrorMsg(sMissingargument) ;
+        ErrorMsg(csMissingargument) ;
     end
-    else if arguments.count > 3
+    else if aoArguments.count > 3
     then begin
-        ErrorMsg(sTooArguments) ;
+        ErrorMsg(csTooArguments) ;
     end ;
 end ;
 
-procedure strExplodeCommande(arguments : TStringList) ;
-var Liste : TStringList ;
+procedure strExplodeCommande(aoArguments : TStringList) ;
+var
+    { Tableau recevant la liste des chaines }
+    loTableau : TStringList ;
 begin
-    if arguments.count = 2
+    if aoArguments.count = 2
     then begin
-        Liste := TStringList.Create ;
+        loTableau := TStringList.Create ;
 
-        Explode(arguments[1], Liste, arguments[0]) ;
+        Explode(aoArguments[1], loTableau, aoArguments[0]) ;
 
-        ResultFunction := Variables.CreateArray(Liste) ;
+        gsResultFunction := goVariables.CreateArray(loTableau) ;
 
-        Liste.Free ;
+        loTableau.Free ;
     end
-    else if arguments.count < 2
+    else if aoArguments.count < 2
     then begin
-        ErrorMsg(sMissingargument) ;
+        ErrorMsg(csMissingargument) ;
     end
-    else if arguments.count > 2
+    else if aoArguments.count > 2
     then begin
-        ErrorMsg(sTooArguments) ;
+        ErrorMsg(csTooArguments) ;
     end ;
 end ;
 
-procedure strImplodeCommande(arguments : TStringList) ;
+procedure strImplodeCommande(aoArguments : TStringList) ;
 var 
-    Liste : TStringList ;
-    i : Integer ;
+    { Recoit les éléments à regrouper }
+    loTableau : TStringList ;
+    { Index du tableau }
+    liIndexTableau : Integer ;
 begin
-    if arguments.count = 2
+    if aoArguments.count = 2
     then begin
-        Liste := TStringList.Create ;
-        Variables.explode(Liste, arguments[1]);
+        loTableau := TStringList.Create ;
+        goVariables.explode(loTableau, aoArguments[1]);
 
-        ResultFunction := '' ;
+        gsResultFunction := '' ;
 
-        for i := 0 to Liste.Count -1 do
+        for liIndexTableau := 0 to loTableau.Count -1 do
         begin
-            ResultFunction := ResultFunction + Liste[i] ;
+            gsResultFunction := gsResultFunction + loTableau[liIndexTableau] ;
 
-            if i <> (Liste.Count - 1)
-            then
-                ResultFunction := ResultFunction + arguments[0] ;
-        end ;
-
-        Liste.Free ;
-    end
-    else if arguments.count < 2
-    then begin
-        ErrorMsg(sMissingargument) ;
-    end
-    else if arguments.count > 2
-    then begin
-        ErrorMsg(sTooArguments) ;
-    end ;
-end ;
-
-procedure strLoadFromFileCommande(arguments : TStringList) ;
-var Liste : TStringList ;
-    error : Boolean ;
-begin
-    if arguments.count = 1
-    then begin
-        error := False ;
-        arguments[0] := RealPath(arguments[0]) ;
-
-        { Vérifie l'inclusion du fichier si on est en safe mode }
-        if (SafeMode = True) and (doc_root <> '')
-        then begin
-            if Pos(doc_root, arguments[0]) = 0
+            { Si c'est le dernier éléments, on ne met pas de séparateur }
+            if liIndexTableau <> (loTableau.Count - 1)
             then begin
-                error := True ;
-                WarningMsg(sCantDoThisInSafeMode) ;
+                gsResultFunction := gsResultFunction + aoArguments[0] ;
             end ;
         end ;
 
-        if not error
-        then begin
-            Liste := TStringList.Create ;
-
-            Liste.LoadFromFile(arguments[0]);
-
-            ResultFunction := Variables.CreateArray(Liste) ;
-
-            Liste.Free ;
-        end ;
+        loTableau.Free ;
     end
-    else if arguments.count < 1
+    else if aoArguments.count < 2
     then begin
-        ErrorMsg(sMissingargument) ;
+        ErrorMsg(csMissingargument) ;
     end
-    else if arguments.count > 1
+    else if aoArguments.count > 2
     then begin
-        ErrorMsg(sTooArguments) ;
+        ErrorMsg(csTooArguments) ;
     end ;
 end ;
 
-procedure strSaveToFileCommande(arguments : TStringList) ;
-var Liste : TStringList ;
-    error : Boolean ;
+procedure strLoadFromFileCommande(aoArguments : TStringList) ;
+var
+    { Contient le fichier à mettre en tableau }
+    loTableau : TStringList ;
+    { Indique s'il y a une erreur }
+    lbError : Boolean ;
 begin
-    if arguments.count = 2
+    if aoArguments.count = 1
     then begin
-        error := False ;
-        arguments[1] := RealPath(arguments[1]) ;
-        ResultFunction := falseValue ;
+        lbError := False ;
+        aoArguments[0] := RealPath(aoArguments[0]) ;
 
         { Vérifie l'inclusion du fichier si on est en safe mode }
-        if (SafeMode = True) and (doc_root <> '')
+        if (gbSafeMode = True) and (gsDocRoot <> '')
         then begin
-            if Pos(doc_root, arguments[1]) = 0
+            if Pos(gsDocRoot, aoArguments[0]) = 0
             then begin
-                error := True ;
-                WarningMsg(sCantDoThisInSafeMode) ;
+                lbError := True ;
+                WarningMsg(csCantDoThisInSafeMode) ;
             end ;
         end ;
 
-        if not error
+        if not lbError
         then begin
-            Liste := TStringList.Create ;
+            loTableau := TStringList.Create ;
 
-            Variables.explode(Liste, arguments[0]);
+            loTableau.LoadFromFile(aoArguments[0]);
+
+            gsResultFunction := goVariables.CreateArray(loTableau) ;
+
+            loTableau.Free ;
+        end ;
+    end
+    else if aoArguments.count < 1
+    then begin
+        ErrorMsg(csMissingargument) ;
+    end
+    else if aoArguments.count > 1
+    then begin
+        ErrorMsg(csTooArguments) ;
+    end ;
+end ;
+
+procedure strSaveToFileCommande(aoArguments : TStringList) ;
+var
+    { Contient le tableau à mettre en fichier }
+    loTableau : TStringList ;
+    { Indique s'il y a eu une erreur }
+    lbError : Boolean ;
+begin
+    if aoArguments.count = 2
+    then begin
+        lbError := False ;
+        aoArguments[1] := RealPath(aoArguments[1]) ;
+        gsResultFunction := csFalseValue ;
+
+        { Vérifie l'inclusion du fichier si on est en safe mode }
+        if (gbSafeMode = True) and (gsDocRoot <> '')
+        then begin
+            if Pos(gsDocRoot, aoArguments[1]) = 0
+            then begin
+                lbError := True ;
+                WarningMsg(csCantDoThisInSafeMode) ;
+            end ;
+        end ;
+
+        if not lbError
+        then begin
+            loTableau := TStringList.Create ;
+
+            goVariables.explode(loTableau, aoArguments[0]);
 
             {$I-}
-            Liste.SaveToFile(arguments[1]) ;
+            loTableau.SaveToFile(aoArguments[1]) ;
             {$I+}
 
             if IOResult = 0
-            then
-                ResultFunction := trueValue ;
+            then begin
+                gsResultFunction := csTrueValue ;
+            end ;
                 
-            Liste.Free ;
+            loTableau.Free ;
         end ;
     end
-    else if arguments.count < 2
+    else if aoArguments.count < 2
     then begin
-        ErrorMsg(sMissingargument) ;
+        ErrorMsg(csMissingargument) ;
     end
-    else if arguments.count > 2
+    else if aoArguments.count > 2
     then begin
-        ErrorMsg(sTooArguments) ;
+        ErrorMsg(csTooArguments) ;
     end ;
 end ;
 
-procedure strAddSlashesCommande(arguments : TStringList) ;
+procedure strAddSlashesCommande(aoArguments : TStringList) ;
 begin
-    if arguments.count = 1
+    if aoArguments.count = 1
     then begin
-        ResultFunction := AddSlashes(arguments[0]);
+        gsResultFunction := AddSlashes(aoArguments[0]);
     end
-    else if arguments.count < 1
+    else if aoArguments.count < 1
     then begin
-        ErrorMsg(sMissingargument) ;
+        ErrorMsg(csMissingargument) ;
     end
-    else if arguments.count > 1
+    else if aoArguments.count > 1
     then begin
-        ErrorMsg(sTooArguments) ;
+        ErrorMsg(csTooArguments) ;
     end ;
 end ;
 
-procedure strDeleteSlashesCommande(arguments : TStringList) ;
+procedure strDeleteSlashesCommande(aoArguments : TStringList) ;
 begin
-    if arguments.count = 1
+    if aoArguments.count = 1
     then begin
-        ResultFunction := DeleteSlashes(arguments[0]) ;
+        gsResultFunction := DeleteSlashes(aoArguments[0]) ;
     end
-    else if arguments.count < 1
+    else if aoArguments.count < 1
     then begin
-        ErrorMsg(sMissingargument) ;
+        ErrorMsg(csMissingargument) ;
     end
-    else if arguments.count > 1
+    else if aoArguments.count > 1
     then begin
-        ErrorMsg(sTooArguments) ;
+        ErrorMsg(csTooArguments) ;
     end ;
 end ;
 
-procedure strPrintRCommande(arguments : TStringList) ;
+procedure strPrintRCommande(aoArguments : TStringList) ;
 begin
-    if arguments.count = 1
+    if aoArguments.count = 1
     then begin
-        if isVar(arguments[0])
+        if isVar(aoArguments[0])
+        then begin
+            OutPutString(showData(getVar(aoArguments[0]), '', 0), true) ;
+        end
+        else begin
+            ErrorMsg(Format(csNotAVariable, [aoArguments[0]])) ;
+        end ;
+    end
+    else if aoArguments.count < 1
+    then begin
+        ErrorMsg(csMissingargument) ;
+    end
+    else if aoArguments.count > 1
+    then begin
+        ErrorMsg(csTooArguments) ;
+    end ;
+end ;
+
+procedure strRepeatStringCommande(aoArguments : TStringList) ;
+begin
+    if aoArguments.count = 2
+    then begin
+        if isInteger(aoArguments[1])
         then
-            OutPutString(showData(getVar(arguments[0]), '', 0), true)
+            gsResultFunction := RepeterCaractere(aoArguments[0], MyStrToInt(aoArguments[1]))
         else
-            ErrorMsg(Format(sNotAVariable, [arguments[0]])) ;
+            ErrorMsg(csSizeMustBeInt) ;
     end
-    else if arguments.count < 1
+    else if aoArguments.count < 2
     then begin
-        ErrorMsg(sMissingargument) ;
+        ErrorMsg(csMissingargument) ;
     end
-    else if arguments.count > 1
+    else if aoArguments.count > 2
     then begin
-        ErrorMsg(sTooArguments) ;
+        ErrorMsg(csTooArguments) ;
     end ;
 end ;
 
-procedure strRepeatStringCommande(arguments : TStringList) ;
-begin
-    if arguments.count = 2
-    then begin
-        if isInteger(arguments[1])
-        then
-            ResultFunction := RepeterCaractere(arguments[0], MyStrToInt(arguments[1]))
-        else
-            ErrorMsg(sSizeMustBeInt) ;
-    end
-    else if arguments.count < 2
-    then begin
-        ErrorMsg(sMissingargument) ;
-    end
-    else if arguments.count > 2
-    then begin
-        ErrorMsg(sTooArguments) ;
-    end ;
-end ;
-
-procedure strPrintFCommande(arguments : TStringList) ;
+{ ** ATTENTION ** strPrintf est une des fonctions, sinon la fonction, la plus compliquer.
+  Il m'a fallu plusieurs jour pour l'écrire. Bon courrage à ceux qui veulent la comprendre }
+procedure strPrintFCommande(aoArguments : TStringList) ;
 var
     { Chiffre debut et fin f8.2d }
-    longueurDebut, LongueurFin : Integer ;
+    liLongueurDebut : Integer ;
+    liLongueurFin : Integer ;
     { Contient le caractère d'espacement peut être 0 ou espace }
-    Espacement : String ;
+    lsEspacement : String ;
     { Contient le caractère de remplissage peut être 0 ou espace }
-    Remplissage : String ;
+    lsRemplissage : String ;
     { Indique s'il faut aligner à droite }
-    AlignerAGauche : Boolean ;
+    lbAlignerAGauche : Boolean ;
     { Indique le type de donnée }
-    TypeData : String ;
+    lsTypeData : String ;
     { Indique si le nombre est negatif }
-    isNeg : Boolean ;
+    lbIsNeg : Boolean ;
     { Indique l'indice si c'est + au - }
-    Indice : String ;
+    lsIndice : String ;
     { Force l'affichage du signe }
-    ForceSign : Boolean ;
+    lbForceSign : Boolean ;
     { Ajoute des éléments devant e.g. 0x devant l'hexa }
-    AddBefore : Boolean ;
-
-    i, j, len, index : Integer ;
-    Text : string ;
-    MaxArgs : Integer ;
-    tmp, tmp2, tmp3 : String ;
-    tmpFloat : Extended ;
-    tmpInt : Integer ;
+    lbAddBefore : Boolean ;
+    { Index de la chaine template à traiter }
+    liIndexChaineATraiter : Integer ;
+    { Index de départ, pour savoir si la chaine à avancé }
+    liAvancementIndex : Integer ;
+    { Taille du template }
+    liLengthChaineATraiter : Integer ;
+    { Pointe sur les aoArguments à afficher. Commence à 1 car aoArguments[0] contient
+      le template }
+    liIndexArgument : Integer ;
+    { Chaine de formatage de l'affichage (ex : "%8.2f" }
+    lsTextTemplate : string ;
+    { Indique le nombre d'agrument à afficher }
+    liMaxArgs : Integer ;
+    { Variable temporaire }
+    lsTmp : String ;
+    lsTmp2 : String ;
+    lsTmp3 : String ;
+    { Permet de savoir si on a une partie fractionnaire }
+    lfTmpFloat : Extended ;
+    { Permet d'obtenir la partie entière }
+    liTmpInt : Integer ;
     
-    function GetNumberOfElement(Text : String; var i : Integer) : Integer ;
-    var len : Integer ;
-        fin : Integer ;
-        debut : Integer ;
+    { Retoure le chiffre sous aiCurrentIndex }
+    function GetNumberOfElement(asText : String; var aiCurrentIndex : Integer) : Integer ;
+    var
+        { Taille de la chaine passée en paramètre }
+        liTextLength : Integer ;
+        { Fin du chiffre }
+        liFin : Integer ;
+        { Début du chiffre }
+        liDebut : Integer ;
     begin
-        len := Length(Text) ;
-        fin := 0 ;
+        liTextLength := Length(asText) ;
+        liFin := 0 ;
         
         { 1 - Récupère le numéro d'argument à afficher }
-        debut := i ;
+        liDebut := aiCurrentIndex ;
 
-        while i <= len do
+        while aiCurrentIndex <= liTextLength do
         begin
             OverTimeAndMemory ;
-            if GlobalError
-            then
-                break ;
-
-            if not (Text[i] in ['0'..'9'])
+            
+            if gbError
             then begin
-                fin := i ;
                 break ;
             end ;
 
-            Inc(i) ;
+            if not (asText[aiCurrentIndex] in ['0'..'9'])
+            then begin
+                liFin := aiCurrentIndex ;
+                break ;
+            end ;
+
+            Inc(aiCurrentIndex) ;
         end ;
 
-        if fin - debut > 0
-        then
-            Result := MyStrToInt(Copy(Text, debut, fin - debut))
-        else
+        if liFin - liDebut > 0
+        then begin
+            Result := MyStrToInt(Copy(asText, liDebut, liFin - liDebut)) ;
+        end
+        else begin
             Result := 0 ;
-
+        end ;
     end ;
 
-    function SetSign(tmp : string; isNeg : Boolean; LongueurDebut : Integer; Remplissage : String) : string ;
-    var j : Integer ;
+    { Ajoute le signe à une chaine représentant un nombre. S'il y a un remplissage devant,
+      ajoute insert le signe au début, sinon, l'ajoute }
+    function SetSign(asText : string; isNeg : Boolean; aiLongueurDebut : Integer; lsRemplissage : String) : string ;
+    var
+        { Index de chaine }
+        liIndex : Integer ;
     begin
-        if LongueurDebut > 0
+        if aiLongueurDebut > 0
         then begin
             { position le - au premier espace trouvé }
-            for j := Length(tmp) downto 1 do
+            for liIndex := Length(asText) downto 1 do
             begin
-                if tmp[j] = Remplissage
+                if asText[liIndex] = lsRemplissage
                 then begin
                     if isNeg
-                    then
-                        tmp[j] := '-'
-                    else
-                        tmp[j] := '+' ;
+                    then begin
+                        asText[liIndex] := '-'
+                    end
+                    else begin
+                        asText[liIndex] := '+' ;
+                    end ;
 
                     break ;
                 end
                 else begin
-                    { si aucun espace n'est trouvé il faut alors
+                    { si aucun remplissage n'est trouvé il faut alors
                       ajouter le moins devant }
-                    if j = 1
+                    if liIndex = 1
                     then begin
                         if isNeg
-                        then
-                            tmp := tmp + '-'
-                        else
-                            tmp := tmp + '+' ;
+                        then begin
+                            asText := asText + '-' ;
+                        end
+                        else begin
+                            asText := asText + '+' ;
+                        end ;
                     end ;
                end ;
             end ;
         end
         else begin
             if isNeg
-            then
-                tmp := '-' + tmp
-            else
-                tmp := '+' + tmp ;
+            then begin
+                asText := '-' + asText ;
+            end
+            else begin
+                asText := '+' + asText ;
+            end ;
         end ;
 
-        Result := Tmp ;
+        Result := asText ;
     end ;
 begin
-    if arguments.count > 1
+    if aoArguments.count > 1
     then begin
         { Nombre maximum d'argument passé en paramètre. - 1 car le premier
           élément est la chaine }
-        MaxArgs := arguments.Count - 1 ;
+        liMaxArgs := aoArguments.Count - 1 ;
 
-        i := 1 ;
-        
+        liIndexChaineATraiter := 1 ;
+
         { index pointe sur l'élément à convertir. 1 Car 0 contient la chaine à
           afficher }
-        index := 1 ;
+        liIndexArgument := 1 ;
 
-        len := Length(arguments[0]) ;
-        Text := arguments[0] ;
+        liLengthChaineATraiter := Length(aoArguments[0]) ;
+        lsTextTemplate := aoArguments[0] ;
 
-        while i <= len do
+        while liIndexChaineATraiter <= liLengthChaineATraiter do
         begin
             OverTimeAndMemory ;
-            if GlobalError
+            if gbError
             then
                 break ;
 
             { Si on a un % c'est qu'on doit convertir une données }
-            if Text[i] = '%'
+            if lsTextTemplate[liIndexChaineATraiter] = '%'
             then begin
-                if (len - i) > 0
+                if (liLengthChaineATraiter - liIndexChaineATraiter) > 0
                 then begin
-                    Inc(i) ;
+                    Inc(liIndexChaineATraiter) ;
 
-                    if Text[i] <> '%'
+                    if lsTextTemplate[liIndexChaineATraiter] <> '%'
                     then begin
-                        if (Text[i] = '+')
+                        if (lsTextTemplate[liIndexChaineATraiter] = '+')
                         then begin
-                            ForceSign := True ;
-                            Inc(i) ;
+                            lbForceSign := True ;
+                            Inc(liIndexChaineATraiter) ;
                         end
-                        else
-                            ForceSign := False ;
+                        else begin
+                            lbForceSign := False ;
+                        end ;
 
-                        if (Text[i] = '#')
-                        then
-                            AddBefore := True
-                        else
-                            AddBefore := False ;
+                        if (lsTextTemplate[liIndexChaineATraiter] = '#')
+                        then begin
+                            lbAddBefore := True ;
+                        end
+                        else begin
+                            lbAddBefore := False ;
+                        end ;
 
                         { Espacement }
-                        if (Text[i] = ' ') or (Text[i] = '0') or (Text[i] = '''')
+                        if (lsTextTemplate[liIndexChaineATraiter] = ' ') or (lsTextTemplate[liIndexChaineATraiter] = '0') or (lsTextTemplate[liIndexChaineATraiter] = '''')
                         then begin
-                            if (Text[i] = '''')
-                            then
-                                Inc(i) ;
+                            if (lsTextTemplate[liIndexChaineATraiter] = '''')
+                            then begin
+                                Inc(liIndexChaineATraiter) ;
+                            end ;
 
-                            Espacement := Text[i] ;
-                            Inc(i) ;
+                            lsEspacement := lsTextTemplate[liIndexChaineATraiter] ;
+                            Inc(liIndexChaineATraiter) ;
                         end
-                        else
-                            Espacement := ' ' ;
+                        else begin
+                            lsEspacement := ' ' ;
+                        end ;
 
                         { Remplissage }
-                        if (Text[i] = ' ') or (Text[i] = '0') or (Text[i] = '''')
+                        if (lsTextTemplate[liIndexChaineATraiter] = ' ') or (lsTextTemplate[liIndexChaineATraiter] = '0') or (lsTextTemplate[liIndexChaineATraiter] = '''')
                         then begin
-                            if (Text[i] = '''')
-                            then
-                                Inc(i) ;
+                            if (lsTextTemplate[liIndexChaineATraiter] = '''')
+                            then begin
+                                Inc(liIndexChaineATraiter) ;
+                            end ;
 
-                            Remplissage := Text[i] ;
-                            Inc(i) ;
+                            lsRemplissage := lsTextTemplate[liIndexChaineATraiter] ;
+                            Inc(liIndexChaineATraiter) ;
                         end
-                        else
-                            Remplissage := ' ' ;
+                        else begin
+                            lsRemplissage := ' ' ;
+                        end ;
 
-                        if Text[i] = '-'
+                        if lsTextTemplate[liIndexChaineATraiter] = '-'
                         then begin
-                            AlignerAGauche := True ;
-                            Inc(i) ;
+                            lbAlignerAGauche := True ;
+                            Inc(liIndexChaineATraiter) ;
                         end
-                        else
-                            AlignerAGauche := False ;
+                        else begin
+                            lbAlignerAGauche := False ;
+                        end ;
 
                         { Longueur de début }
-                        j := i ;
-                        longueurDebut := GetNumberOfElement(Text, i) ;
+                        liAvancementIndex := liIndexChaineATraiter ;
+                        liLongueurDebut := GetNumberOfElement(lsTextTemplate, liIndexChaineATraiter) ;
 
                         { Si le pointeur de chaine n'a pas avancé }
-                        if i = j
+                        if liIndexChaineATraiter = liAvancementIndex
                         then begin
-                            if Text[i] = '*'
+                            if lsTextTemplate[liIndexChaineATraiter] = '*'
                             then begin
-                                longueurDebut := MyStrToInt(arguments[index]) ;
-                                Inc(Index) ;
-                                Inc(i) ;
+                                liLongueurDebut := MyStrToInt(aoArguments[liIndexArgument]) ;
+                                Inc(liIndexArgument) ;
+                                Inc(liIndexChaineATraiter) ;
                             end ;
                         end ;
 
-                        longueurFin := 6 ;
-                        
+                        liLongueurFin := 6 ;
+
                         { Est-ce un point ? }
-                        if Text[i] = '.'
+                        if lsTextTemplate[liIndexChaineATraiter] = '.'
                         then begin
-                            Inc(i) ;
+                            Inc(liIndexChaineATraiter) ;
 
                             { Longueur de fin }
-                            j := i ;
-                            longueurFin := GetNumberOfElement(Text, i) ;
+                            liAvancementIndex := liIndexChaineATraiter ;
+                            liLongueurFin := GetNumberOfElement(lsTextTemplate, liIndexChaineATraiter) ;
 
                             { Si le pointeur de chaine n'a pas avancé }
-                            if i = j
+                            if liIndexChaineATraiter = liAvancementIndex
                             then begin
-                                if Text[i] = '*'
+                                if lsTextTemplate[liIndexChaineATraiter] = '*'
                                 then begin
-                                    longueurFin := MyStrToInt(arguments[index]) ;
-                                    Inc(Index) ;
-                                    Inc(i) ;
+                                    liLongueurFin := MyStrToInt(aoArguments[liIndexArgument]) ;
+                                    Inc(liIndexArgument) ;
+                                    Inc(liIndexChaineATraiter) ;
                                 end ;
                             end ;
                         end ;
 
-                        TypeData := Text[i] ;
+                        lsTypeData := lsTextTemplate[liIndexChaineATraiter] ;
 
-                        if Index <= MaxArgs
+                        if liIndexArgument <= liMaxArgs
                         then begin
-                            if TypeData = 'u'
+                            if lsTypeData = 'u'
                             then begin
-                                TypeData := 'd' ;
-                                
-                                if isInteger(arguments[index])
+                                lsTypeData := 'd' ;
+
+                                if isInteger(aoArguments[liIndexArgument])
                                 then begin
-                                    tmp := arguments[index] ;
-                                    
-                                    if tmp <> ''
+                                    lsTmp := aoArguments[liIndexArgument] ;
+
+                                    if lsTmp <> ''
                                     then begin
-                                        if tmp[1] = '-'
+                                        if lsTmp[1] = '-'
                                         then begin
-                                            arguments[index] := copy(tmp, 2, length(tmp) - 1) ;
+                                            aoArguments[liIndexArgument] := copy(lsTmp, 2, length(lsTmp) - 1) ;
                                         end ;
                                     end ;
                                 end ;
                             end ;
 
-                            if TypeData = 'c'
+                            if lsTypeData = 'c'
                             then begin
-                                if isInteger(arguments[index])
+                                if isInteger(aoArguments[liIndexArgument])
                                 then begin
-                                    ResultFunction := ResultFunction + Chr(MyStrToInt(arguments[index])) ;
+                                    gsResultFunction := gsResultFunction + Chr(MyStrToInt(aoArguments[liIndexArgument])) ;
                                 end ;
                             end
-                            else if TypeData = 'd'
+                            else if lsTypeData = 'd'
                             then begin
-                                if isFloat(arguments[index])
+                                if isFloat(aoArguments[liIndexArgument])
                                 then begin
-                                    tmp := extractIntPart(arguments[index]) ;
+                                    lsTmp := extractIntPart(aoArguments[liIndexArgument]) ;
 
-                                    if AlignerAGauche
+                                    if lbAlignerAGauche
                                     then begin
-                                        if ForceSign
+                                        if lbForceSign
                                         then begin
-                                            if tmp[1] <> '-'
-                                            then
-                                                tmp := '+' + tmp ;
-                                        end ;
-
-                                        tmp := tmp + RepeterCaractere(Espacement, LongueurDebut - Length(tmp))
-                                    end
-                                    else begin
-                                        isNeg := False ;
-
-                                        if tmp <> ''
-                                        then begin
-                                            if tmp[1] = '-'
+                                            if lsTmp[1] <> '-'
                                             then begin
-                                                isNeg := True ;
-                                                tmp := copy(tmp, 2, length(tmp) - 1) ;
+                                                lsTmp := '+' + lsTmp ;
                                             end ;
                                         end ;
 
-                                        tmp := RepeterCaractere(Remplissage, LongueurDebut - Length(tmp)) + tmp ;
+                                        lsTmp := lsTmp + RepeterCaractere(lsEspacement, liLongueurDebut - Length(lsTmp))
+                                    end
+                                    else begin
+                                        lbIsNeg := False ;
 
-                                        if isNeg or ForceSign
+                                        if lsTmp <> ''
                                         then begin
-                                            tmp := SetSign(tmp, isNeg, longueurDebut, Remplissage) ;
+                                            if lsTmp[1] = '-'
+                                            then begin
+                                                lbIsNeg := True ;
+                                                lsTmp := copy(lsTmp, 2, length(lsTmp) - 1) ;
+                                            end ;
+                                        end ;
+
+                                        lsTmp := RepeterCaractere(lsRemplissage, liLongueurDebut - Length(lsTmp)) + lsTmp ;
+
+                                        if lbIsNeg or lbForceSign
+                                        then begin
+                                            lsTmp := SetSign(lsTmp, lbIsNeg, liLongueurDebut, lsRemplissage) ;
                                         end ;
                                     end ;
 
-                                    ResultFunction := ResultFunction + tmp ;
+                                    gsResultFunction := gsResultFunction + lsTmp ;
                                 end
                             end
-                            else if TypeData = 'f'
+                            else if lsTypeData = 'f'
                             then begin
-                                if isFloat(arguments[index])
+                                if isFloat(aoArguments[liIndexArgument])
                                 then begin
-                                    tmp := extractIntPart(arguments[index]) ;
-                                    tmp2 := extractFloatPart(arguments[index]) ;
+                                    lsTmp := extractIntPart(aoArguments[liIndexArgument]) ;
+                                    lsTmp2 := extractFloatPart(aoArguments[liIndexArgument]) ;
 
                                     { Tronque la partie flottante }
-                                    if LongueurFin > 0
+                                    if liLongueurFin > 0
                                     then
-                                        tmp2 := '.' + Copy(tmp2, 1, LongueurFin)
+                                        lsTmp2 := '.' + Copy(lsTmp2, 1, liLongueurFin)
                                     else
                                         { si la précision est à 0 on n'affiche même pas le . }
-                                        tmp2 := '' ;
+                                        lsTmp2 := '' ;
 
-                                    if Length(tmp2) < LongueurFin
-                                    then
-                                        tmp2 := tmp2 + RepeterCaractere('0', LongueurFin - Length(tmp2)) ;
-
-                                    if AlignerAGauche
+                                    if Length(lsTmp2) < liLongueurFin
                                     then begin
-                                        if ForceSign
-                                        then begin
-                                            if tmp[1] <> '-'
-                                            then
-                                                tmp := '+' + tmp ;
-                                        end ;
+                                        lsTmp2 := lsTmp2 + RepeterCaractere('0', liLongueurFin - Length(lsTmp2)) ;
+                                    end ;
 
-                                        tmp := tmp + tmp2 + RepeterCaractere(Remplissage, LongueurDebut - (length(tmp) + length(tmp2)))
-                                    end
-                                    else begin
-                                        isNeg := False ;
-
-                                        if tmp <> ''
+                                    if lbAlignerAGauche
+                                    then begin
+                                        if lbForceSign
                                         then begin
-                                            if tmp[1] = '-'
+                                            if lsTmp[1] <> '-'
                                             then begin
-                                                isNeg := True ;
-                                                tmp := copy(tmp, 2, length(tmp) - 1) ;
+                                                lsTmp := '+' + lsTmp ;
                                             end ;
                                         end ;
 
-                                        tmp := RepeterCaractere(Remplissage, LongueurDebut - Length(tmp) - Length(tmp2)) + tmp + tmp2 ;
+                                        lsTmp := lsTmp + lsTmp2 + RepeterCaractere(lsRemplissage, liLongueurDebut - (length(lsTmp) + length(lsTmp2)))
+                                    end
+                                    else begin
+                                        lbIsNeg := False ;
 
-                                        if isNeg or ForceSign
+                                        if lsTmp <> ''
                                         then begin
-                                            tmp := SetSign(tmp, isNeg, longueurDebut, Remplissage) ;
+                                            if lsTmp[1] = '-'
+                                            then begin
+                                                lbIsNeg := True ;
+                                                lsTmp := copy(lsTmp, 2, length(lsTmp) - 1) ;
+                                            end ;
+                                        end ;
+
+                                        lsTmp := RepeterCaractere(lsRemplissage, liLongueurDebut - Length(lsTmp) - Length(lsTmp2)) + lsTmp + lsTmp2 ;
+
+                                        if lbIsNeg or lbForceSign
+                                        then begin
+                                            lsTmp := SetSign(lsTmp, lbIsNeg, liLongueurDebut, lsRemplissage) ;
                                         end ;
                                     end ;
 
-                                    ResultFunction := ResultFunction + tmp ;
+                                    gsResultFunction := gsResultFunction + lsTmp ;
                                 end ;
                             end
-                            else if TypeData = 's'
+                            else if lsTypeData = 's'
                             then begin
-                                tmp := arguments[index] ;
+                                lsTmp := aoArguments[liIndexArgument] ;
 
-                                tmp := Copy(arguments[index], 1, LongueurFin) ;
+                                lsTmp := Copy(aoArguments[liIndexArgument], 1, liLongueurFin) ;
 
-                                if AlignerAGauche
+                                if lbAlignerAGauche
                                 then
-                                    tmp := tmp + RepeterCaractere(Remplissage, LongueurDebut)
+                                    lsTmp := lsTmp + RepeterCaractere(lsRemplissage, liLongueurDebut)
                                 else begin
-                                    tmp := RepeterCaractere(Remplissage, LongueurDebut - Length(tmp)) + tmp ;
+                                    lsTmp := RepeterCaractere(lsRemplissage, liLongueurDebut - Length(lsTmp)) + lsTmp ;
                                 end ;
 
-                                ResultFunction := ResultFunction + tmp ;
+                                gsResultFunction := gsResultFunction + lsTmp ;
                             end
-                            else if (TypeData = 'x') or (TypeData = 'X')
+                            else if (lsTypeData = 'x') or (lsTypeData = 'X')
                             then begin
-                                if isFloat(arguments[index])
+                                if isFloat(aoArguments[liIndexArgument])
                                 then begin
-                                    tmp := ExtractIntPart(arguments[index]) ;
+                                    lsTmp := ExtractIntPart(aoArguments[liIndexArgument]) ;
 
-                                    tmp := DecToHex(MyStrToInt(tmp)) ;
+                                    lsTmp := DecToHex(MyStrToInt(lsTmp)) ;
 
-                                    if AddBefore
-                                    then
-                                        tmp := '0x' + tmp ;
-
-                                    if TypeData = 'X'
-                                    then
-                                        tmp := UpperCase(tmp) ;
-
-                                    if AlignerAGauche
-                                    then
-                                        tmp := tmp + RepeterCaractere(Remplissage, LongueurDebut)
-                                    else begin
-                                        tmp := RepeterCaractere(Remplissage, LongueurDebut - Length(tmp)) + tmp ;
-                                    end ;
-
-                                    ResultFunction := ResultFunction + tmp ;
-                                end
-                            end
-                            else if (TypeData = 'o') or (TypeData = 'b')
-                            then begin
-                                if isFloat(arguments[index])
-                                then begin
-                                    tmp := ExtractIntPart(arguments[index]) ;
-
-                                    if (TypeData = 'o')
+                                    if lbAddBefore
                                     then begin
-                                        tmp := DecToOct(MyStrToInt(tmp)) ;
-
-                                        if AddBefore
-                                        then
-                                            tmp := '0' + tmp ;
-                                    end
-                                    else
-                                        tmp := DecToBin(MyStrToInt(tmp)) ;
-
-                                    if AlignerAGauche
-                                    then
-                                        tmp := tmp + RepeterCaractere(Remplissage, LongueurDebut)
-                                    else begin
-                                        tmp := RepeterCaractere(Remplissage, LongueurDebut - Length(tmp)) + tmp ;
+                                        lsTmp := '0x' + lsTmp ;
                                     end ;
 
-                                    ResultFunction := ResultFunction + tmp ;
+                                    if lsTypeData = 'X'
+                                    then begin
+                                        lsTmp := UpperCase(lsTmp) ;
+                                    end ;
+
+                                    if lbAlignerAGauche
+                                    then begin
+                                        lsTmp := lsTmp + RepeterCaractere(lsRemplissage, liLongueurDebut) ;
+                                    end
+                                    else begin
+                                        lsTmp := RepeterCaractere(lsRemplissage, liLongueurDebut - Length(lsTmp)) + lsTmp ;
+                                    end ;
+
+                                    gsResultFunction := gsResultFunction + lsTmp ;
                                 end
                             end
-                            else if TypeData = 'e'
+                            else if (lsTypeData = 'o') or (lsTypeData = 'b')
                             then begin
-                                if isFloat(arguments[index])
+                                if isFloat(aoArguments[liIndexArgument])
+                                then begin
+                                    lsTmp := ExtractIntPart(aoArguments[liIndexArgument]) ;
+
+                                    if (lsTypeData = 'o')
+                                    then begin
+                                        lsTmp := DecToOct(MyStrToInt(lsTmp)) ;
+
+                                        if lbAddBefore
+                                        then begin
+                                            lsTmp := '0' + lsTmp ;
+                                        end ;
+                                    end
+                                    else begin
+                                        lsTmp := DecToBin(MyStrToInt(lsTmp)) ;
+                                    end ;
+
+                                    if lbAlignerAGauche
+                                    then begin
+                                        lsTmp := lsTmp + RepeterCaractere(lsRemplissage, liLongueurDebut) ;
+                                    end
+                                    else begin
+                                        lsTmp := RepeterCaractere(lsRemplissage, liLongueurDebut - Length(lsTmp)) + lsTmp ;
+                                    end ;
+
+                                    gsResultFunction := gsResultFunction + lsTmp ;
+                                end
+                            end
+                            else if lsTypeData = 'e'
+                            then begin
+                                if isFloat(aoArguments[liIndexArgument])
                                 then begin
                                     { Est-ce une partie fractionnaire ? }
-                                    tmpFloat := Abs(MyStrToFloat(arguments[index])) ;
+                                    lfTmpFloat := Abs(MyStrToFloat(aoArguments[liIndexArgument])) ;
 
-                                    if tmpFloat < 1
+                                    if lfTmpFloat < 1
                                     then begin
                                         { Si le nombre est inférieur à 1 on affichera en xxxE-xxx}
-                                        if tmpFloat <> 0
+                                        if lfTmpFloat <> 0
                                         then begin
-                                            Indice := '-' ;
+                                            lsIndice := '-' ;
 
-                                            tmpInt := 0 ;
+                                            liTmpInt := 0 ;
 
-                                            while tmpFloat < 1 do
+                                            while lfTmpFloat < 1 do
                                             begin
                                                 OverTimeAndMemory ;
-                                                if GlobalError
-                                                then
+                                                if gbError
+                                                then begin
                                                     break ;
+                                                end ;
 
-                                                tmpFloat := tmpFloat * 10 ;
-                                                Inc(tmpInt) ;
+                                                lfTmpFloat := lfTmpFloat * 10 ;
+                                                Inc(liTmpInt) ;
                                             end ;
 
-                                            arguments[index] := MyFloatToStr(tmpFloat) ;
+                                            aoArguments[liIndexArgument] := MyFloatToStr(lfTmpFloat) ;
 
                                         end
                                         else begin
-                                            Indice := '+' ;
-                                            tmpInt := 0 ;
+                                            lsIndice := '+' ;
+                                            liTmpInt := 0 ;
                                         end ;
                                     end
                                     else begin
                                         { Si le nombre est supérieur à 1 on affichera le nombre en xxxE+xx}
-                                        Indice := '+' ;
+                                        lsIndice := '+' ;
 
                                         { On arrondi la virgule et obtient un entier }
-                                        tmpInt := Round(MyStrToFloat(arguments[index])) ;
+                                        liTmpInt := Round(MyStrToFloat(aoArguments[liIndexArgument])) ;
 
-                                        tmp := IntToStr(tmpInt) ;
+                                        lsTmp := IntToStr(liTmpInt) ;
 
                                         { calculer le nombre d'élément après la virgule }
-                                        tmpInt := Length(tmp) - LongueurFin ;
+                                        liTmpInt := Length(lsTmp) - liLongueurFin ;
 
                                         { On insère la virgule pour obtenir un nombre en x.xxxx }
-                                        if tmp[1] = '-'
-                                        then
-                                            Insert('.', tmp, 3)
-                                        else
-                                            Insert('.', tmp, 2) ;
+                                        if lsTmp[1] = '-'
+                                        then begin
+                                            Insert('.', lsTmp, 3) ;
+                                        end
+                                        else begin
+                                            Insert('.', lsTmp, 2) ;
+                                        end ;
 
                                         { Convertit en float pour arrondir }
-                                        tmpFloat := MyStrToFloat(tmp) ;
-                                        tmpFloat := RoundTo(tmpFloat, -1 * LongueurFin) ;
+                                        lfTmpFloat := MyStrToFloat(lsTmp) ;
+                                        lfTmpFloat := RoundTo(lfTmpFloat, -1 * liLongueurFin) ;
 
                                         { force le séparateur décimal à '.' }
                                         DecimalSeparator := '.' ;
 
-                                        arguments[index] := FloatToStr(tmpFloat) ;
+                                        aoArguments[liIndexArgument] := FloatToStr(lfTmpFloat) ;
                                     end ;
 
                                     { Construit la partie exposant xxE-/+ }
-                                    tmp3 := 'e' + Indice + IntToStr(tmpInt) ;
+                                    lsTmp3 := 'e' + lsIndice + IntToStr(liTmpInt) ;
 
                                     { Sépare la partie floattant de la partie entiere }
-                                    tmp := extractIntPart(arguments[index]) ;
-                                    tmp2 := extractFloatPart(arguments[index]) ;
+                                    lsTmp := extractIntPart(aoArguments[liIndexArgument]) ;
+                                    lsTmp2 := extractFloatPart(aoArguments[liIndexArgument]) ;
 
                                     { Tronque la partie flottante }
-                                    tmp2 := Copy(tmp2, 1, LongueurFin) ;
+                                    lsTmp2 := Copy(lsTmp2, 1, liLongueurFin) ;
 
-                                    if Length(tmp2) < LongueurFin
-                                    then
-                                        tmp2 := tmp2 + RepeterCaractere('0', LongueurFin - Length(tmp2)) ;
-
-                                    if AlignerAGauche
+                                    if Length(lsTmp2) < liLongueurFin
                                     then begin
-                                        if ForceSign
-                                        then begin
-                                            if tmp[1] <> '-'
-                                            then
-                                                tmp := '+' + tmp ;
-                                        end ;
-                                                                            
-                                        tmp := tmp + '.' + tmp2 + tmp3 + RepeterCaractere(Remplissage, LongueurDebut - (length(tmp) + length(tmp2) + 1 + Length(tmp3)))
-                                    end
-                                    else begin
-                                        isNeg := False ;
+                                        lsTmp2 := lsTmp2 + RepeterCaractere('0', liLongueurFin - Length(lsTmp2)) ;
+                                    end ;
 
-                                        if tmp <> ''
+                                    if lbAlignerAGauche
+                                    then begin
+                                        if lbForceSign
                                         then begin
-                                            if tmp[1] = '-'
+                                            if lsTmp[1] <> '-'
                                             then begin
-                                                isNeg := True ;
-                                                tmp := copy(tmp, 2, length(tmp) - 1) ;
+                                                lsTmp := '+' + lsTmp ;
                                             end ;
                                         end ;
 
-                                        tmp := RepeterCaractere(Remplissage, LongueurDebut - Length(tmp) - Length(tmp2) - 1 - Length(tmp3)) + tmp + '.' + tmp2 + tmp3 ;
+                                        lsTmp := lsTmp + '.' + lsTmp2 + lsTmp3 + RepeterCaractere(lsRemplissage, liLongueurDebut - (length(lsTmp) + length(lsTmp2) + 1 + Length(lsTmp3)))
+                                    end
+                                    else begin
+                                        lbIsNeg := False ;
 
-                                        if isNeg or ForceSign
+                                        if lsTmp <> ''
                                         then begin
-                                            tmp := SetSign(tmp, isNeg, longueurDebut, Remplissage) ;
+                                            if lsTmp[1] = '-'
+                                            then begin
+                                                lbIsNeg := True ;
+                                                lsTmp := copy(lsTmp, 2, length(lsTmp) - 1) ;
+                                            end ;
+                                        end ;
+
+                                        lsTmp := RepeterCaractere(lsRemplissage, liLongueurDebut - Length(lsTmp) - Length(lsTmp2) - 1 - Length(lsTmp3)) + lsTmp + '.' + lsTmp2 + lsTmp3 ;
+
+                                        if lbIsNeg or lbForceSign
+                                        then begin
+                                            lsTmp := SetSign(lsTmp, lbIsNeg, liLongueurDebut, lsRemplissage) ;
                                         end ;
                                     end ;
 
-                                    ResultFunction := ResultFunction + tmp ;
+                                    gsResultFunction := gsResultFunction + lsTmp ;
                                 end ;
-                            end ;                            
+                            end ;
                         end
                         else begin
-                            ErrorMsg(sTooArguments) ;
+                            ErrorMsg(csTooArguments) ;
                             break ;
                         end ;
 
-                        Inc(Index) ;
+                        Inc(liIndexArgument) ;
                     end
                     else begin
-                        ResultFunction := ResultFunction + '%' ;
+                        gsResultFunction := gsResultFunction + '%' ;
                     end ;
                 end ;
             end
             else begin
-                ResultFunction := resultFunction + Text[i] ;
+                gsResultFunction := gsResultFunction + lsTextTemplate[liIndexChaineATraiter] ;
             end ;
 
-            Inc(i) ;
+            Inc(liIndexChaineATraiter) ;
         end ;
     end
-    else if arguments.count < 1
+    else if aoArguments.count < 1
     then begin
-        ErrorMsg(sMissingargument) ;
+        ErrorMsg(csMissingargument) ;
     end
 end ;
 
-procedure strBase64EncodeCommande(arguments : TStringList) ;
+procedure strBase64EncodeCommande(aoArguments : TStringList) ;
 begin
-    if arguments.count = 1
+    if aoArguments.count = 1
     then begin
-        ResultFunction := Encode64(arguments[0]) ;
+        gsResultFunction := Encode64(aoArguments[0]) ;
     end
-    else if arguments.count < 1
+    else if aoArguments.count < 1
     then begin
-        ErrorMsg(sMissingargument) ;
+        ErrorMsg(csMissingargument) ;
     end
-    else if arguments.count > 1
+    else if aoArguments.count > 1
     then begin
-        ErrorMsg(sTooArguments) ;
+        ErrorMsg(csTooArguments) ;
     end ;
 end ;
 
-procedure strBase64DecodeCommande(arguments : TStringList) ;
+procedure strBase64DecodeCommande(aoArguments : TStringList) ;
 begin
-    if arguments.count = 1
+    if aoArguments.count = 1
     then begin
-        ResultFunction := Decode64(arguments[0]) ;
+        gsResultFunction := Decode64(aoArguments[0]) ;
     end
-    else if arguments.count < 1
+    else if aoArguments.count < 1
     then begin
-        ErrorMsg(sMissingargument) ;
+        ErrorMsg(csMissingargument) ;
     end
-    else if arguments.count > 1
+    else if aoArguments.count > 1
     then begin
-        ErrorMsg(sTooArguments) ;
+        ErrorMsg(csTooArguments) ;
     end ;
 end ;
 
-procedure strSoundExCommande(arguments : TStringList) ;
+procedure strSoundExCommande(aoArguments : TStringList) ;
 begin
-    if arguments.count = 1
+    if aoArguments.count = 1
     then begin
-        ResultFunction := soundex(arguments[0]) ;
+        gsResultFunction := soundex(aoArguments[0]) ;
     end
-    else if arguments.count < 1
+    else if aoArguments.count < 1
     then begin
-        ErrorMsg(sMissingargument) ;
+        ErrorMsg(csMissingargument) ;
     end
-    else if arguments.count > 1
+    else if aoArguments.count > 1
     then begin
-        ErrorMsg(sTooArguments) ;
+        ErrorMsg(csTooArguments) ;
     end ;
 end ;
 
-procedure strUcFirstCommande(arguments : TStringList) ;
-var index : Integer ;
+procedure strUcFirstCommande(aoArguments : TStringList) ;
+var
+    { Compteur de position de chaine }
+    liIndex : Integer ;
 begin
-    if arguments.count = 1
+    if aoArguments.count = 1
     then begin
-        index := 1 ;
+        liIndex := 1 ;
 
-        if length(arguments[0]) > 0
+        if length(aoArguments[0]) > 0
         then begin
-            while (arguments[0][index] = ' ') or (arguments[0][index] = #9) do
+            while (aoArguments[0][liIndex] = ' ') or (aoArguments[0][liIndex] = #9) do
             begin
-                Inc(Index) ;
+                Inc(liIndex) ;
             end ;
 
-            ResultFunction := arguments[0] ;
-            ResultFunction[index] := UpperChar(ResultFunction[index]) ;
+            gsResultFunction := aoArguments[0] ;
+            gsResultFunction[liIndex] := UpperChar(gsResultFunction[liIndex]) ;
         end ;
     end
-    else if arguments.count < 1
+    else if aoArguments.count < 1
     then begin
-        ErrorMsg(sMissingargument) ;
+        ErrorMsg(csMissingargument) ;
     end
-    else if arguments.count > 1
+    else if aoArguments.count > 1
     then begin
-        ErrorMsg(sTooArguments) ;
+        ErrorMsg(csTooArguments) ;
     end ;
 end ;
 
-procedure strUcWordsCommande(arguments : TStringList) ;
-var index : Integer ;
-    len : Integer ;
+procedure strUcWordsCommande(aoArguments : TStringList) ;
+var
+    { Compteur de boucle de caractère }
+    liIndex : Integer ;
+    { Taille de la chaine à traiter }
+    liLenght : Integer ;
 begin
-    if arguments.count = 1
+    if aoArguments.count = 1
     then begin
-        index := 1 ;
-        ResultFunction := arguments[0] ;
-        len := length(arguments[0]) ;
+        liIndex := 1 ;
+        gsResultFunction := aoArguments[0] ;
+        liLenght  := length(aoArguments[0]) ;
 
-        while index < len do
+        while liIndex < liLenght  do
         begin
-            while (arguments[0][index] = ' ') or (arguments[0][index] = #9) do
+            while (aoArguments[0][liIndex] = ' ') or (aoArguments[0][liIndex] = #9) do
             begin
-                Inc(Index) ;
+                Inc(liIndex) ;
 
-                if Index > len
-                then
+                if liIndex > liLenght
+                then begin
                     break ;
+                end ;
             end ;
 
-            ResultFunction[index] := UpperChar(ResultFunction[index]) ;
+            gsResultFunction[liIndex] := UpperChar(gsResultFunction[liIndex]) ;
 
-            while (arguments[0][index] <> ' ') and (arguments[0][index] <> #9) do
+            while (aoArguments[0][liIndex] <> ' ') and (aoArguments[0][liIndex] <> #9) do
             begin
-                Inc(Index) ;
+                Inc(liIndex) ;
 
-                if Index > len
-                then
+                if liIndex > liLenght
+                then begin
                     break ;                
+                end ;
             end ;
         end ;
     end
-    else if arguments.count < 1
+    else if aoArguments.count < 1
     then begin
-        ErrorMsg(sMissingargument) ;
+        ErrorMsg(csMissingargument) ;
     end
-    else if arguments.count > 1
+    else if aoArguments.count > 1
     then begin
-        ErrorMsg(sTooArguments) ;
+        ErrorMsg(csTooArguments) ;
     end ;
 end ;
 
-procedure strtrCommande(arguments : TStringList) ;
-var Liste1, Liste2 : TStringList ;
-    i : Integer ;
-    modifiedstring : String ;
-    len : Integer ;
-    Str : String ;
+procedure strtrCommande(aoArguments : TStringList) ;
+var
+    { Liste des caractères à remplacer }
+    loListeCaractereARemplacer : TStringList ;
+    { Liste des caractères de remplacement }
+    loListeCaractereRemplacement : TStringList ;
+    { Index de chaine }
+    liIndex : Integer ;
+    { Chaine temporaire recevant la chaine modifiée au fur et à mesure }
+    lsModifiedString : String ;
+    { Chaine à remplacer }
+    lsStr : String ;
 begin
-    if arguments.count = 3
+    if aoArguments.count = 3
     then begin
-        Liste1 := TStringList.Create ;
-        Liste2 := TStringList.Create ;
+        loListeCaractereARemplacer := TStringList.Create ;
+        loListeCaractereRemplacement := TStringList.Create ;
 
-        if Variables.InternalisArray(arguments[1])
-        then
-            Variables.explode(Liste1, arguments[1])
+        if goVariables.InternalisArray(aoArguments[1])
+        then begin
+            goVariables.explode(loListeCaractereARemplacer, aoArguments[1]) ;
+        end
         else begin
-            for i := 1 to Length(arguments[1]) do
+            for liIndex := 1 to Length(aoArguments[1]) do
             begin
-                Liste1.Add(arguments[1][i]) ;
+                loListeCaractereARemplacer.Add(aoArguments[1][liIndex]) ;
             end ;
         end ;
 
-        if Variables.InternalisArray(arguments[2])
-        then
-            Variables.explode(Liste2, arguments[2])
+        if goVariables.InternalisArray(aoArguments[2])
+        then begin
+            goVariables.explode(loListeCaractereRemplacement, aoArguments[2]) ;
+        end
         else begin
-            len := length(arguments[2]) ;
-
-            for i := 1 to Length(arguments[1]) do
+            for liIndex := 0 to loListeCaractereRemplacement.Count - 1 do
             begin
-                { On vérifie qu'on a pas plus d'élément dans liste1 que dans
-                  liste2 }
-                if i <= len
-                then
-                    Liste2.Add(arguments[2][i])
-                else
-                    Liste2.Add('') ;
+                loListeCaractereRemplacement.Add(aoArguments[2][liIndex]) ;
             end ;
         end ;
 
-        Str := arguments[0] ;
+        lsStr := aoArguments[0] ;
 
-        modifiedstring := RepeterCaractere('0', Length(Str)) ;
+        lsModifiedString := RepeterCaractere('0', Length(lsStr)) ;
 
-        for i := 0 to Liste1.Count - 1 do
+        for liIndex := 0 to loListeCaractereARemplacer.Count - 1 do
         begin
-            ReplaceOneOccurenceOnce(Liste1[i], Str, Liste2[i], modifiedstring) ;
+            if liIndex > (loListeCaractereRemplacement.Count - 1)
+            then begin
+                break ;
+            end ;
+            
+            ReplaceOneOccurenceOnce(loListeCaractereARemplacer[liIndex], lsStr, loListeCaractereRemplacement[liIndex], lsModifiedString) ;
         end ;
 
-        ResultFunction := Str ;
+        gsResultFunction := lsStr ;
 
-        Liste1.Free ;
-        Liste2.Free ;
+        loListeCaractereARemplacer.Free ;
+        loListeCaractereRemplacement.Free ;
     end
-    else if arguments.count < 3
+    else if aoArguments.count < 3
     then begin
-        ErrorMsg(sMissingargument) ;
+        ErrorMsg(csMissingargument) ;
     end
-    else if arguments.count > 3
+    else if aoArguments.count > 3
     then begin
-        ErrorMsg(sTooArguments) ;
+        ErrorMsg(csTooArguments) ;
     end ;
 end ;
 
-procedure strrevCommande(arguments : TStringList) ;
-var i, len : Integer ;
+procedure strrevCommande(aoArguments : TStringList) ;
+var
+    { Compteur de boucle }
+    liIndex : Integer ;
+    { Longueur de la chaine à inverser}
+    liLength : Integer ;
 begin
-    if arguments.count = 1
+    if aoArguments.count = 1
     then begin
-        ResultFunction := '' ;
-        len := Length(arguments[0]) ;
+        gsResultFunction := '' ;
+        liLength := Length(aoArguments[0]) ;
 
-        for i := len downto 1 do
+        for liIndex := liLength downto 1 do
         begin
-            ResultFunction := ResultFunction + arguments[0][i] ;
+            gsResultFunction := gsResultFunction + aoArguments[0][liIndex] ;
         end ;
     end
-    else if arguments.count < 1
+    else if aoArguments.count < 1
     then begin
-        ErrorMsg(sMissingargument) ;
+        ErrorMsg(csMissingargument) ;
     end
-    else if arguments.count > 1
+    else if aoArguments.count > 1
     then begin
-        ErrorMsg(sTooArguments) ;
+        ErrorMsg(csTooArguments) ;
     end ;
 end ;
 
-procedure configParameter(var start : integer; var len : integer; var search : TStringList; arguments : TStringList) ;
+{*****************************************************************************
+ * configParameter
+ * MARTINEAU Emeric
+ *
+ * Configure les paramètres en fonctions des paramètres passés en script.
+ * Utilisé par strcspnCommande() et strspnCommande()
+ *
+ * Paramètres d'entrée :
+ *   - aoArguments : aoArguments passés à la fonction
+ *
+ * Paramètres de sortie :
+ *   - aiStart : paramètre de début,
+ *   - aiLength : paramètre de longueur,
+ *   - aoSearch : paramètre de recherche
+ *
+ *****************************************************************************}
+procedure configParameter(var aiStart : integer; var aiLength : integer; var aoSearch : TStringList; aoArguments : TStringList) ;
 var i : Integer ;
 begin
-    if arguments.count > 2
-    then
-        start := MyStrToInt(arguments[2])
-    else
-        start := 1 ;
-
-    if arguments.count > 3
-    then
-        len := MyStrToInt(arguments[3])
-    else
-        len := length(arguments[0]) ;
-
-    if Variables.InternalIsArray(arguments[1])
+    if aoArguments.count > 2
     then begin
-        Variables.Explode(search, arguments[1]) ;
+        aiStart := MyStrToInt(aoArguments[2]) ;
     end
     else begin
-        for i := 1 to length(arguments[1]) do
+        aiStart := 1 ;
+    end ;
+
+    if aoArguments.count > 3
+    then begin
+        aiLength := MyStrToInt(aoArguments[3]) ;
+    end
+    else begin
+        aiLength := length(aoArguments[0]) ;
+    end ;
+
+    if goVariables.InternalIsArray(aoArguments[1])
+    then begin
+        goVariables.Explode(aoSearch, aoArguments[1]) ;
+    end
+    else begin
+        for i := 1 to length(aoArguments[1]) do
         begin
-            search.add(arguments[1][i]) ;
+            aoSearch.add(aoArguments[1][i]) ;
         end ;
     end ;
 end ;
 
-procedure strcspnCommande(arguments : TStringList) ;
-var start, len, longueur, maxlongueur, i : integer ;
-     search : TStringList ;
+procedure strcspnCommande(aoArguments : TStringList) ;
+var
+    { Position de départ de recherche }
+    liStart : Integer ;
+    { Longueur maxi de recherche }
+    liLength : Integer ;
+    { Longueur en cours }
+    liLongueur : Integer ;
+    { Longueur maxi trouvée }
+    liMaxLongueur : Integer;
+    { Compteur }
+    liIndex : integer ;
+    { Caractère à rechercher }
+    loSearch : TStringList ;
 begin
-    if (arguments.count > 1) and (arguments.count < 5)
+    if (aoArguments.count > 1) and (aoArguments.count < 5)
     then begin
-        search := TStringList.create ;
-        maxlongueur := 0 ;
-        longueur := 0 ;
-        len := 0 ;
-        start := 0 ;
+        loSearch := TStringList.create ;
+        liMaxLongueur := 0 ;
+        liLongueur := 0 ;
+        liLength := 0 ;
+        liStart := 0 ;
 
-        configParameter(start, len, search, arguments) ;
+        configParameter(liStart, liLength, loSearch, aoArguments) ;
 
-        for i := start to len do
+        for liIndex := liStart to liLength do
         begin
-            if search.IndexOf(arguments[0][i]) = -1
+            if loSearch.IndexOf(aoArguments[0][liIndex]) = -1
             then begin
-                Inc(longueur) ;
+                Inc(liLongueur) ;
             end
             else begin
-                longueur := 0 ;
+                liLongueur := 0 ;
             end ;
 
-            if longueur > MaxLongueur
-            then
-                MaxLongueur := Longueur ;
+            if liLongueur > liMaxLongueur
+            then begin
+                liMaxLongueur := liLongueur ;
+            end ;
         end ;
 
-        ResultFunction := IntToStr(MaxLongueur) ;
+        gsResultFunction := IntToStr(liMaxLongueur) ;
 
-        search.Free ;
+        loSearch.Free ;
     end
-    else if arguments.count < 2
+    else if aoArguments.count < 2
     then begin
-        ErrorMsg(sMissingargument) ;
+        ErrorMsg(csMissingargument) ;
     end
-    else if arguments.count > 4
+    else if aoArguments.count > 4
     then begin
-        ErrorMsg(sTooArguments) ;
+        ErrorMsg(csTooArguments) ;
     end ;
 end ;
 
-procedure strspnCommande(arguments : TStringList) ;
-var start, len, longueur, maxlongueur, i : integer ;
-     search : TStringList ;
+procedure strspnCommande(aoArguments : TStringList) ;
+var
+    { Position de départ de recherche }
+    liStart : Integer ;
+    { Longueur maxi de recherche }
+    liLength : Integer ;
+    { Longueur en cours }
+    liLongueur : Integer ;
+    { Longueur maxi trouvée }
+    liMaxLongueur : Integer;
+    { Compteur }
+    liIndex : integer ;
+    { Caractère à rechercher }
+    loSearch : TStringList ;
 begin
-    if (arguments.count > 1) and (arguments.count < 5)
+    if (aoArguments.count > 1) and (aoArguments.count < 5)
     then begin
-        search := TStringList.create ;
-        maxlongueur := 0 ;
-        longueur := 0 ;
-        len := 0 ;
-        start := 0 ;
+        loSearch := TStringList.create ;
+        liMaxLongueur := 0 ;
+        liLongueur := 0 ;
+        liLength := 0 ;
+        liStart := 0 ;
         
-        configParameter(start, len, search, arguments) ;
+        configParameter(liStart, liLength, loSearch, aoArguments) ;
 
-        for i := start to len do
+        for liIndex := liStart to liLength do
         begin
-            if search.IndexOf(arguments[0][i]) <> -1
+            if loSearch.IndexOf(aoArguments[0][liIndex]) <> -1
             then begin
-                Inc(longueur) ;
+                Inc(liLongueur) ;
             end
             else begin
-                longueur := 0 ;
+                liLongueur := 0 ;
             end ;
 
-            if longueur > MaxLongueur
-            then
-                MaxLongueur := Longueur ;
+            if liLongueur > liMaxLongueur
+            then begin
+                liMaxLongueur := liLongueur ;
+            end ;
         end ;
 
-        ResultFunction := IntToStr(MaxLongueur) ;
+        gsResultFunction := IntToStr(liMaxLongueur) ;
 
-        search.Free ;
+        loSearch.Free ;
     end
-    else if arguments.count < 2
+    else if aoArguments.count < 2
     then begin
-        ErrorMsg(sMissingargument) ;
+        ErrorMsg(csMissingargument) ;
     end
-    else if arguments.count > 4
+    else if aoArguments.count > 4
     then begin
-        ErrorMsg(sTooArguments) ;
+        ErrorMsg(csTooArguments) ;
     end ;
 end ;
 
-procedure replaceAccentCommande(arguments : TStringList) ;
+procedure strReplaceAccentCommande(aoArguments : TStringList) ;
 begin
-    if arguments.count = 1
+    if aoArguments.count = 1
     then begin
-        ResultFunction := ReplaceAccent(arguments[0]) ;
+        gsResultFunction := ReplaceAccent(aoArguments[0]) ;
     end
-    else if arguments.count < 1
+    else if aoArguments.count < 1
     then begin
-        ErrorMsg(sMissingargument) ;
+        ErrorMsg(csMissingargument) ;
     end
-    else if arguments.count > 1
+    else if aoArguments.count > 1
     then begin
-        ErrorMsg(sTooArguments) ;
+        ErrorMsg(csTooArguments) ;
     end ;
 end ;
 
-procedure strNumberFormatCommande(arguments : TStringList) ;
-var i, nb, position : Integer ;
-    separateur_float, separateur_millier : String ;
-
+procedure strNumberFormatCommande(aoArguments : TStringList) ;
+var
+    { Compteur de boucle }
+    liIndex : Integer ;
+    { Indique le nombre de chiffre en cours d'ajout pour savoir quand
+      mettre le séparateur de millier }
+    liNbChiffre : Integer ;
+    { Position du séparateur décimal }
+    liPositionSeparateurDecimal : Integer ;
+    { Séparateur décimal }
+    lsSeparateurDecimal : String ;
+    { Séparateur de millier }
+    lsSeparateurMillier : String ;
 begin
-    if (arguments.count > 0) and (arguments.count < 4)
+    if (aoArguments.count > 0) and (aoArguments.count < 4)
     then begin
-        if isFloat(arguments[0])
+        if isFloat(aoArguments[0])
         then begin
-            ResultFunction := '' ;
+            gsResultFunction := '' ;
 
-            if arguments.count > 1
-            then
-                separateur_float := arguments[1]
-            else
-                separateur_float := FloatSeparator ;
+            if aoArguments.count > 1
+            then begin
+                lsSeparateurDecimal := aoArguments[1] ;
+            end
+            else begin
+                lsSeparateurDecimal := gsFloatSeparator ;
+            end ;
 
-            if arguments.count > 2
-            then
-                separateur_millier := arguments[2]
-            else
-                separateur_millier := MillierSeparator ;
+            if aoArguments.count > 2
+            then begin
+                lsSeparateurMillier := aoArguments[2] ;
+            end
+            else begin
+                lsSeparateurMillier := gsMillierSeparator ;
+            end ;
 
-
-            position := pos('.', arguments[0]) ;
+            liPositionSeparateurDecimal := pos('.', aoArguments[0]) ;
             
             { S'il y a une partie floattante }
-            if position <> 0
+            if liPositionSeparateurDecimal <> 0
             then begin
-                for i := Length(arguments[0]) downto position + 1 do
+                for liIndex := Length(aoArguments[0]) downto liPositionSeparateurDecimal + 1 do
                 begin
-                    ResultFunction := arguments[0][i] + ResultFunction ;
+                    gsResultFunction := aoArguments[0][liIndex] + gsResultFunction ;
                 end ;
                 
-                ResultFunction := separateur_float + ResultFunction ;
+                gsResultFunction := lsSeparateurDecimal + gsResultFunction ;
             end
             else begin
-                position := Length(arguments[0]) ;
+                liPositionSeparateurDecimal := Length(aoArguments[0]) ;
             end ;
 
-            nb := 1 ;
+            liNbChiffre := 1 ;
 
-            for i := position - 1 downto 1 do
+            for liIndex := liPositionSeparateurDecimal - 1 downto 1 do
             begin
-                if (nb mod 4) = 0
+                if (liNbChiffre mod 4) = 0
                 then begin
-                    ResultFunction := separateur_millier + ResultFunction ;
-                    Nb := 1 ;
+                    gsResultFunction := lsSeparateurMillier + gsResultFunction ;
+                    liNbChiffre := 1 ;
                 end ;
 
-                ResultFunction := arguments[0][i] + ResultFunction ;    
-                Inc(Nb) ;
+                gsResultFunction := aoArguments[0][liIndex] + gsResultFunction ;
+                Inc(liNbChiffre) ;
             end ;
         end
         else begin
-            WarningMsg(sMustBeFloat ) ;
+            WarningMsg(csMustBeFloat ) ;
         end ;
     end
-    else if arguments.count < 1
+    else if aoArguments.count < 1
     then begin
-        ErrorMsg(sMissingargument) ;
+        ErrorMsg(csMissingargument) ;
     end
-    else if arguments.count > 3
+    else if aoArguments.count > 3
     then begin
-        ErrorMsg(sTooArguments) ;
+        ErrorMsg(csTooArguments) ;
+    end ;
+end ;
+
+procedure printfCommande(aoArguments : TStringList) ;
+begin
+    strPrintFCommande(aoArguments) ;
+    
+    OutPutString(gsResultFunction, false) ;
+    
+    gsResultFunction := '' ;
+end ;
+
+procedure strEmptyCommande(aoArguments : TStringList) ;
+begin
+    if aoArguments.count = 1
+    then begin
+        if Length(aoArguments[0]) = 0
+        then begin
+            gsResultFunction := csTrueValue ;
+        end
+        else begin
+            gsResultFunction := csFalseValue ;
+        end ;
+    end
+    else if aoArguments.count < 1
+    then begin
+        ErrorMsg(csMissingargument) ;
+    end
+    else if aoArguments.count > 1
+    then begin
+        ErrorMsg(csTooArguments) ;
+    end ;
+end ;
+
+procedure strLeftCommande(aoArguments : TStringList) ;
+Var
+    { Taille de ce qu'il faut copier }
+    liLength : Integer ;
+begin
+    if aoArguments.count = 2
+    then begin
+        { Si le nombre est un floattant, il y a un avertissement }
+        if IsFloat(aoArguments[1]) and not IsInteger(aoArguments[1])
+        then begin
+            liLength := -1 ;
+        end
+        else begin
+            liLength := MyStrToInt(aoArguments[1]) ;
+        end ;
+        
+        if not gbError
+        then begin
+            if (liLength > 0)
+            then begin
+                gsResultFunction := Copy(aoArguments[0], 1, liLength) ;
+            end
+            else begin
+                WarningMsg(csInvalidIndex) ;
+            end ;
+        end ;
+    end
+    else if aoArguments.count < 2
+    then begin
+        ErrorMsg(csMissingargument) ;
+    end
+    else if aoArguments.count > 2
+    then begin
+        ErrorMsg(csTooArguments) ;
+    end ;
+end ;
+
+procedure strRightCommande(aoArguments : TStringList) ;
+Var
+    { Taille de ce qu'il faut copier }
+    liLength : Integer ;
+begin
+    if aoArguments.count = 2
+    then begin
+        { Si le nombre est un floattant, il y a un avertissement }
+        if IsFloat(aoArguments[1]) and not IsInteger(aoArguments[1])
+        then begin
+            liLength := -1 ;
+        end
+        else begin
+            liLength := MyStrToInt(aoArguments[1]) ;
+        end ;
+
+        if not gbError
+        then begin
+            if (liLength > 0)
+            then begin
+                gsResultFunction := Copy(aoArguments[0], Length(aoArguments[0]) - liLength + 1, liLength) ;
+            end
+            else begin
+                WarningMsg(csInvalidIndex) ;
+            end ;
+        end ;
+    end
+    else if aoArguments.count < 2
+    then begin
+        ErrorMsg(csMissingargument) ;
+    end
+    else if aoArguments.count > 2
+    then begin
+        ErrorMsg(csTooArguments) ;
+    end ;
+end ;
+
+procedure strEndWithCommande(aoArguments : TStringList) ;
+Var
+    { Taille de ce qu'il faut regarder }
+    liLength : Integer ;
+    { Portion de chaine qui servira à la comparaison }
+    lsPortionOfString : String ;
+begin
+    if aoArguments.count = 2
+    then begin
+        liLength := Length(aoArguments[1]) ;
+        
+        lsPortionOfString := Copy(aoArguments[0], Length(aoArguments[0]) - liLength + 1, liLength) ;
+
+        if lsPortionOfString = aoArguments[1]
+        then begin
+            gsResultFunction := csTrueValue ;
+        end
+        else begin
+            gsResultFunction := csFalseValue ;
+        end ;
+    end
+    else if aoArguments.count < 2
+    then begin
+        ErrorMsg(csMissingargument) ;
+    end
+    else if aoArguments.count > 2
+    then begin
+        ErrorMsg(csTooArguments) ;
+    end ;
+end ;
+
+procedure strStartWithCommande(aoArguments : TStringList) ;
+Var
+    { Taille de ce qu'il faut regarder }
+    liLength : Integer ;
+    { Portion de chaine qui servira à la comparaison }
+    lsPortionOfString : String ;
+begin
+    if aoArguments.count = 2
+    then begin
+        liLength := Length(aoArguments[1]) ;
+
+        lsPortionOfString := Copy(aoArguments[0], 1, liLength) ;
+
+        if lsPortionOfString = aoArguments[1]
+        then begin
+            gsResultFunction := csTrueValue ;
+        end
+        else begin
+            gsResultFunction := csFalseValue ;
+        end ;
+    end
+    else if aoArguments.count < 2
+    then begin
+        ErrorMsg(csMissingargument) ;
+    end
+    else if aoArguments.count > 2
+    then begin
+        ErrorMsg(csTooArguments) ;
     end ;
 end ;
 
 procedure StrFunctionsInit ;
 begin
-    ListFunction.Add('echo', @echoCommande, true) ;
-    ListFunction.Add('die', @dieCommande, true) ;
-    ListFunction.Add('struppercase', @struppercaseCommande, true) ;
-    ListFunction.Add('strlowercase', @strlowercaseCommande, true) ;
-    ListFunction.Add('strcopy', @strcopyCommande, true) ;
-    ListFunction.Add('strpos', @strposCommande, true) ;
-    ListFunction.Add('stripos', @striposCommande, true) ;
-    ListFunction.Add('strrpos', @strrposCommande, true) ;
-    ListFunction.Add('strripos', @strriposCommande, true) ;
-    ListFunction.Add('strtrim', @strtrimCommande, true) ;
-    ListFunction.Add('strtrimleft', @strtrimleftCommande, true) ;
-    ListFunction.Add('strtrimright', @strtrimrightCommande, true) ;
+    goInternalFunction.Add('echo', @echoCommande, true) ;
+    goInternalFunction.Add('die', @dieCommande, true) ;
+    goInternalFunction.Add('struppercase', @struppercaseCommande, true) ;
+    goInternalFunction.Add('strlowercase', @strlowercaseCommande, true) ;
+    goInternalFunction.Add('strcopy', @strcopyCommande, true) ;
+    goInternalFunction.Add('strpos', @strposCommande, true) ;
+    goInternalFunction.Add('stripos', @striposCommande, true) ;
+    goInternalFunction.Add('strrpos', @strrposCommande, true) ;
+    goInternalFunction.Add('strripos', @strriposCommande, true) ;
+    goInternalFunction.Add('strtrim', @strtrimCommande, true) ;
+    goInternalFunction.Add('strtrimleft', @strtrimleftCommande, true) ;
+    goInternalFunction.Add('strtrimright', @strtrimrightCommande, true) ;
 
-    ListFunction.Add('strreplace', @strreplaceCommande, false) ;
-    ListFunction.Add('strireplace', @strreplaceCommande, false) ;    
+    goInternalFunction.Add('strreplace', @strreplaceCommande, false) ;
+    goInternalFunction.Add('strireplace', @strreplaceCommande, false) ;
 
-    ListFunction.Add('strinsert', @strinsertCommande, true) ;
-    ListFunction.Add('strdelete', @strdeleteCommande, true) ;
-    ListFunction.Add('strexplode', @strexplodeCommande, true) ;
-    ListFunction.Add('strimplode', @strimplodeCommande, true) ;
-    ListFunction.Add('strloadfromfile', @strLoadFromFileCommande, true) ;
-    ListFunction.Add('strsavetofile', @strSaveToFileCommande, true) ;
-    ListFunction.Add('straddslashes', @strAddSlashesCommande, true) ;
-    ListFunction.Add('strdeleteslashes', @strDeleteSlashesCommande, true) ;
+    goInternalFunction.Add('strinsert', @strinsertCommande, true) ;
+    goInternalFunction.Add('strdelete', @strdeleteCommande, true) ;
+    goInternalFunction.Add('strexplode', @strexplodeCommande, true) ;
+    goInternalFunction.Add('strimplode', @strimplodeCommande, true) ;
+    goInternalFunction.Add('strloadfromfile', @strLoadFromFileCommande, true) ;
+    goInternalFunction.Add('strsavetofile', @strSaveToFileCommande, true) ;
+    goInternalFunction.Add('straddslashes', @strAddSlashesCommande, true) ;
+    goInternalFunction.Add('strdeleteslashes', @strDeleteSlashesCommande, true) ;
 
-    ListFunction.Add('strprintr', @strPrintRCommande, false) ;
+    goInternalFunction.Add('strprintr', @strPrintRCommande, false) ;
 
-    ListFunction.Add('strprintf', @strPrintFCommande, true) ;
-    ListFunction.Add('strrepeatstring', @strRepeatStringCommande, true) ;
-    ListFunction.Add('strbase64encode', @strBase64EncodeCommande, true) ;
-    ListFunction.Add('strbase64decode', @strBase64DecodeCommande, true) ;
-    ListFunction.Add('strsoundex', @strSoundExCommande, true) ;
-    ListFunction.Add('strucfirst', @strUcFirstCommande, true) ;
-    ListFunction.Add('strucwords', @strUcWordsCommande, true) ;
-    ListFunction.Add('strtr', @strtrCommande, true) ;
-    ListFunction.Add('strrev', @strrevCommande, true) ;
-    ListFunction.Add('strcspn', @strcspnCommande, true) ;
-    ListFunction.Add('strspn', @strspnCommande, true) ;
-    ListFunction.Add('strreplaceaccent', @replaceAccentCommande, true) ;
-    ListFunction.Add('strnumberfloat', @strNumberFormatCommande, true) ;    
+    goInternalFunction.Add('strprintf', @strPrintFCommande, true) ;
+    goInternalFunction.Add('strrepeatstring', @strRepeatStringCommande, true) ;
+    goInternalFunction.Add('strbase64encode', @strBase64EncodeCommande, true) ;
+    goInternalFunction.Add('strbase64decode', @strBase64DecodeCommande, true) ;
+    goInternalFunction.Add('strsoundex', @strSoundExCommande, true) ;
+    goInternalFunction.Add('strucfirst', @strUcFirstCommande, true) ;
+    goInternalFunction.Add('strucwords', @strUcWordsCommande, true) ;
+    goInternalFunction.Add('strtr', @strtrCommande, true) ;
+    goInternalFunction.Add('strrev', @strrevCommande, true) ;
+    goInternalFunction.Add('strcspn', @strcspnCommande, true) ;
+    goInternalFunction.Add('strspn', @strspnCommande, true) ;
+    goInternalFunction.Add('strreplaceaccent', @strReplaceAccentCommande, true) ;
+    goInternalFunction.Add('strnumberfloat', @strNumberFormatCommande, true) ;
+    goInternalFunction.Add('printf', @PrintFCommande, true) ;
+    goInternalFunction.Add('strempty', @strEmptyCommande, true) ;
+    goInternalFunction.Add('strleft', @strLeftCommande, true) ;
+    goInternalFunction.Add('strright', @strRightCommande, true) ;
+    goInternalFunction.Add('strstartwith', @strStartWithCommande, true) ;
+    goInternalFunction.Add('strendwith', @strEndWithCommande, true) ;
 end ;
 
 end.

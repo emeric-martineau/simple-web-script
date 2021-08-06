@@ -29,19 +29,28 @@ interface
 
 {$I config.inc}
 
+{$IFDEF FPC}
+    {$mode objfpc}{$H+}
+{$ENDIF}
+
 uses Functions, UnitMessages, InternalFunction, classes ;
 
 procedure HtmlFunctionsInit ;
-procedure NlToBrCommande(arguments : TStringList) ;
-procedure HtmlSpecialCharsEncodeCommande(arguments : TStringList) ;
-procedure HtmlSpecialCharsDecodeCommande(arguments : TStringList) ;
-procedure StripTagsCommande(arguments : TStringList) ;
+procedure NlToBrCommande(aoArguments : TStringList) ;
+procedure HtmlSpecialCharsEncodeCommande(aoArguments : TStringList) ;
+procedure HtmlSpecialCharsDecodeCommande(aoArguments : TStringList) ;
+procedure StripTagsCommande(aoArguments : TStringList) ;
 //
-procedure getChar(text : string; out Charactere : string; var i : integer; charset : string; out val : integer; IndexOfTableOfCharset : integer; out NewIndexOfTableOfCharset : Integer) ;
-function htmlspecialcharencode(text : String; charset : String; quote : Integer; double_encode : boolean) : string ;
-function ConvertNumberOfUtf8CharToStringUtf8(val : integer) : String ;
-function htmlspecialchardecode(text : String; charset : String; quote : integer) : string ;
-function StripTags(text : String; allowedTags : string) : String ;
+procedure GetChar(asText : string; out asCharactere : string; var aiIndex : integer; asCharset : string; out aiVal : integer; aiIndexOfTableOfCharset : integer; out aiNewIndexOfTableOfCharset : Integer) ;
+function htmlspecialcharencode(asText : String; asCharset : String; aiQuote : Integer; abDoubleEncode : boolean) : string ;
+function ConvertNumberOfUtf8CharToStringUtf8(aiVal : integer) : String ;
+function htmlspecialchardecode(asText : String; asCharset : String; aiQuote : integer) : string ;
+function StripTags(asText : String; asAllowedTags : string) : String ;
+
+Const
+  csNoQuoteConvertion : Integer = 0 ;
+  csDoubleQuoteConversion : Integer = 1 ;
+  csAllQuoteConversion : Integer = 2 ;
 
 implementation
 
@@ -331,7 +340,7 @@ const
 
   EntryMap : array[0..37] of htmlEntityMap = (
                                             { 1252 }
-	                                        (charset : 'cp1252'; startBase : $80; endBase : $9F; tableCharset : @entryCp1252),
+                                            (charset : 'cp1252'; startBase : $80; endBase : $9F; tableCharset : @entryCp1252),
                                             (charset : 'windows-1252'; startBase : $80; endBase : $9F; tableCharset : @entryCp1252),
                                             (charset : '1252'; startBase : $80; endBase : $9F; tableCharset : @entryCp1252),
 
@@ -365,7 +374,7 @@ const
                                             (charset : 'euc-jp'; startBase : $A0; endBase : $FF; tableCharset : @entryIso8859_1),
                                             (charset : 'eucjp'; startBase : $A0; endBase : $FF; tableCharset : @entryIso8859_1),
 
-                                            { KOI8-R  	koi8-ru, koi8r }
+                                            { KOI8-R  koi8-ru, koi8r }
                                             (charset : 'koi8-r'; startBase : $A3; endBase : $FF; tableCharset : @entryKoi8r),
                                             (charset : 'koi8-ru'; startBase : $A3; endBase : $FF; tableCharset : @entryKoi8r),
                                             (charset : 'koi8r'; startBase : $A3; endBase : $FF; tableCharset : @entryKoi8r),
@@ -389,159 +398,173 @@ const
                                             (charset : ''; startBase : 0; endBase : 0; tableCharset : nil)
                                              ) ;
                                              
-procedure NlToBrCommande(arguments : TStringList) ;
-var i, len : Integer ;
+procedure NlToBrCommande(aoArguments : TStringList) ;
+var
+    { Compteur de caractère }
+    liIndex : Integer ;
+    { Taille de la chaine }
+    liLength : Integer ;
 begin
-    if arguments.count = 1
+    if aoArguments.count = 1
     then begin
-        ResultFunction := '' ;
+        gsResultFunction := '' ;
 
-        len := Length(arguments[0]) ;
-        i := 1 ;
+        liLength := Length(aoArguments[0]) ;
+        liIndex := 1 ;
 
         { On n'utilise pas de fonction de recherche de caractère pour remplacment
           car on doit remplacer #10, #13, #13#10 donc on parcourerait 3 fois la
           chaine ce qui est plus long }
-        while i <= len do
+        while liIndex <= liLength do
         begin
-            if arguments[0][i] = #10
+            if aoArguments[0][liIndex] = #10
             then begin
-                ResultFunction := ResultFunction + '<br />' ;
+                gsResultFunction := gsResultFunction + '<br />' ;
             end
-            else if arguments[0][i] = #13
+            else if aoArguments[0][liIndex] = #13
             then begin
-                if i < len
+                if liIndex < liLength
                 then begin
-                    if arguments[0][i+1] = #10
+                    if aoArguments[0][liIndex + 1] = #10
                     then begin
-                        Inc(i) ;
+                        Inc(liIndex) ;
                     end ;
                 end ;
 
-                ResultFunction := ResultFunction + '<br />' ;
+                gsResultFunction := gsResultFunction + '<br />' ;
             end
             else begin
-                ResultFunction := ResultFunction + arguments[0][i] ;
+                gsResultFunction := gsResultFunction + aoArguments[0][liIndex] ;
             end ;
 
-            Inc(i) ;
+            Inc(liIndex) ;
 
             OverTimeAndMemory ;
 
-            if GlobalError
+            if gbError
             then begin
                 break ;
             end ;
         end ;
     end
-    else if arguments.count < 1
+    else if aoArguments.count < 1
     then begin
-        ErrorMsg(sMissingargument) ;
+        ErrorMsg(csMissingargument) ;
     end
-    else if arguments.count > 1
+    else if aoArguments.count > 1
     then begin
-        ErrorMsg(sTooArguments) ;
+        ErrorMsg(csTooArguments) ;
     end ;
 end ;
 
-{*******************************************************************************
- * Retourne le caractère d'une chaine y compris UTF-8.
- *  Entrée
- *    text                  : chaine
- *    i                     : index de la chaine à chercher
- *    charset               : charset de la chaine
- *    IndexOfTableOfCharset : index de base dans la table de charset
+{*****************************************************************************
+ * GetChar
+ * MARTINEAU Emeric
  *
- *  Sortie
- *    Charactere               : caractère correspondant
- *    i                        : incrémenté du nombre de caractère
- *    val                      : valeur du caractère
- *    NewIndexOfTableOfCharset : nouvel index de base dans la table de charset
- ******************************************************************************}
-procedure getChar(text : string; out Charactere : string; var i : integer; charset : string; out val : integer; IndexOfTableOfCharset : integer; out NewIndexOfTableOfCharset : Integer) ;
-var len : integer ;
-    CurrentByte : byte ;
-    j : Integer ;
+ * Retourne le caractère d'une chaine y compris UTF-8.
+ *
+ * Paramètres d'entrée :
+ *   - asText : texte à lire,
+ *   - aiIndex : index de la chaine à chercher,
+ *   - asCharset : charset de la chaine,
+ *   - aiIndexOfTableOfCharset : index de base dans la table de charset,
+ *
+ * Paramètres de sortie :
+ *   - asCharactere : caractère correspondant,
+ *   - aiIndex : incrémenté du nombre de caractère,
+ *   - aiVal : valeur du caractère,
+ *   - aiNewIndexOfTableOfCharset : nouvel index de base dans la table de charset
+ *
+ * Retour : nombre de bidule
+ *****************************************************************************}
+procedure GetChar(asText : string; out asCharactere : string; var aiIndex : integer; asCharset : string; out aiVal : integer; aiIndexOfTableOfCharset : integer; out aiNewIndexOfTableOfCharset : Integer);
+var
+    { Longueur de la chaine }
+    liLength : integer ;
+    { Octet courant }
+    lbCurrentByte : byte ;
+    { Compteur de boucle }
+    liCount : Integer ;
 begin
-    len := Length(text) ;
+    liLength := Length(asText) ;
 
-    if charset = 'utf-8'
+    if asCharset = 'utf-8'
     then begin
-        Charactere := text[i] ;
-        val := Ord(text[i]) ;
-        NewIndexOfTableOfCharset := IndexOfTableOfCharset ;
+        asCharactere := asText[aiIndex] ;
+        aiVal := Ord(asText[aiIndex]) ;
+        aiNewIndexOfTableOfCharset := aiIndexOfTableOfCharset ;
 
         { de 0 à 127 on ne fait rien }
-        if val > 127
+        if aiVal > 127
         then begin
-            if (len - i) > 0
+            if (liLength - aiIndex) > 0
             then begin
-                Inc(i) ;
-                Charactere := Charactere + Text[i] ;
-                CurrentByte := Ord(Text[i]) ;
+                Inc(aiIndex) ;
+                asCharactere := asCharactere + asText[aiIndex] ;
+                lbCurrentByte := Ord(asText[aiIndex]) ;
 
                 { si < $C0 codé sur 2 octets }
-                if (val and $E0) < $E0
+                if (aiVal and $E0) < $E0
                 then begin
                     { 110yyyxx 10xxxxxx }
-                    val := (val and $1F) shl 6 ; // idem  ((val and $1F) shr 2) shl 8
+                    aiVal := (aiVal and $1F) shl 6 ; // idem  ((val and $1F) shr 2) shl 8
                     { force à 0 les deux bits de poids fort 00111111=3F }
-                    val := val or (CurrentByte and $3F) ;
+                    aiVal := aiVal or (lbCurrentByte and $3F) ;
                     { On a donc un entier du type 00000yyy xxxxxxxx}
                 end
                 else begin
                     { CurrentByte pointe déjà sur le deuxième octet }
 
-                    if (len - i) > 0
+                    if (liLength - aiIndex) > 0
                     then begin
                         { pointe sur le troisième octet }
-                        Inc(i) ;
-                        Charactere := Charactere + Text[i] ;
+                        Inc(aiIndex) ;
+                        asCharactere := asCharactere + asText[aiIndex] ;
 
                         { si < $F0 codé sur 3 octets }
-                        if (val and $F0) < $F0
+                        if (aiVal and $F0) < $F0
                         then begin
                             { 1110yyyy 10yyyyxx 10xxxxxx }
                             { yyyy0000 }
-                            val := (val and $0F) shl 12 ;
+                            aiVal := (aiVal and $0F) shl 12 ;
                             { 0000yyyy xx}
-                            val := val or ((CurrentByte and $3F) shl 6) ;
+                            aiVal := aiVal or ((lbCurrentByte and $3F) shl 6) ;
 
                             { 3ème octet }
-                            CurrentByte := Ord(Text[i]) ;
+                            lbCurrentByte := Ord(asText[aiIndex]) ;
 
-                            val := val or (CurrentByte and $3F) ;
+                            aiVal := aiVal or (lbCurrentByte and $3F) ;
                         end
                         else begin
                             { Codé sur 4 octets }
                             { 1 pas 2 car on a un inc(i) avant }
-                            if (len - i) > 0
+                            if (liLength - aiIndex) > 0
                             then begin
                                 { 11110zzz 10zzyyyy 10yyyyxx 10xxxxxx }
                                 { zzz00 }
-                                val := (val and 7) shl 18 ;
+                                aiVal := (aiVal and 7) shl 18 ;
                                 { 000zz }
-                                val := val or ((CurrentByte and $30) shl 12) ; // idem shr 4 shl 16
+                                aiVal := aiVal or ((lbCurrentByte and $30) shl 12) ; // idem shr 4 shl 16
                                 { yyyy0000 }
-                                val := val or ((CurrentByte and $0F) shl 12) ;
+                                aiVal := aiVal or ((lbCurrentByte and $0F) shl 12) ;
 
                                 { 3ème octet }
-                                CurrentByte := Ord(Text[i]) ;
+                                lbCurrentByte := Ord(asText[aiIndex]) ;
 
                                 { 0000yyyy }
-                                val := val or ((CurrentByte and $3C) shl 6) ;
+                                aiVal := aiVal or ((lbCurrentByte and $3C) shl 6) ;
 
                                 { xx000000 }
-                                val := val or ((CurrentByte and 3) shl 6) ;
+                                aiVal := aiVal or ((lbCurrentByte and 3) shl 6) ;
 
-                                Inc(i) ;
+                                Inc(aiIndex) ;
                                 
-                                Charactere := Charactere + Text[i] ;
+                                asCharactere := asCharactere + asText[aiIndex] ;
 
                                 { 4ème octet }
-                                CurrentByte := Ord(Text[i]) ;
+                                lbCurrentByte := Ord(asText[aiIndex]) ;
 
-                                val := val or (CurrentByte and $3F) ;
+                                aiVal := aiVal or (lbCurrentByte and $3F) ;
                             end ;
                         end ;
                     end ;
@@ -549,394 +572,442 @@ begin
             end ;
         end ;
 
-        Inc(i) ;
+        Inc(aiIndex) ;
 
         { chercher la bonne table utf-8 }
 
-        j := IndexOfTableOfCharset ;
+        liCount := aiIndexOfTableOfCharset ;
 
-        while EntryMap[j].charset <> '' do
+        while EntryMap[liCount].charset <> '' do
         begin
-            if (val >= EntryMap[j].startBase) and (val <= EntryMap[j].endBase)
+            if (aiVal >= EntryMap[liCount].startBase) and (aiVal <= EntryMap[liCount].endBase)
             then begin
-                NewIndexOfTableOfCharset := j ;
+                aiNewIndexOfTableOfCharset := liCount ;
                 break ;
             end
-            else if val < EntryMap[j].startBase
-            then
+            else if aiVal < EntryMap[liCount].startBase
+            then begin
                 break ;
+            end ;
 
-            Inc(j) ;
+            Inc(liCount) ;
         end ;
     end
     else begin
-        val := Ord(text[i]) ;
-        Charactere := text[i] ;
-        Inc(i) ;
-        NewIndexOfTableOfCharset := IndexOfTableOfCharset ;
+        aiVal := Ord(asText[aiIndex]) ;
+        asCharactere := asText[aiIndex] ;
+        Inc(aiIndex) ;
+        aiNewIndexOfTableOfCharset := aiIndexOfTableOfCharset ;
     end ;
 end ;
 
-{*******************************************************************************
+{*****************************************************************************
+ * htmlspecialcharencode
+ * MARTINEAU Emeric
+ *
  * Convertit un texte en texte html.
  *
- *  Entrée
- *   Text : texte à convertir
- *   Charset : charset à utiliser pour convertir
- *   Quote : 0 = pas de convertion de ' ou "
+ * Paramètres d'entrée :
+ *   asText : texte à convertir
+ *   asCharset : charset à utiliser pour convertir
+ *   aiQuote : 0 = pas de convertion de ' ou "
  *           1 = convertion de " mais pas '
  *           2 = convertion de ' et "
- *   double_encode : true indique qu'il s'agit d'un double encodage et donc ne
+ *   abDoubleEncode : true indique qu'il s'agit d'un double encodage et donc ne
  *                   pas reconvertir les &xxxx;
  *
- *  Retour : chaine encodée
- ******************************************************************************}
-function htmlspecialcharencode(text : String; charset : String; quote : Integer; double_encode : boolean) : string ;
-var i : integer ;
-    j : integer ;
-    len : integer ;
-    val : Integer ;
-    IndexOfTableOfCharset : Integer ;
-    NewIndexOfTableOfCharset : Integer ;
-    TableOfCharset : PCharsetTable ;
-    Charactere : String ;
-    tmp : String ;
+ * Retour : chaine encodée
+ *****************************************************************************}
+function htmlspecialcharencode(asText : String; asCharset : String; aiQuote : Integer; abDoubleEncode : boolean) : string ;
+var
+    { Compteur du text }
+    liTextCount : integer ;
+    { Compteur de caractère hexa }
+    liHexaCount : integer ;
+    { Longueur du texte }
+    liTextLength : integer ;
+    { Valeur du caractère }
+    liVal : Integer ;
+    { Index de table de charset }
+    liIndexOfTableOfCharset : Integer ;
+    { Nouvel index de table de charset }
+    liNewIndexOfTableOfCharset : Integer ;
+    { Pointeur de charset }
+    lpTableOfCharset : PCharsetTable ;
+    { Caractère }
+    lsCharactere : String ;
+    { Valeur hexa temporaire }
+    lsTmpHexa : String ;
 begin
     Result := '' ;
-    len := Length(text) + 1 ;
-    IndexOfTableOfCharset := 0 ;
-    charset := LowerCase(charset) ;
+    liTextLength := Length(astext) + 1 ;
+    liIndexOfTableOfCharset := 0 ;
+    asCharset := LowerCase(asCharset) ;
 
     { Fait pointer IndexOfTableOfCharset sur le bon charset }
-    for i := Low(EntryMap) to High(EntryMap) do
+    for liTextCount := Low(EntryMap) to High(EntryMap) do
     begin
-        if EntryMap[i].charset = charset
+        if EntryMap[liTextCount].charset = asCharset
         then begin
-            IndexOfTableOfCharset := i ;
+            liIndexOfTableOfCharset := liTextCount ;
             break ;
         end ;
     end ;
 
     { Convertit la chaine }
-    i := 1 ;
+    liTextCount := 1 ;
     
-    while i < len do
+    while liTextCount < liTextLength do
     begin
-        getChar(text, Charactere, i, charset, val, IndexOfTableOfCharset, NewIndexOfTableOfCharset) ;
+        GetChar(asText, lsCharactere, liTextCount, asCharset, liVal, liIndexOfTableOfCharset, liNewIndexOfTableOfCharset) ;
 
 
-        if (val >= EntryMap[NewIndexOfTableOfCharset].startBase) and (val <= EntryMap[NewIndexOfTableOfCharset].endBase)
+        if (liVal >= EntryMap[liNewIndexOfTableOfCharset].startBase) and (liVal <= EntryMap[liNewIndexOfTableOfCharset].endBase)
         then begin
             { Pointe sur le bon tableau }
-            TableOfCharset := EntryMap[NewIndexOfTableOfCharset].tableCharset ;
-            tmp := TableOfCharset^[val - EntryMap[NewIndexOfTableOfCharset].startBase] ;
+            lpTableOfCharset := EntryMap[liNewIndexOfTableOfCharset].tableCharset ;
+            lsTmpHexa := lpTableOfCharset^[liVal - EntryMap[liNewIndexOfTableOfCharset].startBase] ;
 
-            if tmp <> ''
-            then
-                Charactere := '&' + tmp + ';' ;
+            if lsTmpHexa <> ''
+            then begin
+                lsCharactere := '&' + lsTmpHexa + ';' ;
+            end ;
         end ;
 
-        if (Charactere = '"') and (quote > 0)
-        then
-            Charactere := '&quot;'
-        else if (Charactere = '''') and (quote > 1)
-        then
-            Charactere := '&#039;'
-        else if (Charactere = '<')
-        then
-            Charactere := '&lt;'
-        else if (Charactere = '>')
-        then
-            Charactere := '&gt;'
-        else if (Charactere = '&')
+        if (lsCharactere = '"') and (aiQuote > csNoQuoteConvertion)
         then begin
-            if double_encode = False
+            lsCharactere := '&quot;' ;
+        end
+        else if (lsCharactere = '''') and (aiQuote > csDoubleQuoteConversion)
+        then begin
+            lsCharactere := '&#039;' ;
+        end
+        else if (lsCharactere = '<')
+        then begin
+            lsCharactere := '&lt;' ;
+        end
+        else if (lsCharactere = '>')
+        then begin
+            lsCharactere := '&gt;' ;
+        end
+        else if (lsCharactere = '&')
+        then begin
+            if abDoubleEncode = False
             then begin
-                Charactere := '&amp;' ;
+                lsCharactere := '&amp;' ;
             end
             else begin
-                if (len - i) > 0
+                if (liTextLength - liTextCount) > 0
                 then begin
                     { on fait pointer j sur i car on va incrémenter le pointeur
                       de chaine or s'il ne s'agit pas d'un caractère html, il
                       faut revenir en arrière }
-                    j := i ;
+                    liHexaCount := liTextCount ;
 
-                    tmp := Charactere ;
+                    lsTmpHexa := lsCharactere ;
 
                     { On n'incrément pas j car i pointe déjà sur le caractère
                       suivant }
 
-                    if text[j] = '#'
+                    if asText[liHexaCount] = '#'
                     then begin
-                        tmp := tmp + text[j] ;
-                        Inc(j) ;
+                        lsTmpHexa := lsTmpHexa + asText[liHexaCount] ;
+                        Inc(liHexaCount) ;
                     end ;
 
-                    while j < len do
+                    while liHexaCount < liTextLength do
                     begin
-                        if (Text[j] in ['a'..'z']) or (Text[j] in ['A'..'Z']) or
-                           (Text[j] in ['0'..'9'])
+                        if (asText[liHexaCount] in ['a'..'z']) or (asText[liHexaCount] in ['A'..'Z']) or
+                           (asText[liHexaCount] in ['0'..'9'])
                         then begin
-                            tmp := tmp + Text[j] ;
+                            lsTmpHexa := lsTmpHexa + asText[liHexaCount] ;
                         end
                         else begin
-                            if Text[j] = ';'
+                            if asText[liHexaCount] = ';'
                             then begin
                                 { pointe sur le caractère d'après }
-                                tmp := tmp + Text[j] ;
+                                lsTmpHexa := lsTmpHexa + asText[liHexaCount] ;
 
                                 { pointe sur le prochain caractère }
-                                i := j + 1 ;
+                                liTextCount := liHexaCount + 1 ;
 
-                                Charactere := tmp ;
+                                lsCharactere := lsTmpHexa ;
                             end
                             else begin
-                                Charactere := '&amp;' ;
+                                lsCharactere := '&amp;' ;
                             end ;
 
                             break ;                            
                         end ;
 
-                        Inc(j) ;
+                        Inc(liHexaCount) ;
                     end ;
                 end
                 else begin
-                    Charactere := '&amp;' ;
+                    lsCharactere := '&amp;' ;
                 end ;
             end ;
         end ;
 
-
-        Result := Result + Charactere ;
+        Result := Result + lsCharactere ;
     end ;
 end ;
 
-{*******************************************************************************
- * Convertit un numéro de caractère UTF-8 en suite d'octet
+{*****************************************************************************
+ * ConvertNumberOfUtf8CharToStringUtf8
+ * MARTINEAU Emeric
  *
- *  Entrée
- *   val : numéro du caractère
+ * Convertit un numéro de caractère UTF-8 en suite d'octet.
  *
- *  Retour : octet représentant le caractère
- ******************************************************************************}
-function ConvertNumberOfUtf8CharToStringUtf8(val : integer) : String ;
-var octet : byte ;
+ * Paramètres d'entrée :
+ *   - aiVal : numéro du caractère
+ *
+ * Retour : octet représentant le caractère
+ *****************************************************************************}
+function ConvertNumberOfUtf8CharToStringUtf8(aiVal : integer) : String ;
+var
+    lbOctet : byte ;
 begin
-    if val < 128
+    if aiVal < 128
     then begin
         { 1 octet }
         { 0xxxxxxx }
-        Result := Chr(val) ;
+        Result := Chr(aiVal) ;
     end
-    else if (val > 127) and (val < 2048)
+    else if (aiVal > 127) and (aiVal < 2048)
     then begin
         { 2 octets }
         { yyxxxxxx -> 110yyyxx 10xxxxxx }
         // yy
-        octet := ((val and $C0) shr 6) or $C0 ;
-        Result := Chr(octet) ;
+        lbOctet := ((aiVal and $C0) shr 6) or $C0 ;
+        Result := Chr(lbOctet) ;
         // xxxxxx
-        octet := (val and $3F) or $80 ;
-        Result := Result + Chr(octet) ;
+        lbOctet := (aiVal and $3F) or $80 ;
+        Result := Result + Chr(lbOctet) ;
 
     end
-    else if (val > 2047) and (val < 65536)
+    else if (aiVal > 2047) and (aiVal < 65536)
     then begin
         { 3 octets }
         { yyyyyyyy xxxxxxxx -> 1110yyyy 10yyyyxx 10xxxxxx}
-        octet := ((val and $F000) shr 12) or $E0 ;
-        Result := Chr(octet) ;
+        lbOctet := ((aiVal and $F000) shr 12) or $E0 ;
+        Result := Chr(lbOctet) ;
 
         { 10yyyyxx }
-        octet := ((val and $F00) shr 6) or ((val and $C0) shr 6) or $80 ;
-        Result := Result + Chr(octet) ;
+        lbOctet := ((aiVal and $F00) shr 6) or ((aiVal and $C0) shr 6) or $80 ;
+        Result := Result + Chr(lbOctet) ;
 
-        octet := (val and $3F) or $80 ;
-        Result := Result + Chr(octet) ;
+        lbOctet := (aiVal and $3F) or $80 ;
+        Result := Result + Chr(lbOctet) ;
     end
     else begin
         { 4 octets }
         { zzzzz yyyyyyyy xxxxxxxx -> 11110zzz 10zzyyyy 10yyyyxx 10xxxxxx }
-        octet := ((val and $1C0000) shr 18) or $F0 ;
-        Result := Chr(octet) ;
+        lbOctet := ((aiVal and $1C0000) shr 18) or $F0 ;
+        Result := Chr(lbOctet) ;
 
-        octet := ((val and $30000) shr 12) or ((val and $F000) shr 12) or $80 ;
-        Result := Result + Chr(octet) ;
+        lbOctet := ((aiVal and $30000) shr 12) or ((aiVal and $F000) shr 12) or $80 ;
+        Result := Result + Chr(lbOctet) ;
 
-        octet := ((val and $F00) shr 6) or ((val and $C0) shr 6) or $80 ;
-        Result := Result + Chr(octet) ;
+        lbOctet := ((aiVal and $F00) shr 6) or ((aiVal and $C0) shr 6) or $80 ;
+        Result := Result + Chr(lbOctet) ;
 
-        octet := (val and $3F) or $80 ;
-        Result := Result + Chr(octet) ;
-        
+        lbOctet := (aiVal and $3F) or $80 ;
+        Result := Result + Chr(lbOctet) ;
     end ;
 end ;
 
-{*******************************************************************************
+{*****************************************************************************
+ * htmlspecialchardecode
+ * MARTINEAU Emeric
+ *
  * Convertit un texte html en text.
  *
- *  Entrée
- *   Text : texte à convertir
- *   Charset : charset à utiliser pour convertir
- *   Quote : 0 = pas de convertion de ' ou "
- *           1 = convertion de " mais pas '
- *           2 = convertion de ' et "
+ * Paramètres d'entrée :
+ *   - aiTruc : texte,
+ *   - asCharset : charset de la chaine,
+ *   - aiQuote : indique si les quotes doivent être converties,
  *
- *  Retour : chaine décodée
- ******************************************************************************}
-function htmlspecialchardecode(text : String; charset : String; quote : integer) : string ;
-var i : integer ;
-    j : integer ;
-    k : integer ;
-    len : integer ;
-    IndexOfTableOfCharset : Integer ;
-    Charactere : String ;
-    tmp : string ;
-    TableOfCharset : PCharsetTable ;
-    val : integer ;
-    len2 : Integer ;
-    hexa : Boolean ;
-    found : Boolean ;
-    fin : Integer ;
+ * Retour : chaine convertie
+ *****************************************************************************}
+function htmlspecialchardecode(asText : String; asCharset : String; aiQuote : integer) : string ;
+var
+    { Compteur de chaine }
+    liTextCount : integer ;
+    { Compteur de caractère à décoder entre & et ; }
+    liCharCount : integer ;
+    { Compteur d'hexa }
+    liHexaCount : integer ;
+    { Compteur de charset }
+    liTableCharsetCount : Integer ;
+    { Longueur de asText }
+    liTextLength : integer ;
+    { Index de la table de charset }
+    liIndexOfTableOfCharset : Integer ;
+    { Caractère décodé }
+    lsCharactere : String ;
+    { Valeur temporaire (entre & et ;) du caractère à décoder }
+    lsTmpValOfChar : string ;
+    { TAble de charset }
+    lpTableOfCharset : PCharsetTable ;
+    { Valeur du caractère si hexa }
+    liHexaVal : integer ;
+    { Indique si le caractère à décodé est de l'hexa }
+    lbHexa : Boolean ;
+    { Longueur du caractère (entre & et ;) à décoder }
+    liLenOfDecodeChar : Integer ;
+    { Indique si le caractère est trouvé dans une des tables de charset }
+    lbFound : Boolean ;
+    { Fin du charset }
+    liFin : Integer ;
 begin
-    len := Length(Text) + 1 ;
+    liTextLength := Length(asText) + 1 ;
     Result := '' ;
-    IndexOfTableOfCharset := 0 ;
-    charset := LowerCase(charset) ;
+    liIndexOfTableOfCharset := 0 ;
+    asCharset := LowerCase(asCharset) ;
 
     { Fait pointer IndexOfTableOfCharset sur le bon charset }
-    for i := Low(EntryMap) to High(EntryMap) do
+    for liTextCount := Low(EntryMap) to High(EntryMap) do
     begin
-        if EntryMap[i].charset = charset
+        if EntryMap[liTextCount].charset = asCharset
         then begin
-            IndexOfTableOfCharset := i ;
+            liIndexOfTableOfCharset := liTextCount ;
             break ;
         end ;
     end ;
 
-    i := 1 ;
+    liTextCount := 1 ;
 
-    while i < len do
+    while liTextCount < liTextLength do
     begin
-        Charactere := Text[i] ;
+        lsCharactere := asText[liTextCount] ;
 
-        if Text[i] = '&'
+        if asText[liTextCount] = '&'
         then begin
-            if (len - i) > 0
+            if (liTextLength - liTextCount) > 0
             then begin
-                j := i ;
+                liCharCount := liTextCount ;
 
                 { pointe sur le prochain caractère }
-                Inc(j) ;
-                tmp := '' ;
+                Inc(liCharCount) ;
+                lsTmpValOfChar := '' ;
 
-                if Text[j] = '#'
+                if asText[liCharCount] = '#'
                 then begin
-                    Inc(j) ;
+                    Inc(liCharCount) ;
                 end ;
 
-                while j < len do
+                while liCharCount < liTextLength do
                 begin
-                    if (Text[j] in ['a'..'z']) or (Text[j] in ['A'..'Z']) or
-                       (Text[j] in ['0'..'9'])
+                    if (asText[liCharCount] in ['a'..'z']) or (asText[liCharCount] in ['A'..'Z']) or
+                       (asText[liCharCount] in ['0'..'9'])
                     then begin
-                        tmp := tmp + Text[j] ;
-                        Inc(j) ;
+                        lsTmpValOfChar := lsTmpValOfChar + asText[liCharCount] ;
+                        Inc(liCharCount) ;
                     end
                     else begin
-                        if Text[j] = ';'
+                        if asText[liCharCount] = ';'
                         then begin
                             { vérifie qu'il ne s'agit pas d'un nombre hexa }
-                            if (tmp[1] = 'x') or (tmp[1] = 'X')
+                            if (lsTmpValOfChar[1] = 'x') or (lsTmpValOfChar[1] = 'X')
                             then begin
-                                tmp[1] := '$' ;
+                                lsTmpValOfChar[1] := '$' ;
                                 { permet d'éviter le $ dans la boucle de
                                   vérification du nombre }
-                                k := 2 ;
-                                hexa := True ;
+                                liHexaCount := 2 ;
+                                lbHexa := True ;
                             end
                             else begin
-                                k := 1 ;
-                                hexa := False ;
+                                liHexaCount := 1 ;
+                                lbHexa := False ;
                             end ;
 
-                            val := -1 ;
-                            len2 := Length(tmp) ;
+                            liHexaVal := -1 ;
+                            liLenOfDecodeChar := Length(lsTmpValOfChar) ;
 
-                            for k := k to len2 do
+                            for liHexaCount := liHexaCount to liLenOfDecodeChar do
                             begin
-                                if not (tmp[k] in ['0'..'9'])
+                                if not (lsTmpValOfChar[liHexaCount] in ['0'..'9'])
                                 then begin
-                                    if not ((hexa) and ((tmp[k] in ['a'..'z']) or (tmp[k] in ['A'..'Z'])))
-                                    then
+                                    if not ((lbHexa) and ((lsTmpValOfChar[liHexaCount] in ['a'..'z']) or (lsTmpValOfChar[liHexaCount] in ['A'..'Z'])))
+                                    then begin
                                         break ;
+                                    end ;
                                 end ;
 
-                                if k = len2
-                                then
-                                    val := StrToInt(tmp) ;
+                                if liHexaCount = liLenOfDecodeChar
+                                then begin
+                                    liHexaVal := StrToInt(lsTmpValOfChar) ;
+                                end ;
                             end ;
 
-                            if (tmp = 'quot') and (quote > 0)
-                            then
-                                Charactere := '"'
-                            else if (val = 39) and (quote > 1)
-                            then
-                                Charactere := ''''
-                            else if (tmp = 'lt')
-                            then
-                                Charactere := '<'
-                            else if (Charactere = 'gt')
-                            then
-                                Charactere := '>'
+                            if (lsTmpValOfChar = 'quot') and (aiQuote > csNoQuoteConvertion)
+                            then begin
+                                lsCharactere := '"' ;
+                            end
+                            else if (liHexaVal = 39) and (aiQuote > csDoubleQuoteConversion)
+                            then begin
+                                lsCharactere := '''' ;
+                            end
+                            else if (lsTmpValOfChar = 'lt')
+                            then begin
+                                lsCharactere := '<' ;
+                            end
+                            else if (lsCharactere = 'gt')
+                            then begin
+                                lsCharactere := '>'
+                            end
                             else begin
-                                Charactere := '&' + tmp + ';' ;
-                                found := False ;
+                                lsCharactere := '&' + lsTmpValOfChar + ';' ;
+                                lbFound := False ;
 
-                                if val = - 1
+                                if liHexaVal = - 1
                                 then begin
                                     repeat
-                                        k := 0 ;
-                                        fin := EntryMap[IndexOfTableOfCharset].endBase - EntryMap[IndexOfTableOfCharset].startBase ;
-                                        TableOfCharset := EntryMap[IndexOfTableOfCharset].tableCharset ;
+                                        liTableCharsetCount := 0 ;
+                                        liFin := EntryMap[liIndexOfTableOfCharset].endBase - EntryMap[liIndexOfTableOfCharset].startBase ;
+                                        lpTableOfCharset := EntryMap[liIndexOfTableOfCharset].tableCharset ;
 
-                                        while k <= fin do
+                                        while liTableCharsetCount <= liFin do
                                         begin
-                                            if TableOfCharset^[k] = tmp
+                                            if lpTableOfCharset^[liTableCharsetCount] = lsTmpValOfChar
                                             then begin
-                                                if charset = 'utf-8'
-                                                then
-                                                    Charactere := ConvertNumberOfUtf8CharToStringUtf8(EntryMap[IndexOfTableOfCharset].startBase + k)
-                                                else
-                                                    Charactere := Chr(k + EntryMap[IndexOfTableOfCharset].startBase) ;
+                                                if asCharset = 'utf-8'
+                                                then begin
+                                                    lsCharactere := ConvertNumberOfUtf8CharToStringUtf8(EntryMap[liIndexOfTableOfCharset].startBase + liTableCharsetCount)
+                                                end
+                                                else begin
+                                                    lsCharactere := Chr(liTableCharsetCount + EntryMap[liIndexOfTableOfCharset].startBase) ;
+                                                end ;
 
-                                                found := True ;
+                                                lbFound := True ;
 
                                                 break ;
                                             end ;
 
-                                            Inc(k) ;
+                                            Inc(liTableCharsetCount) ;
                                         end ;
 
                                         { Pointe sur le prochain jeu de caractères }
-                                        Inc(IndexOfTableOfCharset) ;
+                                        Inc(liIndexOfTableOfCharset) ;
 
-                                    until (EntryMap[IndexOfTableOfCharset].charset <> 'utf-8') or (found = True) ;
+                                    until (EntryMap[liIndexOfTableOfCharset].charset <> 'utf-8') or (lbFound = True) ;
                                 end
                                 else begin
-                                    if charset = 'utf-8'
-                                    then
-                                        Charactere := ConvertNumberOfUtf8CharToStringUtf8(val)
-                                    else
-                                        Charactere := Chr(val) ;
+                                    if asCharset = 'utf-8'
+                                    then begin
+                                        lsCharactere := ConvertNumberOfUtf8CharToStringUtf8(liHexaVal)
+                                    end
+                                    else begin
+                                        lsCharactere := Chr(liHexaVal) ;
+                                    end ;
                                 end ;
                             end ;
 
                             { Pointe le caractère suivant }
-                            Inc(j) ;
+                            Inc(liCharCount) ;
 
-                            i := j ;
+                            liTextCount := liCharCount ;
 
                             break ;
                         end
@@ -951,166 +1022,205 @@ begin
             end ;
         end
         else begin
-            Inc(i) ;
+            Inc(liTextCount) ;
         end ;
         
-        Result := Result + Charactere ;
+        Result := Result + lsCharactere ;
     end ;
 end ;
 
-procedure HtmlSpecialCharsEncodeCommande(arguments : TStringList) ;
-var charset : string ;
-    quote : Integer ;
-    double_encode : boolean ;
+procedure HtmlSpecialCharsEncodeCommande(aoArguments : TStringList) ;
+var
+    { Charset à utiliser }
+    lsCharset : string ;
+    { niveau de quote à utiliser }
+    liQuote : Integer ;
+    { Double encoding }
+    lbDoubleEncode : boolean ;
 begin
-    if (arguments.count > 0) and (arguments.count < 5)
+    if (aoArguments.count > 0) and (aoArguments.count < 5)
     then begin
-        if (arguments.count > 1)
-        then
-            charset := LowerCase(arguments[1])
-        else
-            charset := DefaultCharset ;
-
-        if (arguments.count > 2)
+        if (aoArguments.count > 1)
         then begin
-            if UpperCase(arguments[2]) = 'ENT_NOQUOTES'
-            then
-                quote := 0
-            else if UpperCase(arguments[2]) = 'ENT_COMPAT'
-            then
-                quote := 1
-            else if UpperCase(arguments[2]) = 'ENT_QUOTES'
-            then
-                quote := 2
-            else
-                quote := 1 ;
+            lsCharset := LowerCase(aoArguments[1])
         end
-        else
-            quote := 1 ;
+        else begin
+            lsCharset := gsDefaultCharset ;
+        end ;
 
-        if (arguments.count > 3)
-        then
-            double_encode := (arguments[3] = trueValue)
-        else
-            double_encode := false ;
+        if (aoArguments.count > 2)
+        then begin
+            if UpperCase(aoArguments[2]) = 'ENT_NOQUOTES'
+            then begin
+                liQuote := csNoQuoteConvertion ;
+            end
+            else if UpperCase(aoArguments[2]) = 'ENT_COMPAT'
+            then begin
+                liQuote := csDoubleQuoteConversion ;
+            end
+            else if UpperCase(aoArguments[2]) = 'ENT_QUOTES'
+            then begin
+                liQuote := csAllQuoteConversion ;
+            end
+            else begin
+                liQuote := csDoubleQuoteConversion ;
+            end ;
+        end
+        else begin
+            liQuote := 1 ;
+        end ;
 
-        ResultFunction := htmlspecialcharencode(Arguments[0], charset, quote, double_encode) ;
+        if (aoArguments.count > 3)
+        then begin
+            lbDoubleEncode := (aoArguments[3] = csTrueValue)
+        end
+        else begin
+            lbDoubleEncode := false ;
+        end ;
+
+        gsResultFunction := htmlspecialcharencode(aoArguments[0], lsCharset, liQuote, lbDoubleEncode) ;
     end
-    else if arguments.count < 1
+    else if aoArguments.count < 1
     then begin
-        ErrorMsg(sMissingargument) ;
+        ErrorMsg(csMissingargument) ;
     end
-    else if arguments.count > 4
+    else if aoArguments.count > 4
     then begin
-        ErrorMsg(sTooArguments) ;
+        ErrorMsg(csTooArguments) ;
     end ;
 end  ;
 
-procedure HtmlSpecialCharsDecodeCommande(arguments : TStringList) ;
-var charset : string ;
-    quote : Integer ;
+procedure HtmlSpecialCharsDecodeCommande(aoArguments : TStringList) ;
+var lsCharset : string ;
+    liQuote : Integer ;
 begin
-    if (arguments.count > 0) and (arguments.count < 4)
+    if (aoArguments.count > 0) and (aoArguments.count < 4)
     then begin
-        if (arguments.count > 1)
-        then
-            charset := LowerCase(arguments[1])
-        else
-            charset := DefaultCharset ;
-
-        if (arguments.count > 2)
+        if (aoArguments.count > 1)
         then begin
-            if UpperCase(arguments[2]) = 'ENT_NOQUOTES'
-            then
-                quote := 0
-            else if UpperCase(arguments[2]) = 'ENT_COMPAT'
-            then
-                quote := 1
-            else if UpperCase(arguments[2]) = 'ENT_QUOTES'
-            then
-                quote := 2
-            else
-                quote := 1 ;
+            lsCharset := LowerCase(aoArguments[1])
         end
-        else
-            quote := 1 ;
+        else begin
+            lsCharset := gsDefaultCharset ;
+        end ;
 
-        ResultFunction := htmlspecialchardecode(arguments[0], charset, quote) ;
+        if (aoArguments.count > 2)
+        then begin
+            if UpperCase(aoArguments[2]) = 'ENT_NOQUOTES'
+            then begin
+                liQuote := csNoQuoteConvertion ;
+            end
+            else if UpperCase(aoArguments[2]) = 'ENT_COMPAT'
+            then begin
+                liQuote := csDoubleQuoteConversion ;
+            end
+            else if UpperCase(aoArguments[2]) = 'ENT_QUOTES'
+            then begin
+                liQuote := csAllQuoteConversion ;
+            end
+            else begin
+                liQuote := csDoubleQuoteConversion ;
+            end ;
+        end
+        else begin
+            liQuote := 1 ;
+        end ;
+
+        gsResultFunction := htmlspecialchardecode(aoArguments[0], lsCharset, liQuote) ;
     end
-    else if arguments.count < 1
+    else if aoArguments.count < 1
     then begin
-        ErrorMsg(sMissingargument) ;
+        ErrorMsg(csMissingargument) ;
     end
-    else if arguments.count > 3
+    else if aoArguments.count > 3
     then begin
-        ErrorMsg(sTooArguments) ;
+        ErrorMsg(csTooArguments) ;
     end ;
 end  ;
 
-{*******************************************************************************
+{*****************************************************************************
+ * StripTags
+ * MARTINEAU Emeric
+ *
  * Supprime les balises SGML
  *
- *  Entrée
- *   text : texte à traiter
- *   allowedTags : tags autorisé sous forme d'une chaine : "<p><b>"
+ * Paramètres d'entrée :
+ *   - asText : texte à analyser,
+ *   - asAllowedTags : tag autorisées,
  *
- *  Retour : chaine traitée
- ******************************************************************************}
-function StripTags(text : String; allowedTags : string) : String ;
-var i : Integer ;
-    quote : String ;
-    len : Integer ;
-    inArg : Boolean ;
-    BaliseName : String ;
-    tmp : String ;
-    Tags : array of string ;
-    countTags : Integer ;
+ * Retour : chaine avec les tags supprimées,
+ *****************************************************************************}
+function StripTags(asText : String; asAllowedTags : string) : String ;
+var
+    { Compteur de boucle }
+    liTextCount : Integer ;
+    { Valeur d'une quote si " ou ' }
+    asQuote : String ;
+    { Longueur de asText }
+    liTextLength : Integer ;
+    { Indique si on se trouve dans un argument }
+    lbInArg : Boolean ;
+    { Nom de la balise courante }
+    lsBaliseName : String ;
+    { Balise complète avec les aoArguments }
+    lsFullBalise : String ;
+    { Liste des tags autorisées }
+    laAllowTags : array of string ;
+    { Nombre de tags autoriseés }
+    liCountAllowTags : Integer ;
 
-    procedure setAllowedTags ;
-    var posStart : integer ;
-        posEnd : integer ;
-        tag : String ;
+    procedure SetAllowedTags ;
+    var
+        { Position de début du tag }
+        liPosStart : integer ;
+        { Position de fin du tag }
+        liPosEnd : integer ;
+        { Tag }
+        lsTag : String ;
     begin
-        countTags := 0 ;
+        liCountAllowTags := 0 ;
 
-        while allowedTags <> '' do
+        while asAllowedTags <> '' do
         begin
-            posStart := pos('<', allowedTags) ;
-            posEnd := pos('>', allowedTags) ;
+            liPosStart := pos('<', asAllowedTags) ;
+            liPosEnd := pos('>', asAllowedTags) ;
 
             { Si un des élement < ou > manque on ne peut pas tenir compte du
               reste des tags proposés }
-            if (posStart = 0) or (posEnd = 0)
-            then
+            if (liPosStart = 0) or (liPosEnd = 0)
+            then begin
                 break ;
-
+            end ;
+            
             { Copie le tag }
-            tag := Copy(allowedTags, posStart + 1, posEnd - posStart - 1) ;
+            lsTag := Copy(asAllowedTags, liPosStart + 1, liPosEnd - liPosStart - 1) ;
 
             { Supprime le tag de la chaine }
-            Delete(allowedTags, posStart, posEnd - posStart + 1) ;
+            Delete(asAllowedTags, liPosStart, liPosEnd - liPosStart + 1) ;
 
             { on ajoute tags si seulement la chaine n'est pas vide }
-            if tag <> ''
+            if lsTag <> ''
             then begin
                 { Incrémente le compteur de nombre d'élément }
-                Inc(countTags) ;
+                Inc(liCountAllowTags) ;
 
-                SetLength(Tags, countTags) ;
+                SetLength(laAllowTags, liCountAllowTags) ;
 
-                Tags[countTags - 1] := LowerCase(tag) ;
+                laAllowTags[liCountAllowTags - 1] := LowerCase(lsTag) ;
             end ;
         end ;
     end ;
 
     function CheckIfAllowedTag(tag : string) : boolean ;
-    var j : Integer ;
+    var
+        { Index du tableau de tag autorisée }
+        liTabAllowTags : Integer ;
     begin
         Result := False ;
 
-        for j := 0 to countTags - 1 do
+        for liTabAllowTags := 0 to liCountAllowTags - 1 do
         begin
-            if (Tags[j] = tag) or (('/' + Tags[j]) = tag)
+            if (laAllowTags[liTabAllowTags] = tag) or (('/' + laAllowTags[liTabAllowTags]) = tag)
             then begin
                 Result := True ;
                 break ;
@@ -1118,105 +1228,107 @@ var i : Integer ;
         end ;
     end ;
 begin
-    len := Length(text) + 1 ;
+    liTextLength := Length(asText) + 1 ;
     Result := '' ;
-    i := 1 ;
+    liTextCount := 1 ;
 
     { récupère les tags autorisés }
     setAllowedTags ;
 
-    while i < len do
+    while liTextCount < liTextLength do
     begin
-        if (Text[i] = '<')
+        if (asText[liTextCount] = '<')
         then begin
-            inArg := False ;
+            lbInArg := False ;
 
-            BaliseName := '' ;
+            lsBaliseName := '' ;
 
             { on pointe actuellement sur '<' }
-            tmp := Text[i] ;
-            Inc(i);
+            lsFullBalise := asText[liTextCount] ;
+            Inc(liTextCount);
 
             { Copie le nom de la balise }
-            while i < len do
+            while liTextCount < liTextLength do
             begin
                 { Copie le nom jusqu'à l'espace, tabulation ou caractère '>' }
-                if (Text[i] <> ' ') and (Text[i] <> #9) and (Text[i] <> '>')
+                if (asText[liTextCount] <> ' ') and (asText[liTextCount] <> #9) and (asText[liTextCount] <> '>')
                 then begin
-                    BaliseName := BaliseName + Text[i] ;
-                    tmp := tmp + Text[i] ;
+                    lsBaliseName := lsBaliseName + asText[liTextCount] ;
+                    lsFullBalise := lsFullBalise + asText[liTextCount] ;
                 end
-                else
+                else begin
                     break ;
+                end ;
 
-                Inc(i) ;
+                Inc(liTextCount) ;
             end ;
 
-            BaliseName := LowerCase(BaliseName) ;
+            lsBaliseName := LowerCase(lsBaliseName) ;
 
             { va jusqu'à la fin de la balise}
-            while i < len do
+            while liTextCount < liTextLength do
             begin
-                tmp := tmp + Text[i] ;
+                lsFullBalise := lsFullBalise + asText[liTextCount] ;
 
-                if ((Text[i] = '"') or (Text[i] = '''')) and (inArg = False)
+                if ((asText[liTextCount] = '"') or (asText[liTextCount] = '''')) and (lbInArg = False)
                 then begin
-                    inArg := True ;
-                    quote := Text[i] ;
+                    lbInArg := True ;
+                    asQuote := asText[liTextCount] ;
                 end
-                else if (inArg = True) and (quote = Text[i])
+                else if (lbInArg = True) and (asQuote = asText[liTextCount])
                 then begin
-                    inArg := False ;
+                    lbInArg := False ;
                 end ;
 
-                if (Text[i] = '>') and (inArg = False)
+                if (asText[liTextCount] = '>') and (lbInArg = False)
                 then begin
                     break ;
                 end ;
 
-                Inc(i) ;
+                Inc(liTextCount) ;
             end ;
 
-            if CheckIfAllowedTag(BaliseName)
+            if CheckIfAllowedTag(lsBaliseName)
             then begin
                 { On ajoute la balise }
-                Result := Result + tmp ;
+                Result := Result + lsFullBalise ;
             end ;
         end
         else begin
-            Result := Result + Text[i] ;
+            Result := Result + asText[liTextCount] ;
         end ;
 
-        Inc(i) ;
+        Inc(liTextCount) ;
     end ;
 end ;
 
-procedure StripTagsCommande(arguments : TStringList) ;
+procedure StripTagsCommande(aoArguments : TStringList) ;
 begin
-    if (arguments.count = 1) or (arguments.count = 2)
+    if (aoArguments.count = 1) or (aoArguments.count = 2)
     then begin
-        if (arguments.count = 1)
-        then
-            arguments.add('') ;
-            
-        ResultFunction := StripTags(arguments[0], arguments[1]) ;
+        if (aoArguments.count = 1)
+        then begin
+            aoArguments.add('') ;
+        end ;
+        
+        gsResultFunction := StripTags(aoArguments[0], aoArguments[1]) ;
     end
-    else if arguments.count < 1
+    else if aoArguments.count < 1
     then begin
-        ErrorMsg(sMissingargument) ;
+        ErrorMsg(csMissingargument) ;
     end
-    else if arguments.count > 2
+    else if aoArguments.count > 2
     then begin
-        ErrorMsg(sTooArguments) ;
+        ErrorMsg(csTooArguments) ;
     end ;
 end  ;
 
 procedure HtmlFunctionsInit ;
 begin
-    ListFunction.Add('nltobr', @NlToBrCommande, true) ;
-    ListFunction.Add('htmlspecialcharsencode', @HtmlSpecialCharsEncodeCommande, true) ;
-    ListFunction.Add('htmlspecialcharsdecode', @HtmlSpecialCharsDecodeCommande, true) ;
-    ListFunction.Add('striptags', @StripTagsCommande, true) ;        
+    goInternalFunction.Add('nltobr', @NlToBrCommande, true) ;
+    goInternalFunction.Add('htmlspecialcharsencode', @HtmlSpecialCharsEncodeCommande, true) ;
+    goInternalFunction.Add('htmlspecialcharsdecode', @HtmlSpecialCharsDecodeCommande, true) ;
+    goInternalFunction.Add('striptags', @StripTagsCommande, true) ;
 end ;
 
 end.

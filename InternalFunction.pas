@@ -25,6 +25,10 @@ interface
 
 {$I config.inc}
 
+{$IFDEF FPC}
+    {$mode objfpc}{$H+}
+{$ENDIF}
+
 uses SysUtils, Classes ;
 
 type
@@ -32,30 +36,33 @@ type
 
   TInternalFunction = class
   private
-      VarName : TStringList ;
-      Line: array of ModelProcedure ;
-      Parse : array of boolean ;
+      poFunctionName : TStringList ;
+      paFunction: array of ModelProcedure ;
+      paParseArgument : array of boolean ;
   protected
   public
       constructor Create ;
       destructor Free ;
-      procedure Add(NameOfVar : string; ValueOfVar : ModelProcedure; Parsed : boolean) ;
-      procedure Change(NameOfVar : string; ValueOfVar : ModelProcedure; Parsed : boolean) ;
-      function Give(NameOfVar : string) : ModelProcedure;
-      function GiveVarNameByIndex(Index : Integer) : string ;
-      procedure Delete(NameOfVar : String) ;
+      procedure Add(asFunctionName : string; aFunction : ModelProcedure; abParsed : boolean) ;
+      procedure Change(asFunctionName : string; aFunction : ModelProcedure; abParsed : boolean) ;
+      function Give(asFunctionName : string) : ModelProcedure;
+      function GiveFunctionNameByIndex(aiIndex : Integer) : string ;
+      procedure Delete(asFunctionName : String) ;
       function Count : integer ;
       procedure Clear ;
-      function isSet(NameOfVar : string) : boolean ;
-      function isParse(FunctionName : String) : boolean ;
-      function rename(OldName, NewName : String) : boolean ;
+      function IsSet(asFunctionName : string) : boolean ;
+      function IsParse(asFunctionName : String) : boolean ;
+      function Rename(asOldName, asNewName : String) : boolean ;
   end ;
 
-Var ListFunction : TInternalFunction ;
+Var goInternalFunction : TInternalFunction ;
     
 implementation
 
 {******************************************************************************
+ * Create
+ * MARTINEAU Emeric
+ *
  * Consructeur
  ******************************************************************************}
 constructor TInternalFunction.Create ;
@@ -63,163 +70,263 @@ begin
     inherited Create();
 
     { Créer l'objet FileName }
-    VarName := TStringList.Create ;
+    poFunctionName := TStringList.Create ;
 end ;
 
 {******************************************************************************
+ * Free
+ * MARTINEAU Emeric
+ *
  * Destructeur
  ******************************************************************************}
 destructor TInternalFunction.Free ;
 begin
-    VarName.Free ;
-    SetLength(Line, 0) ;
+    poFunctionName.Free ;
+    SetLength(paFunction, 0) ;
 end ;
 
-{******************************************************************************
- * Ajouter une variable
- ******************************************************************************}
-procedure TInternalFunction.Add(NameOfVar : string; ValueOfVar : ModelProcedure; Parsed : boolean) ;
-var nb : Integer ;
+{*****************************************************************************
+ * Add
+ * MARTINEAU Emeric
+ *
+ * Ajoute une fonction
+ *
+ * Paramètres d'entrée :
+ *   - asFunctionName : nom de la fonction,
+ *   - aFunction : pointeur de fonction,
+ *   - abParsed : est-ce que les arguments doivent être parsé
+ *
+ *****************************************************************************}
+procedure TInternalFunction.Add(asFunctionName : string; aFunction : ModelProcedure; abParsed : boolean) ;
+var
+    { Taille du tableau contenant les pointeurs de fonction }
+    liLength : Integer ;
 begin
-    VarName.Add(LowerCase(NameOfVar)) ;
+    poFunctionName.Add(LowerCase(asFunctionName)) ;
 
-    nb := VarName.Count ;
+    liLength := poFunctionName.Count ;
 
-    SetLength(Line, nb) ;
-    Line[nb - 1] := ValueOfVar ;
+    SetLength(paFunction, liLength) ;
+    paFunction[liLength - 1] := aFunction ;
 
-    SetLength(Parse, nb) ;
-    Parse[nb - 1] := Parsed ;
+    SetLength(paParseArgument, liLength) ;
+    paParseArgument[liLength - 1] := abParsed ;
 end ;
 
-{******************************************************************************
+{*****************************************************************************
+ * Delete
+ * MARTINEAU Emeric
+ *
  * Supprimer l'entrée correspondant dans le tableau.
- ******************************************************************************}
-procedure TInternalFunction.Delete(NameOfVar : String) ;
-Var Index : Integer ;
-    i : Integer ;
+ *
+ * Paramètres d'entrée :
+ *   - asFunctionName : nom de la fonction
+ *
+ *****************************************************************************}
+procedure TInternalFunction.Delete(asFunctionName : String) ;
+Var
+    { Pointe sur la fonction dans le tableau de nom de fonction passé en
+      paramètre }
+    liIndexFunction : Integer ;
+    { Compteur de boucle }
+    liCountFunction : Integer ;
 begin
-    Index := VarName.IndexOf(LowerCase(NameOfVar)) ;
+    liIndexFunction := poFunctionName.IndexOf(LowerCase(asFunctionName)) ;
 
-    if (Index <> -1)
+    if (liIndexFunction <> -1)
     then begin
-        VarName.Delete(Index) ;
+        poFunctionName.Delete(liIndexFunction) ;
 
-        for i := Index to VarName.Count - 1 do
+        for liCountFunction := liIndexFunction to poFunctionName.Count - 1 do
         begin
-            Line[i] := Line[i + 1] ;
-            Parse[i] := Parse[i + 1] ;
+            paFunction[liCountFunction] := paFunction[liCountFunction + 1] ;
+            paParseArgument[liCountFunction] := paParseArgument[liCountFunction + 1] ;
         end ;
 
-        SetLength(Line, VarName.Count) ;
-        SetLength(Parse, VarName.Count) ;
+        SetLength(paFunction, poFunctionName.Count) ;
+        SetLength(paParseArgument, poFunctionName.Count) ;
     end ;
 end;
 
-{******************************************************************************
- * Donne le nombre de fichiers récents
- ******************************************************************************}
+{*****************************************************************************
+ * Count
+ * MARTINEAU Emeric
+ *
+ * Donne le nombre de fonction enregistré
+ *
+ * Retour : nombre de fonction enregistré
+ *****************************************************************************}
 function TInternalFunction.Count : Integer ;
 begin
-    Result := VarName.Count ;
+    Result := poFunctionName.Count ;
 end ;
 
-{******************************************************************************
+{*****************************************************************************
+ * Give
+ * MARTINEAU Emeric
+ *
  * Donne la fichier correspondant à l'index.
- ******************************************************************************}
-function TInternalFunction.Give(NameOfVar : string) : ModelProcedure ;
-Var Index : Integer ;
+ *
+ * Paramètres d'entrée :
+ *   - asFunctionName : nom de la fonction,
+ *
+ * Retour : pointeur de fonction
+ *****************************************************************************}
+function TInternalFunction.Give(asFunctionName : string) : ModelProcedure ;
+Var
+    { Pointe sur la fonction passée en paramètre }
+    liIndex : Integer ;
 begin
-    Index := VarName.IndexOf(LowerCase(NameOfVar)) ;
+    liIndex := poFunctionName.IndexOf(LowerCase(asFunctionName)) ;
 
-    if Index <> -1
-    then
-        Result := Line[Index]
-    else
+    if liIndex <> -1
+    then begin
+        Result := paFunction[liIndex] ;
+    end
+    else begin
         Result := nil ;
+    end ;
 end ;
 
-{******************************************************************************
- * Indique si la variable existe
- ******************************************************************************}
-function TInternalFunction.isSet(NameOfVar : string) : boolean ;
-Var Index : Integer ;
+{*****************************************************************************
+ * IsSet
+ * MARTINEAU Emeric
+ *
+ * Indique si la variable existe.
+ *
+ * Paramètres d'entrée :
+ *   - asFunctionName : nom de la fonction,
+ *
+ * Retour : true si la fonction existe
+ *****************************************************************************}
+function TInternalFunction.IsSet(asFunctionName : string) : boolean ;
+Var
+    { Pointe sur la fonction en paramètre }
+    liIndex : Integer ;
 begin
-    Index := VarName.IndexOf(LowerCase(NameOfVar)) ;
+    liIndex := poFunctionName.IndexOf(LowerCase(asFunctionName)) ;
 
-    if Index <> -1
-    then
-        Result := True
-    else
+    if liIndex <> -1
+    then begin
+        Result := True ;
+    end
+    else begin
         Result := False ;
+    end ;
 end ;
 
+{*****************************************************************************
+ * Clear
+ * MARTINEAU Emeric
+ *
+ * Vide la liste.
+ *****************************************************************************}
 procedure TInternalFunction.Clear ;
 begin
-    VarName.Clear ;
-    SetLength(Line, 0) ;
+    poFunctionName.Clear ;
+    SetLength(paFunction, 0) ;
 end ;
 
-{*******************************************************************************
- * Retourne le nom de la variable par l'index
- ******************************************************************************}
-function TInternalFunction.GiveVarNameByIndex(Index : Integer) : string ;
+{*****************************************************************************
+ * GiveFunctionNameByIndex
+ * MARTINEAU Emeric
+ *
+ * Retourne le nom de la fonction en fonction de sont index.
+ *
+ * Paramètres d'entrée :
+ *   - aiIndex : index de la fonction,
+ *****************************************************************************}
+function TInternalFunction.GiveFunctionNameByIndex(aiIndex : Integer) : string ;
 begin
     Result := '' ;
 
-    if Index <> -1
+    if aiIndex <> -1
     then begin
-        if Index < VarName.Count
+        if aiIndex < poFunctionName.Count
         then begin
-            Result := VarName[Index] ;
+            Result := poFunctionName[aiIndex] ;
         end
     end
 end ;
 
-{******************************************************************************
- * Indique s'il faut parser les arguments (convertir $var en valeur)
- ******************************************************************************}
-function TInternalFunction.isParse(FunctionName : String) : boolean ;
-var Index : Integer ;
+{*****************************************************************************
+ * IsParse
+ * MARTINEAU Emeric
+ *
+ * Indique s'il faut parser les arguments (convertir $var en valeur).
+ *
+ * Paramètres d'entrée :
+ *   - asFunctionName : nom de la fonction,
+ *
+ * Retour : true si les arguments de la fonction doivent être parsés
+ *****************************************************************************}
+function TInternalFunction.IsParse(asFunctionName : String) : boolean ;
+var
+    { Pointe sur la fonction passé en paramètre }
+    liIndex : Integer ;
 begin
-    Index := VarName.IndexOf(LowerCase(FunctionName)) ;
+    liIndex := poFunctionName.IndexOf(LowerCase(asFunctionName)) ;
 
-    if Index <> -1
-    then
-        Result := Parse[Index]
-    else
+    if liIndex <> -1
+    then begin
+        Result := paParseArgument[liIndex]
+    end
+    else begin
         Result := False ;
+    end ;
 end ;
 
-{******************************************************************************
- * Renomme la fonction OldName par NewName
- ******************************************************************************}
-function TInternalFunction.rename(OldName, NewName : String) : boolean ;
-var Index : Integer ;
+{*****************************************************************************
+ * IsParse
+ * MARTINEAU Emeric
+ *
+ * Renomme la fonction OldName par NewName.
+ *
+ * Paramètres d'entrée :
+ *   - asOldName : nom de la fonction à renomer,
+ *   - asNewName : nouveau nom,
+ *
+ * Retour : true si la fonction asOldName existe
+ *****************************************************************************}
+function TInternalFunction.Rename(asOldName, asNewName : String) : boolean ;
+var
+    { Pointe sur la fonction passé en paramètre }
+    liIndex : Integer ;
 begin
-    Index := VarName.IndexOf(LowerCase(OldName)) ;
+    liIndex := poFunctionName.IndexOf(LowerCase(asOldName)) ;
 
-    if Index <> -1
+    if liIndex <> -1
     then begin
-        VarName[Index] := LowerCase(NewName) ;
+        poFunctionName[liIndex] := LowerCase(asNewName) ;
         Result := True ;
     end
-    else
+    else begin
         Result := False ;
+    end ;
 end ;
 
-{******************************************************************************
- * Ajouter une variable
- ******************************************************************************}
-procedure TInternalFunction.Change(NameOfVar : string; ValueOfVar : ModelProcedure; Parsed : boolean) ;
-var Index : Integer ;
+{*****************************************************************************
+ * IsParse
+ * MARTINEAU Emeric
+ *
+ * Change le pointeur de fonction.
+ *
+ * Paramètres d'entrée :
+ *   - asFunctionName : nom de la fonction à changer,
+ *   - aFunction : pointeur de fonction,
+ *   - abParsed : les arguments doivent-ils être parsé
+ *****************************************************************************}
+procedure TInternalFunction.Change(asFunctionName : string; aFunction : ModelProcedure; abParsed : boolean) ;
+var
+    { Pointe sur la fonction passé en paramètre }
+    liIndex : Integer ;
 begin
-    Index := VarName.IndexOf(LowerCase(NameOfVar)) ;
+    liIndex := poFunctionName.IndexOf(LowerCase(asFunctionName)) ;
 
-    if Index <> -1
+    if liIndex <> -1
     then begin
-        Line[Index] := ValueOfVar ;
-        Parse[Index] := Parsed ;
+        paFunction[liIndex] := aFunction ;
+        paParseArgument[liIndex] := abParsed ;
     end ;
 end ;
 

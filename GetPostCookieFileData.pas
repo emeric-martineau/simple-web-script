@@ -22,6 +22,10 @@ unit GetPostCookieFileData;
  ******************************************************************************}
 {$I config.inc}
 
+{$IFDEF FPC}
+    {$mode objfpc}{$H+}
+{$ENDIF}
+
 interface
 
 uses DoubleStrings, Classes, SysUtils
@@ -33,177 +37,263 @@ uses DoubleStrings, Classes, SysUtils
 type
   TGetPostCookieFileData = class
   private
-      GetString : String ;
+      { Valeur de QueryString }
+      psGetString : String ;
       {$IFNDEF COMMANDLINE}
-      Boundary : String ;
-      longueur : Integer ;
-      MaxPostSize : Integer ;
-      uploadSize : Integer ;
+      { Valeur du boundary pour les données post }
+      psBoundary : String ;
+      { Taille du content soit des données reçu en post }
+      piContentLength : Integer ;
+      { Taille maximum du post }
+      piMaxPostSize : Integer ;
+      { Taille maximum des fichiers envoyé en post }
+      piMaxUploadSize : Integer ;
+      { Indique si l'envoie de fichier est autorisé }
+      pbFileUpload : Boolean ;
+      { Nom du script à exécuter }
+      psNameOfScript : String ;
       {$ENDIF}
-      TmpFilesName : TStrings ;
+      { Liste des fichiers temporaires créé }
+      poTmpFilesName : TStrings ;
   protected
       procedure ReadCookieData ;
       procedure ReadGetData ;
       {$IFNDEF COMMANDLINE}
       procedure ReadPostData ;
       procedure GetMultipartFormData ;
-      function GetName(Text : String) : String ;
-      procedure ReadLine(var F : File; var Line : String) ;
+      function GetName(asText : String) : String ;
+      procedure ReadLine(var aF : File; var asLine : String) ;
+      function InternalGetFileNameOfScript : String ;
       {$ENDIF}
-      procedure ReadDataEnv(pTabString : String; var Tab : TDoubleStrings; Separateur : String) ;
-      procedure internalExplodeNumber(Text : String; Liste : TStringList) ;
-      procedure SetVal(Tab : TDoubleStrings; Nom : String; Valeur : String) ;
+      procedure ReadDataEnv(aoTabString : String; var aoTab : TDoubleStrings; asSeparateur : String) ;
+      procedure InternalExplodeNumber(asText : String; aoListe : TStringList) ;
+      procedure SetVal(aoTab : TDoubleStrings; asNom : String; asValeur : String) ;
   public
-      GetData : TDoubleStrings ;
-      PostData : TDoubleStrings ;
-      CookieData : TDoubleStrings ;
-      FileData : TDoubleStrings ;
-      constructor Create(LocalMaxPostSize : Integer; MaxSizeFile : Integer) ;
-      destructor Free ;
-      function getCookie(Name : String) : String ;
-      function getGet(Name : String) : String ;
-      function getPost(Name : String) : String ;
-      function getFile(Name : String) : String ;      
       {$IFNDEF COMMANDLINE}
-      function getFileNameOfScript : String ;
+      constructor Create(aiLocalMaxPostSize : Integer; aiMaxSizeFile : Integer; lbFileUpload : Boolean) ;
+      {$ELSE}
+      constructor Create() ;
       {$ENDIF}
+      destructor Free ;
+      function GetCookie(asName : String) : String ;
+      function GetGet(asName : String) : String ;
+      function GetPost(asName : String) : String ;
+      function GetFile(asName : String) : String ;
+      function IsSetGet(asName : String) : boolean ;
+      function IsSetPost(asName : String) : boolean ;
+      function IsSetCookie(asName : String) : boolean ;
+      function IsSetFile(asName : String) : boolean ;
+      {$IFNDEF COMMANDLINE}
+      function GetFileNameOfScript : String ;
+      {$ENDIF}
+      goGetData : TDoubleStrings ;
+      goPostData : TDoubleStrings ;
+      goCookieData : TDoubleStrings ;
+      goFileData : TDoubleStrings ;
   end ;
+
+var
+    { Contient les données transmisent pas Get, Post, Cookie, File }
+    goVarGetPostCookieFileData : TGetPostCookieFileData ;
 
 implementation
 
 uses Functions, Variable, UnitMessages, Code ;
 
-{******************************************************************************
- * Consructeur
- ******************************************************************************}
-constructor TGetPostCookieFileData.Create(LocalMaxPostSize : Integer; MaxSizeFile : Integer) ;
+{*****************************************************************************
+ * Constructeur
+ * MARTINEAU Emeric
+ *
+ * Paramètres d'entrée :
+ *   - aiLocalMaxPostSize : taille maximume des données posts,
+ *   - aiMaxSizeFile : taille maximum d'un fichier envoyé en post,
+ *   - lbFileUpload : indique si l'upload de fichier est autorisé,
+ *
+ *****************************************************************************}
+{$IFDEF COMMANDLINE}
+constructor TGetPostCookieFileData.Create() ;
+{$ELSE}
+constructor TGetPostCookieFileData.Create(aiLocalMaxPostSize : Integer; aiMaxSizeFile : Integer; lbFileUpload : Boolean) ;
+{$ENDIF}
 begin
     inherited Create();
 
-    { Créer l'objet FileName }
-    GetData := TDoubleStrings.Create ;
-    PostData := TDoubleStrings.Create ;
-    CookieData := TDoubleStrings.Create ;
-    FileData := TDoubleStrings.Create ;
-    TmpFilesName := TStringList.Create ;
+    goGetData := TDoubleStrings.Create ;
+    goPostData := TDoubleStrings.Create ;
+    goCookieData := TDoubleStrings.Create ;
+    goFileData := TDoubleStrings.Create ;
+    poTmpFilesName := TStringList.Create ;
     
     ReadCookieData ;
     ReadGetData ;
     {$IFNDEF COMMANDLINE}
-    uploadSize := MaxSizeFile ;
-    MaxPostSize := LocalMaxPostSize ;
+    piMaxUploadSize := aiMaxSizeFile ;
+    piMaxPostSize := aiLocalMaxPostSize ;
+    pbFileUpload := lbFileUpload ;
     ReadPostData ;
     {$ENDIF}
 end ;
 
-{******************************************************************************
+{*****************************************************************************
  * Destructeur
- ******************************************************************************}
+ * MARTINEAU Emeric
+ *
+ *****************************************************************************}
 destructor TGetPostCookieFileData.Free ;
 var i : Integer ;
 begin
-    GetData.Free ;
-    PostData.Free ;
-    CookieData.Free ;
-    FileData.Free ;
+    goGetData.Free ;
+    goPostData.Free ;
+    goCookieData.Free ;
+    goFileData.Free ;
 
-    for i := 0 to TmpFilesName.Count - 1 do
+    for i := 0 to poTmpFilesName.Count - 1 do
     begin
-        //DeleteFile(TmpFilesName[i]) ;
+        DeleteFile(poTmpFilesName[i]) ;
     end ;
 
-    TmpFilesName.Free ;
+    poTmpFilesName.Free ;
 end ;
 
-{******************************************************************************
+{*****************************************************************************
+ * GetCookie
+ * MARTINEAU Emeric
+ *
  * Retourne le cookie
- ******************************************************************************}
-function TGetPostCookieFileData.getCookie(Name : String) : String ;
+ *
+ * Paramètres d'entrée :
+ *   - asName : nom du cookie,
+ *
+ *****************************************************************************}
+function TGetPostCookieFileData.GetCookie(asName : String) : String ;
 begin
-    Result := CookieData.Give(Name) ;
+    Result := goCookieData.Give(asName) ;
 end ;
 
-{******************************************************************************
- * Retourne la variable get
- ******************************************************************************}
-function TGetPostCookieFileData.getGet(Name : String) : String ;
+{*****************************************************************************
+ * GetGet
+ * MARTINEAU Emeric
+ *
+ * Retourne la variable Get
+ *
+ * Paramètres d'entrée :
+ *   - asName : nom de la variable,
+ *
+ *****************************************************************************}
+function TGetPostCookieFileData.GetGet(asName : String) : String ;
 begin
-    Result := GetData.Give(Name) ;
+    Result := goGetData.Give(asName) ;
 end ;
 
-{******************************************************************************
+{*****************************************************************************
+ * GetPost
+ * MARTINEAU Emeric
+ *
  * Retourne la variable post
- ******************************************************************************}
-function TGetPostCookieFileData.getPost(Name : String) : String ;
+ *
+ * Paramètres d'entrée :
+ *   - asName : nom de la variable,
+ *
+ *****************************************************************************}
+function TGetPostCookieFileData.GetPost(asName : String) : String ;
 begin
-    Result := PostData.Give(Name) ;
+    Result := goPostData.Give(asName) ;
 end ;
 
-{******************************************************************************
- * Retourne le cookie
- ******************************************************************************}
-function TGetPostCookieFileData.getFile(Name : String) : String ;
+{*****************************************************************************
+ * GetFile
+ * MARTINEAU Emeric
+ *
+ * Retourne la variable file
+ *
+ * Paramètres d'entrée :
+ *   - asName : nom de la variable,
+ *
+ *****************************************************************************}
+function TGetPostCookieFileData.GetFile(asName : String) : String ;
 begin
-    Result := FileData.Give(Name) ;
+    Result := goFileData.Give(asName) ;
 end ;
 
 {$IFNDEF COMMANDLINE}
-{******************************************************************************
- * Retourn la ligne qui a été lu pour les cookies
- ******************************************************************************}
-function TGetPostCookieFileData.getFileNameOfScript : String ;
+{*****************************************************************************
+ * InternalGetFileNameOfScript
+ * MARTINEAU Emeric
+ *
+ * Retourne le nom du fichier à exécuter
+ *
+ * Retour : nom du fichier
+ *
+ *****************************************************************************}
+function TGetPostCookieFileData.InternalGetFileNameOfScript : String ;
 var i : Integer ;
 begin
    Result := '' ;
 
-   for i := 1 to Length(GetString) do
+   for i := 1 to Length(psGetString) do
    begin
-       if GetString[i] = '&'
-       then
-           break
-       else if GetString[i] = '='
+       if psGetString[i] = '&'
+       then begin
+           break ;
+       end
+       else if psGetString[i] = '='
        then begin
            Result := '' ;
            break ;
        end ;
 
-       Result := Result + GetString[i] ;
+       Result := Result + psGetString[i] ;
    end ;
 end ;
 {$ENDIF}
 
-{******************************************************************************
- * Lit les donner des cookies
- ******************************************************************************}
+{*****************************************************************************
+ * ReadCookieData
+ * MARTINEAU Emeric
+ *
+ * Lit les donner des cookies et les affectes à la variable de cookie
+ *
+ *****************************************************************************}
 procedure TGetPostCookieFileData.ReadCookieData ;
 begin
-    ReadDataEnv(GetEnvironmentVariable('HTTP_COOKIE'), CookieData, '; ') ;
+    ReadDataEnv(GetEnvironmentVariable('HTTP_COOKIE'), goCookieData, '; ') ;
 end ;
 
-{******************************************************************************
- * Lit les donner des cookies
- ******************************************************************************}
+{*****************************************************************************
+ * ReadGetData
+ * MARTINEAU Emeric
+ *
+ * Lit les donner get
+ *
+ *****************************************************************************}
 procedure TGetPostCookieFileData.ReadGetData ;
 {$IFNDEF COMMANDLINE}
-var tmp, tmp2 : String ;
-    len : Integer ;
+var
+    { Reçoit les données QUERY_STRING sans le nom du script à exécuter }
+    lsTmp : String ;
+    { Longueur du nom de fichier }
+    liLenNameOfString : Integer ;
 {$ENDIF}
 begin
-    GetString := GetEnvironmentVariable('QUERY_STRING') ;
+    psGetString := GetEnvironmentVariable('QUERY_STRING') ;
 
     {$IFNDEF COMMANDLINE}
-    tmp2 := getFileNameOfScript ;
-    len := length(tmp2) ;
-    tmp := Copy(GetString, len + 2, length(GetString) - len) ;
-    ReadDataEnv(tmp, GetData, '&') ;
+    psNameOfScript := InternalGetFileNameOfScript ;
+    liLenNameOfString := Length(psNameOfScript) ;
+    lsTmp := Copy(psGetString, liLenNameOfString + 2, Length(psGetString) - liLenNameOfString) ;
+    ReadDataEnv(lsTmp, goGetData, '&') ;
     {$ELSE}
-    ReadDataEnv(GetString, GetData, '&') ;
+    ReadDataEnv(psGetString, goGetData, '&') ;
     {$ENDIF}
 end ;
 
-{******************************************************************************
- * Lit les donner des post
- ******************************************************************************}
+{*****************************************************************************
+ * ReadPostData
+ * MARTINEAU Emeric
+ *
+ * Lit les donner post
+ *
+ *****************************************************************************}
 {$IFNDEF COMMANDLINE}
 procedure TGetPostCookieFileData.ReadPostData ;
 var tmp : String ;
@@ -220,11 +310,13 @@ begin
                 readln(tmp) ;
             end ;
 
-            if Length(tmp) < MaxPostSize
-            then
-                ReadDataEnv(tmp, PostData, '&')
-            else
-                WarningMsg(sPostDataTooBig) ;
+            if Length(tmp) < piMaxPostSize
+            then begin
+                ReadDataEnv(tmp, goPostData, '&')
+            end
+            else begin
+                WarningMsg(csPostDataTooBig) ;
+            end ;
         end
         else if pos('multipart/form-data;', tmp) <> 0
         then begin
@@ -233,8 +325,8 @@ begin
             if i <> 0
             then begin
                 { 9 = 'boundary=' }
-                Boundary := '--' + Copy(tmp, i + 9, length(tmp) - i - 9 + 1) ;
-                longueur := MyStrToInt(GetEnvironmentVariable('CONTENT_LENGTH')) ;
+                psBoundary := '--' + Copy(tmp, i + 9, length(tmp) - i - 9 + 1) ;
+                piContentLength := MyStrToInt(GetEnvironmentVariable('CONTENT_LENGTH')) ;
 
                 GetMultipartFormData ;
             end ;
@@ -243,461 +335,673 @@ begin
 end ;
 {$ENDIF}
 
-{******************************************************************************
+{*****************************************************************************
+ * ReadDataEnv
+ * MARTINEAU Emeric
+ *
  * Lit les donner depuis une variable d'environnement
- ******************************************************************************}
-procedure TGetPostCookieFileData.ReadDataEnv(pTabString : String; var Tab : TDoubleStrings; Separateur : String) ;
-var Liste, Element : TStringList ;
-    i : Integer ;
-    Nom, valeur : String ;
+ *
+ * Paramètres d'entrée :
+ *   - asTabString : chaine contenant val=truc,
+ *   - aoTab : DoubleString de destination,
+ *   - asSeparateur : séparateur entre les valeurs
+ *****************************************************************************}
+procedure TGetPostCookieFileData.ReadDataEnv(aoTabString : String; var aoTab : TDoubleStrings; asSeparateur : String) ;
+var
+    { Contient les couples var=valeur }
+    loListe : TStringList ;
+    { Contient val et valeur }
+    loElement : TStringList ;
+    { Compteur de loList }
+    liIndex : Integer ;
+    { Nom de la valeur (var) }
+    lsNom : String ;
+    { Valeur de la variable }
+    lsValeur : String ;
 begin
-   if pTabString <> ''
+   if aoTabString <> ''
    then begin
-       Liste := TStringList.Create ;
-       Element := TStringList.Create ;
+       loListe := TStringList.Create ;
+       loElement := TStringList.Create ;
 
-       Explode(pTabString, Liste, Separateur) ;
+       Explode(aoTabString, loListe, asSeparateur) ;
 
-       for i := 0 to Liste.Count - 1 do
+       for liIndex := 0 to loListe.Count - 1 do
        begin
-           Explode(Liste[i], Element, '=') ;
-           if Element.Count > 0
+           Explode(loListe[liIndex], loElement, '=') ;
+           
+           if loElement.Count > 0
            then begin
-               Nom := UrlDecode(Element[0]) ;
+               lsNom := UrlDecode(loElement[0]) ;
 
-               Valeur := '' ;
+               lsValeur := '' ;
 
-               if Element.Count > 1
-               then
-                   Valeur := UrlDecode(Element[1]) ;
+               if loElement.Count > 1
+               then begin
+                   lsValeur := UrlDecode(loElement[1]) ;
+               end ;
 
-               SetVal(Tab, Nom, Valeur) ;
+               SetVal(aoTab, lsNom, lsValeur) ;
            end ;
        end ;
 
-       Liste.Free ;
-       Element.Free ;
+       loListe.Free ;
+       loElement.Free ;
    end ;
 end ;
 
-{*******************************************************************************
+{*****************************************************************************
+ * InternalExplodeNumber
+ * MARTINEAU Emeric
+ *
  * Convertit une chaine "[1][1]" en liste
- ******************************************************************************}
-procedure TGetPostCookieFileData.internalExplodeNumber(Text : String; Liste : TStringList) ;
-var i : Integer ;
-    tmp : String ;
+ *
+ * Paramètres d'entrée :
+ *   - asText: chaine de type "[1][1]",
+ *   - aoListe : contient les 1, 1,
+ *****************************************************************************}
+procedure TGetPostCookieFileData.InternalExplodeNumber(asText : String; aoListe : TStringList) ;
+var
+    { Conteur de boucle de chaine }
+    liIndex : Integer ;
+    { Variable temporaire }
+    lsTmp : String ;
 begin
-    tmp := '' ;
+    lsTmp := '' ;
 
-    for i := 1 to System.Length(Text) do
+    for liIndex := 1 to System.Length(asText) do
     begin
-        if Text[i] = ']'
-        then
-            Liste.Add(tmp)
-        else if Text[i] = '['
-        then
-            tmp := ''
-        else
-            tmp := tmp + Text[i] ;
+        if asText[liIndex] = ']'
+        then begin
+            aoListe.Add(lsTmp) ;
+        end
+        else if asText[liIndex] = '['
+        then begin
+            lsTmp := ''
+        end
+        else begin
+            lsTmp := lsTmp + asText[liIndex] ;
+        end ;
     end ;
 end ;
 
-{*******************************************************************************
+{*****************************************************************************
+ * SetVale
+ * MARTINEAU Emeric
+ *
  * Ajoute un élément à une variable si c'est un tableau
- ******************************************************************************}
-procedure TGetPostCookieFileData.SetVal(Tab : TDoubleStrings; Nom : String; Valeur : String) ;
+ *
+ * Paramètres d'entrée :
+ *   - aoTab : DoubleString dans lequel il faut ajouter la variable,
+ *   - asNom : nom de la variable,
+ *   - asValeur : valeur de la variable
+ *****************************************************************************}
+procedure TGetPostCookieFileData.SetVal(aoTab : TDoubleStrings; asNom : String; asValeur : String) ;
 var
-    tmpName, tmpTab : String ;
-    index : Integer ;
-    Tableau : TStringList ;
-    LocalVariable : TVariables ;
-    j : Integer ;
+    { Variable temporaire contenant le nom de la variable }
+    lsTmpName : String ;
+    { Variable contenant [1] }
+    lsTmpTab : String ;
+    { Position de [ }
+    liIndex : Integer ;
+    { Contient la liste des indexs si asNom est un tableau }
+    loTableau : TStringList ;
+    { Objet variable }
+    loLocalVariable : TVariables ;
+    { Conteur de boucle }
+    liIndexTableau : Integer ;
 begin
-    { Est-ce un variable tabeau ? }
-    index := pos('[', Nom) ;
-    if index <> 0
+    { Est-ce une variable tabeau ? }
+    liIndex := pos('[', asNom) ;
+    
+    if liIndex <> 0
     then begin
-        Tableau := TStringList.Create ;
-        LocalVariable := TVariables.Create ;
+        loTableau := TStringList.Create ;
+        loLocalVariable := TVariables.Create ;
 
-        tmpName := copy(Nom, 1, index-1) ;
-        tmpTab := copy(Nom, index, length(Nom) - index + 1) ;
-        Nom := tmpName ;
+        lsTmpName := copy(asNom, 1, liIndex - 1) ;
+        lsTmpTab := copy(asNom, liIndex, Length(asNom) - liIndex + 1) ;
+        asNom := lsTmpName ;
 
-        Tableau.Clear ;
+        InternalExplodeNumber(lsTmpTab, loTableau) ;
 
-        internalExplodeNumber(tmpTab, Tableau) ;
-
-        if Tab.isSet(Nom)
+        { Si la variable existe on la mémorise }
+        if aoTab.isSet(asNom)
         then begin
-            LocalVariable.Add(Nom, Tab.Give(Nom)) ;
+            loLocalVariable.Add(asNom, aoTab.Give(asNom)) ;
         end ;
 
-        for j := 0 to Tableau.Count - 1 do
+        for liIndexTableau := 0 to loTableau.Count - 1 do
         begin
-           if not isInteger(Tableau[j])
+           if not isInteger(loTableau[liIndexTableau])
            then begin
-               tmpTab := IntToStr(LocalVariable.Length(tmpName) + 1) ;
-               Tableau[j] := tmpTab ;
+               lsTmpTab := IntToStr(loLocalVariable.Length(lsTmpName) + 1) ;
+               loTableau[liIndexTableau] := lsTmpTab ;
            end
            else begin
-               if MyStrToInt(Tableau[j]) > 0
-               then
-                   tmpTab := Tableau[j]
+               if MyStrToInt(loTableau[liIndexTableau]) > 0
+               then begin
+                   lsTmpTab := loTableau[liIndexTableau]
+               end
                else begin
-                   tmpTab := IntToStr(LocalVariable.Length(tmpName) + 1) ;
-                   Tableau[j] := tmpTab ;
+                   lsTmpTab := IntToStr(loLocalVariable.Length(lsTmpName) + 1) ;
+                   loTableau[liIndexTableau] := lsTmpTab ;
                end ;
            end ;
 
-           tmpName := tmpName + '[' + tmpTab + ']' ;
+           lsTmpName := lsTmpName + '[' + lsTmpTab + ']' ;
         end ;
 
         { On créer la variable }
-        LocalVariable.Add(tmpName, AddSlashes(Valeur)) ;
+        loLocalVariable.Add(lsTmpName, AddSlashes(asValeur)) ;
 
-        Valeur := LocalVariable.Give(Nom) ;
+        asValeur := loLocalVariable.Give(asNom) ;
 
-       Tableau.Free ;
-       LocalVariable.Free ;
+        loTableau.Free ;
+        loLocalVariable.Free ;
     end
     else begin
-       Valeur := AddSlashes(Valeur) ;
+       asValeur := AddSlashes(asValeur) ;
     end ;
 
-    Tab.Add(Nom, Valeur) ;
+    aoTab.Add(asNom, asValeur) ;
 end ;
 
 {$IFNDEF COMMANDLINE}
-{*******************************************************************************
+{*****************************************************************************
+ * GetName
+ * MARTINEAU Emeric
+ *
  * Récupère le nom dans une ligne
  * Content-Disposition: form-data; name="textfield"
- ******************************************************************************}
-function TGetPostCookieFileData.GetName(Text : String) : String ;
-var i : Integer ;
-    len : Integer ;
+ *
+ * Paramètres d'entrée :
+ *   - aoTab : texte à lire Content-Disposition: form-data; name="textfield"
+ *****************************************************************************}
+function TGetPostCookieFileData.GetName(asText : String) : String ;
+var
+    { Position de name= }
+    liIndex : Integer ;
+    { Longueur de asText }
+    liLenText : Integer ;
 begin
     Result := '' ;
-    i := pos('name="', Text) ;
-    len := Length(Text) ;
+    liIndex := pos('name="', asText) ;
+    liLenText := Length(asText) ;
 
-    if i > 0
+    if liIndex > 0
     then begin
-        Inc(i, 6) ;
+        Inc(liIndex, 6) ;
 
-        while i <= len do
+        while liIndex <= liLenText do
         begin
-            if Text[i] = '"'
-            then
-                break
-            else if Text[i] = '\'
-            then
-                Inc(i) ;
+            if asText[liIndex] = '"'
+            then begin
+                break ;
+            end
+            else if asText[liIndex] = '\'
+            then begin
+                Inc(liIndex) ;
+            end ;
 
-            Result := Result + Text[i] ;
-            Inc(i) ;
+            Result := Result + asText[liIndex] ;
+            Inc(liIndex) ;
         end ;
     end ;
 end ;
 
-{*******************************************************************************
+{*****************************************************************************
+ * GetMultipartFormData
+ * MARTINEAU Emeric
+ *
  * Récupère le donnée d'un formulaire transmit pas multipart/form-data
- ******************************************************************************}
+ *
+ *****************************************************************************}
 procedure TGetPostCookieFileData.GetMultipartFormData ;
-var i, j : Integer ;
-    line : String ;
-    Name : String ;
-    Lignes : TStringList ;
-    Buffer : String ;
-    C : char ;
-    F : File ;
-    CountRead : Integer ;
-    Position : Integer ;
-    FileOut : File ;
-    CountWrite : Integer ;
-    posBoundary : Integer ;
-    lenOfBuffer : Integer ;
-    tmpFileName : String ;
-    tmpBoundary : String ;
-    SkipData : Boolean ;
-    SizeOfFile : Integer ;
-    SizeOfPostData : Integer ;
-    FileName : String ;
-    LocalVariable : TVariables ;
-    tmpVarName : String ;
-    ContentType : String ;
+var
+    { Longueur des données lues }
+    liLenOfRead : Integer ;
+    { Compteur de boucle de lignes }
+    liIndexLignes : Integer ;
+    { Ligne courante à traiter}
+    lsCurrentLine : String ;
+    { Comtpeur pour le buffer }
+    liCountOfBuffer : Integer ;
+    { Nom de la variable envoyée en post }
+    lsName : String ;
+    { Ligne dans la variable lorsqu'on est en variable "normale" pas en fichier }
+    loLignes : TStringList ;
+    { Buffer de lecture des données à mettre dans le fichier }
+    lsBuffer : String ;
+    { Caractère lu en cours }
+    lcC : char ;
+    { Fichier de lecture standard (ex : clavier) }
+    lF : File ;
+    { Compteur de la fonction BlockRead }
+    liCountRead : Integer ;
+    { Position filename= }
+    liPosition : Integer ;
+    { Fichier temporaire }
+    lFileOut : File ;
+    { Compteur de la fonction BlockWrite }
+    liCountWrite : Integer ;
+    { Position du boundary }
+    liPosBoundary : Integer ;
+    { Taille buffer }
+    liLenOfBuffer : Integer ;
+    { Nom du fichier temporaire }
+    lsTmpFileName : String ;
+    { EndOfLine + boundary }
+    lsTmpBoundary : String ;
+    { Indique s'il ne faut pas enregistrer les données }
+    lbSkipData : Boolean ;
+    { Taille du fichier en cours de constitution }
+    liSizeOfFile : Integer ;
+    { Taille des données post hors fichier }
+    liSizeOfPostData : Integer ;
+    { Nom du fichier en cours d'envoie }
+    lsFileName : String ;
+    { Permet le constitution des variables }
+    loLocalVariable : TVariables ;
+    { Nom de la variable du fichier temporaire }
+    lsTmpVarName : String ;
+    { Type des données text/html, image/gif }
+    lsContentType : String ;
+    { Boundary de fin de données post }
+    lsEndBoundary : String ;
 begin
-    i := 1 ;
-    Lignes := TStringList.Create ;
-    tmpBoundary := OsEOL + Boundary ;
-    LocalVariable := TVariables.Create ;
-    SizeOfPostData := 0 ;
-    
+    liLenOfRead := 1 ;
+    loLignes := TStringList.Create ;
+    lsTmpBoundary := OsEOL + psBoundary ;
+    loLocalVariable := TVariables.Create ;
+    liSizeOfPostData := 0 ;
+    lsEndBoundary := psBoundary + '--' ;
+    lsCurrentLine := '' ;
+    lsTmpVarName := 'TmpVarFileName' ;
+
     try
         { Ouvre l'entrée standar en lecture seul }
         FileMode := fmOpenRead ;
-        AssignFile(F, '') ;
-        Reset(F, 1) ;
-        Seek(F, 0) ;
+        AssignFile(lF, '') ;
+        Reset(lF, 1) ;
+        Seek(lF, 0) ;
 
-        while i <= longueur do
+        while liLenOfRead <= piContentLength do
         begin
             { A-t-on atteind la taille maximal des données par post ? }
-            if MaxPostSize >= 0
+            if piMaxPostSize >= 0
             then begin
-                if SizeOfPostData >= MaxPostSize
-                then
+                if liSizeOfPostData >= piMaxPostSize
+                then begin
                     break ;
+                end ;
             end ;
 
-            ReadLine(F, line) ;
+            ReadLine(lF, lsCurrentLine) ;
 
-            if (line = '--') or (line = (Boundary + '--'))
-            then
+            if (lsCurrentLine = '--') or (lsCurrentLine = lsEndBoundary)
+            then begin
                 break ;
+            end ;
 
-            Inc(i, Length(line)) ;
-            Inc(SizeOfPostData, Length(line)) ;
+            Inc(liLenOfRead, Length(lsCurrentLine)) ;
+            Inc(liSizeOfPostData, Length(lsCurrentLine)) ;
 
             { (line = Boundary) car la première ligne est égale à boundary }
-            if (line = Boundary) or (pos('Content-Disposition: form-data;', line) <> 0)
+            if (lsCurrentLine = psBoundary) or (pos('Content-Disposition: form-data;', lsCurrentLine) <> 0)
             then begin
 
-                if (line = Boundary)
+                if (lsCurrentLine = psBoundary)
                 then begin
-                    ReadLine(F, line) ;
-                    Inc(i, Length(line)) ;
+                    ReadLine(lF, lsCurrentLine) ;
+                    Inc(liLenOfRead, Length(lsCurrentLine)) ;
                 end ;
                 
-                if pos('Content-Disposition: form-data;', line) <> 0
+                if pos('Content-Disposition: form-data;', lsCurrentLine) <> 0
                 then begin
-                    Position := pos('filename="', line) ;
+                    liPosition := pos('filename="', lsCurrentLine) ;
 
-                    if Position <> 0
+                    if liPosition <> 0
                     then begin
-                        FileName := Copy(line, Position + 10, Length(line) - (Position + 10)) ;
+                        lsFileName := Copy(lsCurrentLine, liPosition + 10, Length(lsCurrentLine) - (liPosition + 10)) ;
 
-                        if FileName <> ''
+                        if lsFileName <> ''
                         then begin
-                            Name := GetName(line) ;
+                            lsName := GetName(lsCurrentLine) ;
 
                             { Content-Type }
-                            readline(F, line) ;
+                            readline(lF, lsCurrentLine) ;
 
-                            Position := pos('Content-Type: ', line) ;
-                            ContentType := Copy(line, Position + 14, Length(line) - (Position + 13)) ;
-
-                            tmpVarName := UniqId ;
+                            liPosition := pos('Content-Type: ', lsCurrentLine) ;
+                            lsContentType := Copy(lsCurrentLine, liPosition + 14, Length(lsCurrentLine) - (liPosition + 13)) ;
 
                             { Doit-on ne pas enregistrer les données }
-                            if fileUpload
-                            then
-                                SkipData := False
-                            else
-                                SkipData := True ;
+                            if pbFileUpload
+                            then begin
+                                lbSkipData := False
+                            end
+                            else begin
+                                lbSkipData := True ;
+                            end ;
 
-                            SizeOfFile := 0 ;
+                            liSizeOfFile := 0 ;
 
                             { Ligne vide après content-type }
-                            readline(F, line) ;
+                            readline(lF, lsCurrentLine) ;
 
                             {$I+}
                             FileMode := fmOpenWrite ;
-                            tmpFileName := OsGetTmpFileName ;
+                            lsTmpFileName := OsGetTmpFileName ;
 
-                            TmpFilesName.Add(tmpFileName) ;
+                            poTmpFilesName.Add(lsTmpFileName) ;
 
-                            AssignFile(FileOut, tmpFileName) ;
-                            Rewrite(FileOut, SizeOf(C)) ;
+                            AssignFile(lFileOut, lsTmpFileName) ;
+                            Rewrite(lFileOut, SizeOf(lcC)) ;
 
                             if IOResult = 0
                             then begin
-                                Buffer := '' ;
-                                posBoundary := 1 ;
+                                lsBuffer := '' ;
+                                liPosBoundary := 1 ;
 
-                                while i <= longueur do
+                                while liLenOfRead <= piContentLength do
                                 begin
-                                    if uploadSize >= 0
+                                    if piMaxUploadSize >= 0
                                     then begin
-                                        if SizeOfFile > uploadSize
-                                        then
-                                            SkipData := True ;
+                                        if liSizeOfFile > piMaxUploadSize
+                                        then begin
+                                            lbSkipData := True ;
+                                        end ;
                                     end ;
 
-                                    BlockRead(F, C, SizeOf(C), countRead) ;
-                                    Inc(i) ;
+                                    { Initialise la variable pour supression du message FPC }
+                                    liCountRead := 0 ;
+                                    lcC := #0 ;
+                                    
+                                    BlockRead(lF, lcC, SizeOf(lcC), liCountRead) ;
+                                    Inc(liLenOfRead) ;
 
-                                    if countRead <> 1
-                                    then
-                                        break ;
-
-                                    if C <> tmpBoundary[posBoundary]
+                                    if liCountRead <> 1
                                     then begin
-                                        PosBoundary := 1 ;
+                                        break ;
+                                    end ;
 
-                                        lenOfBuffer := Length(Buffer) ;
+                                    if lcC <> lsTmpBoundary[liPosBoundary]
+                                    then begin
+                                        liPosBoundary := 1 ;
 
-                                        if lenOfBuffer > 0
+                                        liLenOfBuffer := Length(lsBuffer) ;
+
+                                        if liLenOfBuffer > 0
                                         then begin
-                                            for j := 1 to lenOfBuffer do
+                                            for liCountOfBuffer := 1 to liLenOfBuffer do
                                             begin
-                                                if not SkipData
+                                                if not lbSkipData
                                                 then begin
-                                                    BlockWrite(FileOut, Buffer[j], SizeOf(C), CountWrite) ;
+                                                    { Suppression du Warning FPC }
+                                                    liCountWrite := 0 ;
+                                                    
+                                                    BlockWrite(lFileOut, lsBuffer[liCountOfBuffer], SizeOf(lcC), liCountWrite) ;
 
-                                                    if CountWrite <> 1
-                                                    then
+                                                    if liCountWrite <> 1
+                                                    then begin
                                                         break ;
+                                                    end ;
                                                 end ;
 
-                                                Inc(SizeOfFile) ;
+                                                Inc(liSizeOfFile) ;
                                             end ;
 
-                                            Buffer := '' ;
+                                            lsBuffer := '' ;
                                         end ;
 
 
-                                        if C <> tmpBoundary[posBoundary]
+                                        if lcC <> lsTmpBoundary[liPosBoundary]
                                         then begin
-                                            if not SkipData
+                                            if not lbSkipData
                                             then begin
-                                                BlockWrite(FileOut, C, SizeOf(C), CountWrite) ;
+                                                BlockWrite(lFileOut, lcC, SizeOf(lcC), liCountWrite) ;
 
-                                                if CountWrite <> 1
-                                                then
+                                                if liCountWrite <> 1
+                                                then begin
                                                     break ;
+                                                end ;
                                             end ;
 
-                                            Inc(SizeOfFile) ;
+                                            Inc(liSizeOfFile) ;
                                         end
                                         else begin
-                                            Buffer := Buffer + C ;
+                                            lsBuffer := lsBuffer + lcC ;
 
                                             { Il faut absolument incrémenter PosBoundary
                                               après }
-                                            Inc(PosBoundary) ;
+                                            Inc(liPosBoundary) ;
                                         end ;
                                     end
                                     else begin
-                                        Buffer := Buffer + C ;
+                                        lsBuffer := lsBuffer + lcC ;
 
-                                        if posBoundary = length(tmpBoundary)
+                                        if liPosBoundary = length(lsTmpBoundary)
                                         then begin
                                             break ;
                                         end ;
 
                                         { Il faut absolument incrémenter PosBoundary
                                           après }
-                                        Inc(PosBoundary) ;
+                                        Inc(liPosBoundary) ;
                                     end ;
                                 end ;
 
-                                CloseFile(FileOut) ;
+                                CloseFile(lFileOut) ;
+                                
+                                loLocalVariable.Add(lsTmpVarName + '[1]', OSOsPathToSwsPath(lsTmpFileName));
+                                loLocalVariable.Add(lsTmpVarName + '[2]', lsContentType);
+                                loLocalVariable.Add(lsTmpVarName + '[3]', lsFileName);
+                                loLocalVariable.Add(lsTmpVarName + '[4]', IntToStr(liSizeOfFile));
 
-                                LocalVariable.Add(tmpVarName + '[1]', OSOsPathToSwsPath(tmpFileName));
-                                LocalVariable.Add(tmpVarName + '[2]', ContentType);
-                                LocalVariable.Add(tmpVarName + '[3]', FileName);
-                                LocalVariable.Add(tmpVarName + '[4]', IntToStr(SizeOfFile));
+                                goFileData.Add(lsName, loLocalVariable.Give(lsTmpVarName)) ;
 
-                                FileData.Add(Name, LocalVariable.Give(tmpVarName)) ;
-
-                                LocalVariable.Delete(tmpVarName) ;
+                                loLocalVariable.Delete(lsTmpVarName) ;
                                 {$I-}
                             end ;
                         end ;
                     end
                     else begin
                         { Recopie le nom }
-                        Name := GetName(line) ;
+                        lsName := GetName(lsCurrentLine) ;
 
                         { En dessous, il y a une ligne vide }
-                        ReadLine(F, line) ;
+                        ReadLine(lF, lsCurrentLine) ;
 
                         { Lit une première fois car si vide on à directement Boundary }
-                        ReadLine(F, line) ;
+                        ReadLine(lF, lsCurrentLine) ;
 
                         { Lit toutes les lignes jusqu'à Boundary }
-                        while (line <> Boundary) and (i < longueur) and (line <> Boundary + '--') do
+                        while (lsCurrentLine <> psBoundary) and (liLenOfRead < piContentLength) and (lsCurrentLine <> lsEndBoundary) do
                         begin
-                            Inc(i, Length(line)) ;
-                            Inc(SizeOfPostData, Length(line)) ;
-                            Lignes.Add(line) ;
-                            ReadLine(F, line) ;
+                            Inc(liLenOfRead, Length(lsCurrentLine)) ;
+                            Inc(liSizeOfPostData, Length(lsCurrentLine)) ;
+                            loLignes.Add(lsCurrentLine) ;
+                            ReadLine(lF, lsCurrentLine) ;
                         end ;
 
-                        line := '' ;
+                        { Réinitialise la ligne }
+                        lsCurrentLine := '' ;
 
                         { Convertit toutes les lignes en une seul lignes }
-                        for j := 0 to Lignes.Count - 1 do
+                        for liIndexLignes := 0 to loLignes.Count - 1 do
                         begin
-                            line := line + Lignes[j] ;
+                            lsCurrentLine := lsCurrentLine + loLignes[liIndexLignes] ;
 
-                            if (j <> Lignes.Count - 1)
-                            then
-                                line := line + OsEOL ;
+                            { On ne lit pas la dernière ligne car elle contient le boundary de fin }
+                            if (liIndexLignes <> loLignes.Count - 1)
+                            then begin
+                                lsCurrentLine := lsCurrentLine + OsEOL ;
+                            end ;
                         end ;
 
-                        Lignes.Clear ;
+                        loLignes.Clear ;
 
-                        SetVal(PostData, Name, line) ;
+                        SetVal(goPostData, lsName, lsCurrentLine) ;
                     end ;
                 end ;
             end ;
         end ;
         
-        CloseFile(F) ;
+        CloseFile(lF) ;
     except
        on EInOutError do ;
     end ;
 
-    Lignes.Free ;
-    LocalVariable.Free ;
+    loLignes.Free ;
+    loLocalVariable.Free ;
 end ;
 
-{*******************************************************************************
+{*****************************************************************************
+ * GetName
+ * MARTINEAU Emeric
+ *
  * Lit une ligne dans un fichier binaire
- ******************************************************************************}
-procedure TGetPostCookieFileData.ReadLine(var F : File; var Line : String) ;
-var endOfLine : String ;
-    C, C2 : Char ;
-    count : Integer ;
-    len : Integer ;
+ *
+ * Paramètre d'entrée :
+ *   - aF : variable fichier à lire,
+ *   - asLine : ligne lue
+ *****************************************************************************}
+procedure TGetPostCookieFileData.ReadLine(var aF : File; var asLine : String) ;
+var
+    { Contient la fin de ligne pour comparaison }
+    lsEndOfLine : String ;
+    { Caracère lue }
+    lcC1 : Char ;
+    lcC2 : Char ;
+    { Nombre de caractère lu par BlockRead }
+    liCount : Integer ;
+    { Longeur de la fin de ligne }
+    liLenEnOfFile : Integer ;
 begin
-    endOfLine := OsEOL ;
-    len := Length(endOfLine) ;
-    Line := '' ;
+    lsEndOfLine := OsEOL ;
+    liLenEnOfFile := Length(lsEndOfLine) ;
+    asLine := '' ;
     
     repeat
-        BlockRead(F, C, 1, count) ;
+        { Suppression du Warning FPC }
+        lcC1 := #0 ;
+        liCount := 0 ;
+        
+        BlockRead(aF, lcC1, 1, liCount) ;
 
-        if Count <> 1
+        if liCount <> 1
         then
             break
-        else if len = 2
+        else if liLenEnOfFile = 2
         then begin
-            if C = endOfLine[1]
+            if lcC1 = lsEndOfLine[1]
             then begin
-                BlockRead(F, C2, 1, count) ;
+                { Suppression du Waring FPC }
+                lcC2 := #0 ;
+                
+                BlockRead(aF, lcC2, 1, liCount) ;
 
-                if C2 = endOfLine[2]
-                then
-                    break
+                if lcC2 = lsEndOfLine[2]
+                then begin
+                    break ;
+                end
                 else begin
-                    Line := Line + C + C2 ;
+                    asLine := asLine + lcC1 + lcC2 ;
                 end ;
             end
-            else
-                Line := Line + C ;
+            else begin
+                asLine := asLine + lcC1 ;
+            end ;
         end
         else begin
-            if C = endOfLine[1]
-            then
-                break
-            else
-                Line := Line + C ;
+            if lcC1 = lsEndOfLine[1]
+            then begin
+                break ;
+            end 
+            else begin
+                asLine := asLine + lcC1 ;
+            end ;
         end ;
-    until C = endOfLine[1] ;
+    until lcC1 = lsEndOfLine[1] ;
 end ;
 {$ENDIF}
+
+{*****************************************************************************
+ * GetFileNameOfScript
+ * MARTINEAU Emeric
+ *
+ * Retourne le nom du script à exécuter
+ *
+ *****************************************************************************}
+{$IFNDEF COMMANDLINE}
+function TGetPostCookieFileData.GetFileNameOfScript : String ;
+begin
+    Result := psNameOfScript ;
+end ;
+{$ENDIF}
+
+{*****************************************************************************
+ * IsSetGet
+ * MARTINEAU Emeric
+ *
+ * Indique si la donnée Get existe
+ *
+ * Paramètres d'entrée :
+ *   - asName : nom de la variable,
+ *
+ * Retour : true si la donnée exist.
+ *****************************************************************************}
+function TGetPostCookieFileData.IsSetGet(asName : String) : boolean ;
+begin
+    Result := goGetData.IsSet(asName) ;
+end ;
+
+{*****************************************************************************
+ * IsSetPost
+ * MARTINEAU Emeric
+ *
+ * Indique si la donnée Post existe
+ *
+ * Paramètres d'entrée :
+ *   - asName : nom de la variable,
+ *
+ * Retour : true si la donnée exist.
+ *****************************************************************************}
+function TGetPostCookieFileData.IsSetPost(asName : String) : boolean ;
+begin
+    Result := goPostData.IsSet(asName) ;
+end ;
+
+{*****************************************************************************
+ * IsSetCookie
+ * MARTINEAU Emeric
+ *
+ * Indique si la donnée Cookie existe
+ *
+ * Paramètres d'entrée :
+ *   - asName : nom de la variable,
+ *
+ * Retour : true si la donnée exist.
+ *****************************************************************************}
+function TGetPostCookieFileData.IsSetCookie(asName : String) : boolean ;
+begin
+    Result := goCookieData.IsSet(asName) ;
+end ;
+
+{*****************************************************************************
+ * IsSetFile
+ * MARTINEAU Emeric
+ *
+ * Indique si la donnée Get existe
+ *
+ * Paramètres d'entrée :
+ *   - asName : nom de la variable,
+ *
+ * Retour : true si la donnée exist.
+ *****************************************************************************}
+function TGetPostCookieFileData.IsSetFile(asName : String) : boolean ;
+begin
+    Result := goFileData.IsSet(asName) ;
+end ;
 
 end.

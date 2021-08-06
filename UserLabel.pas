@@ -18,169 +18,244 @@ unit UserLabel;
  * Place, Suite 330, Boston, MA 02111-1307 USA
  *
  *******************************************************************************
- * Class to register line of user function & label
+ * Class to register line of user label
  ******************************************************************************}
 
 interface
 
 {$I config.inc}
 
+{$IFDEF FPC}
+    {$mode objfpc}{$H+}
+{$ENDIF}
+
 uses Classes, SysUtils ;
 
 type
   TUserLabel = class
   private
-      LabelName : TStringList ;
-      Line: array of Integer ;
+      poLabelName : TStringList ;
+      piLine: array of Integer ;
   protected
   public
       constructor Create ;
       destructor Free ;
-      procedure Add(NameOfVar : string; ValueOfVar : integer) ;
-      function Give(NameOfVar : string) : integer;
-      function GiveLabelNameByIndex(Index : Integer) : string ;
-      procedure Delete(NameOfVar : String) ;
+      procedure Add(asNameOfLabel : string; aiLineNumber : integer) ;
+      function Give(asNameOfLabel : string) : integer;
+      function GiveLabelNameByIndex(aiIndex : Integer) : string ;
+      procedure Delete(asNameOfLabel : String) ;
       function Count : integer ;
       procedure Clear ;
-      function isSet(NameOfVar : string) : boolean ;
-      function rename(OldName, NewName : String) : boolean ;      
+      function IsSet(asNameOfLabel : string) : boolean ;
+      function Rename(asOldName, asNewName : String) : boolean ;
   end ;
 
-Var ListLabel : TUserLabel ;
+Var goListLabel : TUserLabel ;
     
 implementation
 
-{******************************************************************************
+{*****************************************************************************
+ * Create
+ * MARTINEAU Emeric
+ *
  * Consructeur
- ******************************************************************************}
+ *****************************************************************************}
 constructor TUserLabel.Create ;
 begin
     inherited Create();
 
-    { Créer l'objet FileName }
-    LabelName := TStringList.Create ;
+    poLabelName := TStringList.Create ;
 end ;
 
-{******************************************************************************
+{*****************************************************************************
+ * Free
+ * MARTINEAU Emeric
+ *
  * Destructeur
- ******************************************************************************}
+ *****************************************************************************}
 destructor TUserLabel.Free ;
 begin
-    LabelName.Free ;
-    SetLength(Line, 0) ;
+    poLabelName.Free ;
+    SetLength(piLine, 0) ;
 end ;
 
-{******************************************************************************
- * Ajouter une variable
- ******************************************************************************}
-procedure TUserLabel.Add(NameOfVar : string; ValueOfVar : integer) ;
+{*****************************************************************************
+ * Add
+ * MARTINEAU Emeric
+ *
+ * Ajoute un label
+ *
+ * Paramètres d'entrée :
+ *   - asNameOfLabel : nom du label,
+ *   - aiLineNumber : position du label,
+ *
+ *****************************************************************************}
+procedure TUserLabel.Add(asNameOfLabel : string; aiLineNumber : integer) ;
 var nb : Integer ;
 begin
-    LabelName.Add(LowerCase(NameOfVar)) ;
+    poLabelName.Add(LowerCase(asNameOfLabel)) ;
 
-    nb := LabelName.Count ;
+    nb := poLabelName.Count ;
 
-    SetLength(Line, nb) ;
-    Line[nb - 1] := ValueOfVar ;
+    SetLength(piLine, nb) ;
+    piLine[nb - 1] := aiLineNumber ;
 end ;
 
-{******************************************************************************
+{*****************************************************************************
+ * Delete
+ * MARTINEAU Emeric
+ *
  * Supprimer l'entrée correspondant dans le tableau.
- ******************************************************************************}
-procedure TUserLabel.Delete(NameOfVar : String) ;
+ *
+ * Paramètres d'entrée :
+ *   - asNameOfLabel : nom du label,
+ *
+ *****************************************************************************}
+procedure TUserLabel.Delete(asNameOfLabel : String) ;
 Var Index : Integer ;
     i : Integer ;
 begin
-    Index := LabelName.IndexOf(LowerCase(NameOfVar)) ;
+    Index := poLabelName.IndexOf(LowerCase(asNameOfLabel)) ;
 
     if (Index <> -1)
     then begin
-        LabelName.Delete(Index) ;
+        poLabelName.Delete(Index) ;
 
-        for i := Index to LabelName.Count - 1 do
+        for i := Index to poLabelName.Count - 1 do
         begin
-            Line[i] := Line[i + 1] ;
+            piLine[i] := piLine[i + 1] ;
         end ;
 
-        SetLength(Line, LabelName.Count) ;
+        SetLength(piLine, poLabelName.Count) ;
     end ;
 end;
 
-{******************************************************************************
+{*****************************************************************************
+ * Count
+ * MARTINEAU Emeric
+ *
  * Donne le nombre de fichiers récents
- ******************************************************************************}
+ *
+ * Paramètres d'entrée :
+ *   - asNameOfLabel : nom du label,
+ *
+ *****************************************************************************}
 function TUserLabel.Count : Integer ;
 begin
-    Result := LabelName.Count ;
+    Result := poLabelName.Count ;
 end ;
 
-{******************************************************************************
+{*****************************************************************************
+ * Give
+ * MARTINEAU Emeric
+ *
  * Donne la fichier correspondant à l'index.
- ******************************************************************************}
-function TUserLabel.Give(NameOfVar : string) : integer ;
+ *
+ * Paramètres d'entrée :
+ *   - asNameOfLabel : nom du label,
+ *
+ *****************************************************************************}
+function TUserLabel.Give(asNameOfLabel : string) : integer ;
 Var Index : Integer ;
 begin
-    Index := LabelName.IndexOf(LowerCase(NameOfVar)) ;
-
-    if Index <> -1
-    then
-        Result := Line[Index]
-    else
-        Result := -1 ;
-end ;
-
-{******************************************************************************
- * Indique si la variable existe
- ******************************************************************************}
-function TUserLabel.isSet(NameOfVar : string) : boolean ;
-Var Index : Integer ;
-begin
-    Index := LabelName.IndexOf(LowerCase(NameOfVar)) ;
-
-    if Index <> -1
-    then
-        Result := True
-    else
-        Result := False ;
-end ;
-
-procedure TUserLabel.Clear ;
-begin
-    LabelName.Clear ;
-    SetLength(Line, 0) ;
-end ;
-
-{*******************************************************************************
- * Retourne le nom de la variable par l'index
- ******************************************************************************}
-function TUserLabel.GiveLabelNameByIndex(Index : Integer) : string ;
-begin
-    Result := '' ;
+    Index := poLabelName.IndexOf(LowerCase(asNameOfLabel)) ;
 
     if Index <> -1
     then begin
-        if Index < LabelName.Count
+        Result := piLine[Index] ;
+    end
+    else begin
+        Result := -1 ;
+    end ;
+end ;
+
+{*****************************************************************************
+ * IsSet
+ * MARTINEAU Emeric
+ *
+ * Indique si le label existe
+ *
+ * Paramètres d'entrée :
+ *   - asNameOfLabel : nom du label,
+ *
+ * Retour : true si le label existe
+ *****************************************************************************}
+function TUserLabel.IsSet(asNameOfLabel : string) : boolean ;
+Var Index : Integer ;
+begin
+    Index := poLabelName.IndexOf(LowerCase(asNameOfLabel)) ;
+
+    if Index <> -1
+    then begin
+        Result := True ;
+    end
+    else begin
+        Result := False ;
+    end ;
+end ;
+
+{*****************************************************************************
+ * Clear
+ * MARTINEAU Emeric
+ *
+ * Vide la liste
+ *
+ *****************************************************************************}
+procedure TUserLabel.Clear ;
+begin
+    poLabelName.Clear ;
+    SetLength(piLine, 0) ;
+end ;
+
+{*****************************************************************************
+ * GiveLabelNameByIndex
+ * MARTINEAU Emeric
+ *
+ * Retourne le nom du label suivant l'index
+ *
+ * Paramètres d'entrée :
+ *   - aiIndex : index du label,
+ *
+ * Retour : nom de la fonction
+ *****************************************************************************}
+function TUserLabel.GiveLabelNameByIndex(aiIndex : Integer) : string ;
+begin
+    Result := '' ;
+
+    if aiIndex <> -1
+    then begin
+        if aiIndex < poLabelName.Count
         then begin
-            Result := LabelName[Index] ;
+            Result := poLabelName[aiIndex] ;
         end
     end
 end ;
 
-{******************************************************************************
- * Renomme la fonction OldName par NewName
- ******************************************************************************}
-function TUserLabel.rename(OldName, NewName : String) : boolean ;
-var Index : Integer ;
+{*****************************************************************************
+ * Rename
+ * MARTINEAU Emeric
+ *
+ * Renomme le label OldName par NewName
+ *
+ * Paramètres d'entrée :
+ *   - asOldName : nom de la fonction a renommer,
+ *   - asNewName : nouveau nom.
+ *
+ *****************************************************************************}
+function TUserLabel.Rename(asOldName, asNewName : String) : boolean ;
+var
+    liIndex : Integer ;
 begin
-    Index := LabelName.IndexOf(LowerCase(OldName)) ;
+    liIndex := poLabelName.IndexOf(LowerCase(asOldName)) ;
 
-    if Index <> -1
+    if liIndex <> -1
     then begin
-        LabelName[Index] := LowerCase(NewName) ;
+        poLabelName[liIndex] := LowerCase(asNewName) ;
         Result := True ;
     end
-    else
+    else begin
         Result := False ;
+    end ;
 end ;
 
 end.

@@ -1,18 +1,19 @@
 <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
-<html><head><title>Math functions</title>
+<html><head><title>HTML functions</title>
 
 <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1"></head>
 <body style="color: rgb(0, 0, 0); background-color: rgb(255, 255, 255);">
-<h1>Math functions</h1>
+<h1>HTML functions</h1>
 <h2>HtmlSpecialCharsDecode<a name="htmlsepcialcharsdecode"></a></h2>
-<p>string DecToBin(16) : get binary representation of number.</p>
+<p>string htmlspecialcharsdecode( string $string&nbsp; [, string
+$quote_style, string $charset]) : convert html string to string.</p>
 <h2>HtmlSpecialCharsEncode<a name="htmlspecialcharsencode"></a></h2>
-string htmlentities&nbsp; ( string $string&nbsp; [, int
+string htmlspecialcharsencode( string $string&nbsp; [, string
 $quote_style, string $charset, bool
 $double_encode] )<br>
 <br>
 Convert string in to html compatible sting. Convert all special char (é
-&gt; &amp;eagrave;)<br>
+&gt; &amp;egrave;)<br>
 <br>
 <em>string</em> : input string.<br>
 <em><br>
@@ -59,7 +60,7 @@ and Finnish letters missing in Latin-1(ISO-8859-1).</td>
 </tr>
 <tr>
 <td>UTF-8</td>
-<td></td>
+<td>&nbsp;</td>
 <td>ASCII compatible multi-byte 8-bit Unicode.</td>
 </tr>
 <tr>
@@ -84,17 +85,17 @@ and Finnish letters missing in Latin-1(ISO-8859-1).</td>
 </tr>
 <tr>
 <td>BIG5</td>
-<td></td>
+<td>&nbsp;</td>
 <td>Traditional Chinese, mainly used in Taiwan.</td>
 </tr>
 <tr>
 <td>GB2312</td>
-<td></td>
+<td>&nbsp;</td>
 <td>Simplified Chinese, national standard character set.</td>
 </tr>
 <tr>
 <td>BIG5-HKSCS</td>
-<td></td>
+<td>&nbsp;</td>
 <td>Big5 with Hong Kong extensions, Traditional Chinese.</td>
 </tr>
 <tr>
@@ -113,6 +114,9 @@ and Finnish letters missing in Latin-1(ISO-8859-1).</td>
 <br>
 <em>double_encode</em> : set true if in parsed string we have html encode
 charactere.<br>
+<br />
+Exemple : echo htmlspecialcharsencode("àéè", "ENT_QUOTES", "ISO-8859-1",  $true)
+
 <h2>NlToBr<a name="nltobr"></a></h2>
 <p>string NlToBr(string) : convert all \n or \r or \n\r to
 &lt;br /&gt;</p><h2>Striptags<a name="striptags"></a></h2>

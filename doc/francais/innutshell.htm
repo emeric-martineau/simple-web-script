@@ -54,13 +54,201 @@
   Parameter 3 : nom du script courrant (string with 0 terminate)<br>
   Parameter 4 : version de Simple Web Script (string with 0 terminate)<br>
   Parameter 5 : ligne courrante (Integer)<br>
-  Parameter 6 : longueur du résultat (si c'est une chaine de caractère, 
-  ne mettez pas de 0 final) (Pointer on integer)<br>
-  Parameter 7 : indique s'il y a eu une erreur (Pointer on boolean)</p>
+  Parameter 6 : indique s'il y a eu une erreur (Pointer on boolean)</p>
 <h3>GetResult</h3>
 <p>Le seul paramètre est un pointeur sur le tableau de caractères contenant le résultat. Retourne la taille du résultat.</p>
 <h3>Init</h3>
 <p>Cette fonction à pour paramètre le DocRoot, TmpDir et SafeMode. La fonction doit mémoriser ces paramètres en interne.</p>
-<p>&nbsp;</p>
-<p>&nbsp; </p>
+
+<h2>Clean Coding<a name="cleancoding"></a></h2>
+<p>
+Le clean coding, n'est pas une méthode de programmation au d'analyse comme l'est Extreme programming (http://fr.wikipedia.org/wiki/Extreme_programming) ou encore mieux, prouver mathématiquement ses logiciels (et donc ne jamais utiliser de debbuger, comme le fait Mr Couturier du CNAM de Nantes). C'est un  principe d'écriture de programme (coding) afin de ne pas engendrer d'erreur lors du passage de l'analyse vers le langage de programmation.<br />
+L'idée m'est venu au travail, lorsque j'ai du corriger un problème dans un programme. L'analyse était bonne, mais le programme était mal codé ou codé comme un barbare, ce qui engendrait le problème (ici une succession de condition dans un if sans parenthèse).<br />
+Le clean coding est aussi là pour réconcilier l'approche tout programmation et l'approche tout analyse.<br />
+Le clean coding est donc un code de conduite à adopter pour l'écriture d'un programme.</p>
+
+<h3>1 - noms de variables</h3>
+
+<p>
+Les noms variables devront suivre cette trame : xyZzzzZzzz (le 2 premiers caractère en minuscule xy)<br />
+<br />
+xyZZZZZ :<br />
+<pre>
+           x : l : local variable
+               g : global variable/public variable
+               p : private/protected variable
+               a : argument variable
+               c : constante
+               
+           y : s : string
+               i : integer
+               f : fload
+               d : double
+               a : array
+               l : list<>
+               o : object
+               b : bool/byte
+               c : char
+               l : long
+               c : cardinal
+               e : extend
+               
+          ZZZZ : name of variable
+</pre>
+Pas d'utilisation de l'underscore (_) dans les noms de variables. Chaque nouveau mot commence par une majuscule : goEstFini.<br />
+Et bien sûr, les noms doivent être un minimum parlant.</p>
+
+<h3>2 - Nom des fonctions/procedure</h3>
+
+<p>Il est conseiller de commencer le nom d'une fonction/procédure par une majuscule. Mais étant donné que le pascal ne fait pas la différence, ce n'est pas trop grave. C'est juste pour la lisibilité.<br />
+Pas d'utilisation de l'underscore (_).</p>
+
+<h3>3 - Indentation</h3>
+
+<p>Le sujet est sensible, tant les divergences sont fortes à ce sujet. Il a fallu tranché et j'ai choisi de prendre l'option qui permet d'avoir la même présentation partout, à savoir l'espace et non la tabulation.<br />
+Chaque bloc sera indenté de 4 espaces.<br />
+<pre>
+function truc()
+begin
+    if 1 = 1
+    then begin
+        writeln("coucou") ;
+    end ;
+end ;</pre>
+</p>
+
+<h3>4 - Lisibilité du code</h3>
+
+<p>Pour permettre une meilleur lisibilité du code, il faut au maximum aérer le code (sans pour autant laisser des page blanche entière).<br />
+On séparera les instructions qui n'ont pas de liens entre elles par des lignes blanches.<br />
+On mettra un espace après un virgule (,).<br />
+On mettra un espace avant le point-virgule (;) qui termine la ligne.<br />
+On mettra un espace avant et après un opérateur (:=, =, >, <>, <, +, - ...).<br />
+<pre>
+function machin()
+var
+    { Compteur de boucle }
+    liIndex : Integer ;
+begin
+    liIndex := 1 ;
+    
+    for liIndex := 1 to 3 do
+    begin
+        MaFonction(1, 2, 3) ;
+    end ;
+end ;</pre>
+
+<h3>5 - Entête de fonction</h3>
+
+<p>Les entêtes de fonction sont obligatoires sauf pour les fonctions implémentant une commande de SimpleWebScript.<br />
+L'entête de fonction sera la suivante :<br />
+<pre>
+{*****************************************************************************
+ * Nom de la fonction
+ * Auteur, date
+ *
+ * Desciptif
+ *
+ * Paramètres d'entrée :
+ *   - aiTruc : explication
+ *
+ * Paramètres de sortie :
+ *   - asMachin : explication
+ *
+ * Retour : nombre de bidule
+ *****************************************************************************}
+</pre>
+</p>
+
+<h3>6 - Une seule entrée, une seule sortie</h3>
+ 
+<p>Une fonction n'a qu'une seule entrée. Pour la facilité de compréhension de celle-ci et dans un esprit de logique, elle doit n'avoir qu'un sortie. La seule exception, c'est si le fait de n'avoir qu'une sortie complique beaucoup le code.</p>
+ 
+<h3>7 - Commentaires</h3>
+ 
+<p>Il faut au maximum commenter le code si celui-ci n'est pas claire. Exemple, si on doit ajouter ou soustraire une valeur d'une variable parce que la fonction ajoute une valeur à cette même variable.<br />
+Il est obligatoire de commenter les variables lors de leur création (dans la partie var) pour qu'on sache à quoi servent ces variables.</p>
+
+<h3>8 - Opérateurs type += -=...</h3>
+
+<p>Le pascal n'a pas d'opération +=, -=, &=, |=, *= et c'est tant mieux car il est déconseillé de les utiliser car ça complique le code en lecture même s'il est vrai qu'il soit très pratique.<br />
+A utiliser avec parcimonie donc.</p>
+
+<h3>9 - Compteurs de boucle</h3>
+
+<p>A l'école et même dans la littérature, on utilise souvent i, j, k comme compteur de boucle. Le problème c'est que ce n'est pas très parlant. Mais surtout, source d'erreur (c'est vécu).<br />
+Si on a deux boucles imbriquées, on risque facilement de les inverser et avant de trouver d'où vient l'erreur, on passe un bon moment.<br />
+Rien que de remplacer i par liIndex, lorsqu'on déclarera j, on aura tendance à lui donnera un nom plus parlant et même de renommer liIndex par un nom plus parlant.</p>
+
+<h3>10 - Délimitation de bloc if/while/repeat/for</h3>
+
+<p>Il faut TOUJOURS utiliser les délimitations de bloc (begin/end) avec les instructions if/while/repeat/for. Cela permet un bien meilleur lecture même si au départ on pense que ça va alourdir.<br />
+Si on a une grande condition dans le if par exemple qui comprend un autre if (ou une boucle) qui fait 20 lignes, cela va devenir compliquer à lire.</p>
+<pre>
+if (truc() = 1)
+then
+    for liIndexItemArray := 0 to 120 do
+    begin
+        ...       
+        ...
+        ...
+        ...
+        ...
+        ...
+        ...
+        ...
+        ...
+        ...
+        ...
+        ...
+        ...
+        ...
+        ...
+        ...
+        ...
+        ...        
+    end ;
+ // pourquoi est-ce indenté ? Il faut remonter jusqu'en haut pour le savoir
+</pre>
+
+<p>De plus, il faut aligner le begin avec le end, exception faite du if car c'est moins joli. Exemple :</p>
+
+<pre>
+for liIndexItemArray := 0 to 120 do
+begin
+end ;
+
+while truc()  do
+begin
+end ;
+
+// Très moche
+if 1 = 1 then
+begin
+end
+else
+begin
+
+// C'est plus beau
+if 1 = 1
+then begin
+end
+else begin
+end ;
+end ;
+</pre>
+
+<h3>11 - Plus c'est petit, mieux c'est</h3>
+
+<p>Lorsque vous écrivez du code, faite le maximum pour alléger le code avec l'utilisation de fonction/procédure.<br />
+Attention toutefois, trop de fonction rend le code illisible.</p>
+
+<h3>12 - Toujours comparer à une valeur</h3>
+
+<p>Pour un if, while, repeat, il faut toujours comparer à une valeur sauf si c'est true ou false.</p>
+
+<h3>13 - Pas de boucle infinie</h3>
+
+<p>Jamais il ne doit y avoir de boucle infinie (while (true)). Toujours mettre un condition même si c'est dans la boucle qu'on sort.</p>
+
 </body></html>

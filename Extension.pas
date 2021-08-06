@@ -17,10 +17,35 @@ unit Extension;
  * this program; if not, write to the Free Software Foundation, Inc., 59 Temple
  * Place, Suite 330, Boston, MA 02111-1307 USA
  *
+ ******************************************************************************
+ *
+ * Variables names :
+ *  xyZZZZZ :
+ *            x : l : local variable
+ *                g : global variable/public variable
+ *                p : private/protected variable
+ *                a : argument variable
+ *
+ *            y : s : string
+ *                i : integer
+ *                f : fload
+ *                d : double
+ *                a : array
+ *                l : list<>
+ *                o : object
+ *                b : bool
+ *                c : char
+ *                l : long
+ *
+ *           ZZZZ : name of variable
  *******************************************************************************
- * Class to manage label. It's just 2 TLiteStrings management.
+ * Class to manage extension.
  ******************************************************************************}
 {$I config.inc}
+
+{$IFDEF FPC}
+    {$mode objfpc}{$H+}
+{$ENDIF}
 
 interface
 
@@ -33,27 +58,31 @@ type
 
   TExtension = class
   private
-      Extension : array of TProcExt ;
-      ExtensionGetResult : array of TProcResult ;
-      HandleExt : array of Integer ;
-      NameOfExtension : TStringList ;
+      { Tableau contenant les pointeurs de fonction Execute }
+      paExtension : array of TProcExt ;
+      { Tableau contenant les pointeurs de fonction GetResult }
+      paExtensionGetResult : array of TProcResult ;
+      { Tableau contenant les handles de fonction }
+      paHandleExt : array of Integer ;
+      { Nom des extensions }
+      poNameOfExtension : TStringList ;
   protected
   public
       constructor Create ;
       destructor Free ;
-      procedure Add(NameOfExt : String; HandleOfExt : Integer; proc : TProcExt; procresult : TProcResult) ;
-      procedure Give(NameOfExt : String; var HandleOfExt : Integer; var proc : TProcExt) ;
-      function GiveProcByIndex(Index : Integer) : TProcExt ;
-      procedure DeleteByIndex(index : Integer) ;
-      procedure DeleteByName(NameOfExt : String) ;
+      procedure Add(asNameOfExt : String; aiHandleOfExt : Integer; aProc : TProcExt; aProcResult : TProcResult) ;
+      procedure Give(asNameOfExt : String; var aiHandleOfExt : Integer; var aProc : TProcExt) ;
+      function GiveProcByIndex(aiIndex : Integer) : TProcExt ;
+      procedure DeleteByIndex(aiIndex : Integer) ;
+      procedure DeleteByName(asNameOfExt : String) ;
       function  Count : integer ;
       procedure Clear ;
-      function  GiveNameByIndex(Index : Integer) : String ;
-      function GetResult(Index : Integer) : String ;
-      function isExists(NameOfExt : String) : boolean ;
+      function  GiveNameByIndex(aiIndex : Integer) : String ;
+      function GetResult(aiIndex : Integer) : String ;
+      function isExists(asNameOfExt : String) : boolean ;
   end ;
 
-Var ListOfExtension : TExtension ;
+Var goListOfExtension : TExtension ;
 
 implementation
 
@@ -63,7 +92,7 @@ implementation
 constructor TExtension.Create ;
 begin
     inherited Create();
-    NameOfExtension := TStringList.Create ;
+    poNameOfExtension := TStringList.Create ;
 end ;
 
 {******************************************************************************
@@ -72,118 +101,174 @@ end ;
 destructor TExtension.Free ;
 begin
     Clear ;
-    NameOfExtension.Free ;
+    poNameOfExtension.Free ;
 end ;
 
 {******************************************************************************
- * Ajouter une variable
+ * Add
+ *
+ * Ajouter une extension
+ *
+ * Paramètre d'entrée :
+ *   - asNameOfVar : nom de la variable à ajouter,
+ *   - aiHandleOfExt : handle de la DLL,
+ *   - aProc : procédure ajoutant les nouvelles fonctions,
+ *   - aProcResult : resultat de la commande
+ *
  ******************************************************************************}
-procedure TExtension.Add(NameOfExt : String; HandleOfExt : Integer; proc : TProcExt; procresult : TProcResult) ;
-var nb : Integer ;
+procedure TExtension.Add(asNameOfExt : String; aiHandleOfExt : Integer; aProc : TProcExt; aProcResult : TProcResult) ;
+var
+    { Nombre d'extension }
+    liNbExt : Integer ;
 begin
-    NameOfExtension.Add(NameOfExt) ;
+    poNameOfExtension.Add(asNameOfExt) ;
 
-    nb := NameOfExtension.Count ;
+    liNbExt := poNameOfExtension.Count ;
 
-    SetLength(Extension, nb) ;
-    SetLength(HandleExt, nb) ;
-    SetLength(ExtensionGetResult, nb) ;
+    SetLength(paExtension, liNbExt) ;
+    SetLength(paHandleExt, liNbExt) ;
+    SetLength(paExtensionGetResult, liNbExt) ;
 
-    Extension[nb-1] := proc ;
-    HandleExt[nb-1] := HandleOfExt ;
-    ExtensionGetResult[nb-1] := procresult ;
+    paExtension[liNbExt - 1] := aProc ;
+    paHandleExt[liNbExt - 1] := aiHandleOfExt ;
+    paExtensionGetResult[liNbExt - 1] := aProcResult ;
 end ;
 
 {******************************************************************************
+ * DeleteByName
+ *
  * Supprimer l'entrée correspondant dans le tableau.
+ *
+ * Paramètre d'entrée :
+ *   - asNameOfExt : nom de l'extension à ajouter,
+ *
  ******************************************************************************}
-procedure TExtension.DeleteByName(NameOfExt : String) ;
+procedure TExtension.DeleteByName(asNameOfExt : String) ;
 Var
-    index : Integer ;
+    { Index de l'extension à supprimer }
+    liIndex : Integer ;
 begin
-    Index := NameOfExtension.IndexOf(NameOfExt) ;
+    liIndex := poNameOfExtension.IndexOf(asNameOfExt) ;
 
-    if (Index > -1)
+    if (liIndex <> -1)
     then begin
-        DeleteByIndex(Index) ; 
+        DeleteByIndex(liIndex) ;
     end ;
 end;
 
 {******************************************************************************
+ * DeleteByIndex
+ *
  * Supprimer l'entrée correspondant dans le tableau.
+ *
+ * Paramètre d'entrée :
+ *   - aiIndex : index de l'extension,
+ *
  ******************************************************************************}
-procedure TExtension.DeleteByIndex(Index : Integer) ;
-Var i : Integer ;
-    nb : Integer ;
+procedure TExtension.DeleteByIndex(aiIndex : Integer) ;
+Var
+    { Compteur de boucle }
+    liCompteur : Integer ;
+    { Nombre d'extension présente dans la liste }
+    liNbExt : Integer ;
 begin
-    if (Index > -1)
+    if (aiIndex > -1)
     then begin
-        nb := NameOfExtension.Count ;
+        liNbExt := poNameOfExtension.Count ;
 
-        for i := Index to nb - 1 do
+        for liCompteur := aiIndex to liNbExt - 1 do
         begin
-            Extension[i] := Extension[i + 1] ;
-            HandleExt[i] := HandleExt[i + 1] ;
-            ExtensionGetResult[i] := ExtensionGetResult[i + 1] ;
+            paExtension[liCompteur] := paExtension[liCompteur + 1] ;
+            paHandleExt[liCompteur] := paHandleExt[liCompteur + 1] ;
+            paExtensionGetResult[liCompteur] := paExtensionGetResult[liCompteur + 1] ;
         end ;
 
-        Dec(nb) ;
+        Dec(liNbExt) ;
 
-        SetLength(Extension, nb) ;
-        SetLength(HandleExt, nb) ;
-        SetLength(ExtensionGetResult, nb) ;
+        SetLength(paExtension, liNbExt) ;
+        SetLength(paHandleExt, liNbExt) ;
+        SetLength(paExtensionGetResult, liNbExt) ;
 
-        NameOfExtension.Delete(Index);
+        poNameOfExtension.Delete(aiIndex);
     end ;
 end;
+
 {******************************************************************************
+ * Count
+ *
  * Donne le nombre de fichiers récents
  ******************************************************************************}
 function TExtension.Count : Integer ;
 begin
-     result := NameOfExtension.count ;
+     result := poNameOfExtension.Count ;
 end ;
 
 {******************************************************************************
+ * Give
+ *
  * Donne la fichier correspondant à l'index.
+ *
+ * Paramètre d'entrée :
+ *   - asNameOfExt : nom de l'extension,
+ *
+ * Paramètres de sortie :
+ *   - aiHandleOfExt : handle de l'extension,
+ *   - aProc : pointeur sur la fonction,
+ *
  ******************************************************************************}
-procedure TExtension.Give(NameOfExt : String; var HandleOfExt : Integer; var proc : TProcExt) ;
-Var Index : Integer ;
+procedure TExtension.Give(asNameOfExt : String; var aiHandleOfExt : Integer; var aProc : TProcExt) ;
+Var
+    { Index de l'extension }
+    liIndex : Integer ;
 begin
-    Index := NameOfExtension.IndexOf(NameOfExt) ;
+    liIndex := poNameOfExtension.IndexOf(asNameOfExt) ;
 
-    if Index > -1
+    if liIndex <> -1
     then begin
-        proc := Extension[Index] ;
-        HandleOfExt := HandleExt[Index] ;
+        aProc := paExtension[liIndex] ;
+        aiHandleOfExt := paHandleExt[liIndex] ;
     end
     else begin
-        proc := nil ;
-        HandleOfExt := -1;
+        aProc := nil ;
+        aiHandleOfExt := -1;
     end ;
 end ;
 
 {******************************************************************************
+ * GiveNameByIndex
+ *
  * Donne la fichier correspondant à l'index.
+ *
+ * Paramètre d'entrée :
+ *   - asIndex : index de l'extension,
+ *
+ * Retour : nom de l'extension
  ******************************************************************************}
-function TExtension.GiveNameByIndex(Index : Integer) : String ;
+function TExtension.GiveNameByIndex(aiIndex : Integer) : String ;
 begin
     Result := '' ;
     
-    if (Index > -1) and (Index < NameOfExtension.Count - 1)
+    if (aiIndex > -1) and (aiIndex < poNameOfExtension.Count - 1)
     then begin
-        Result := NameOfExtension[Index] ;
+        Result := poNameOfExtension[aiIndex] ;
     end
 end ;
 
 {******************************************************************************
+ * GiveNameByIndex
+ *
  * Donne la procédure par rapport à l'index.
+ *
+ * Paramètre d'entrée :
+ *   - aiIndex : index de l'extension,
+ *
+ * Retour : procédure Execute de l'extension
  ******************************************************************************}
-function TExtension.GiveProcByIndex(Index : Integer) : TProcExt ;
+function TExtension.GiveProcByIndex(aiIndex : Integer) : TProcExt ;
 begin
-    if Index > -1
+    if aiIndex > -1
     then begin
-        Result := Extension[Index] ;
+        Result := paExtension[aiIndex] ;
     end
     else begin
         Result := nil ;
@@ -191,48 +276,76 @@ begin
 end ;
 
 {*******************************************************************************
+ * Clear
+ *
  * Efface la liste
  ******************************************************************************}
 procedure TExtension.Clear ;
 begin
-    SetLength(Extension, 0) ;
-    SetLength(HandleExt, 0) ;
-    SetLength(ExtensionGetResult, 0) ;
+    SetLength(paExtension, 0) ;
+    SetLength(paHandleExt, 0) ;
+    SetLength(paExtensionGetResult, 0) ;
 
-    NameOfExtension.Clear ;
+    poNameOfExtension.Clear ;
 end ;
 
-{*******************************************************************************
- * Récupère la valeur de retour
+{******************************************************************************
+ * GetResult
+ *
+ * Récupère la valeur de retour.
+ *
+ * Paramètre d'entrée :
+ *   - aiIndex : index de l'extension,
+ *
+ * Retour : résultat de la commande exécutée.
  ******************************************************************************}
-function TExtension.GetResult(Index : Integer) : String ;
-var procresult : TProcResult ;
-    len : Integer ;
+function TExtension.GetResult(aiIndex : Integer) : String ;
+var
+    { Procédure retournant le résultat }
+    lProcResult : TProcResult ;
+    { Longueur de résultat }
+    liLenResult : Integer ;
 begin
+    Result := '' ;
+    
     { Prend le pointeur su la fonction GetResult }
-    procresult := ExtensionGetResult[index] ;
+    lProcResult := paExtensionGetResult[aiIndex] ;
 
     { Appel à GetResult }
-    len := procresult(nil) ;
+    liLenResult := lProcResult(nil) ;
 
-    if len > 0
+    if liLenResult > 0
     then begin
-        SetLength(Result, len) ;
+        SetLength(Result, liLenResult) ;
 
-        procresult(Pchar(Result)) ;
+        lProcResult(Pchar(Result)) ;
     end ;
 end ;
 
-function TExtension.isExists(NameOfExt : String) : boolean ;
-var index : Integer ;
+{******************************************************************************
+ * IsExists
+ *
+ * Indique si une extension existe.
+ *
+ * Paramètre d'entrée :
+ *   - asNameOfExt : nom de l'extension,
+ *
+ * Retour : true si l'extension existe.
+ ******************************************************************************}
+function TExtension.IsExists(asNameOfExt : String) : boolean ;
+var
+    { Position de l'extension }
+    liIndex : Integer ;
 begin
-     index := NameOfExtension.IndexOf(NameOfExt) ;
+     liIndex := poNameOfExtension.IndexOf(asNameOfExt) ;
 
-     if Index > -1
-     then
+     if liIndex <> -1
+     then begin
          Result := True
-     else
+     end
+     else begin
          Result := False ;
+     end ;
 end ;
 
 end.

@@ -8,9 +8,13 @@ unit MD5Api;
 
 interface
 
-uses SysUtils;
-
 {$I config.inc}
+
+{$IFDEF FPC}
+    {$mode objfpc}{$H+}
+{$ENDIF}
+
+uses SysUtils;
 
 { ------------------------------------------------------------------------------------------------ }
 

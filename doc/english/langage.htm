@@ -6,9 +6,7 @@
 
 <h1>Langage</h1>
 <h2>Variables<a name="variables"></a></h2>
-<p>Variables start by $ (like PHP). OpenAuto Key don't have constants. TRUE or 
-  FALSE is $true (=1) or $false (=0). You also $VERSION (version of OpenAutoKey) 
-  and $COREVERSION. There are not modified<br>
+<p>Variables start by $ (like PHP).<br>
   If you put another $ ($$var) behin variable, you take variable designed by value 
   of $var. $var can containt name with or without $. $var=myvar lik $var="$myvar".<br>
   All variables are strings, integer (to &#8211;2147483648..2147483647 (on 32 architecture)) 
@@ -20,11 +18,20 @@
   You can use hexadecimal notation 0x1234.</p>
 <p>Variables are not interpreted in string. "$truc" give "$truc" and not value 
   of $truc</p>
-<p>$_VERSION define version of Simple Web Script.<br>
-  $_LINE define current line number. <br>
-  $_SCRIPTNAME define script was actualy parsed.</p>
 <p>String support \n (line feed) \r (carriage return) \0 (nul value) \t (tabulation)</p>
-<h2></h2>
+
+<h2>Constantes<a name="constante"></a></h2>  
+<p>Constantes start by # and cannot start by number.<br />
+To define a constantes use define(). To know is constante is set use defined().<br />
+3 constantes are predefined :<br /> 
+<ul>
+  <li>#_line : current line number</li>
+  <li>#_version : SimpleWebScript version</li>
+  <li>#_scriptname : current script name</li>
+</ul>
+<br />
+true et false is constante without #.</p>
+
 <h2>Jump GOTO/LOCALGOTO<a name="goto"></a></h2>
 <p>If you want jump in program use GOTO. Example :<br>
   Label:<br>
@@ -39,46 +46,45 @@
   WARNING : Label can't start by number and end by :.</p>
 <h2>Boucle de contrôle WHILE, REPEAT, FOR, BREAK<a name="boucle"></a></h2>
 <h3>WHILE</h3>
-<p>WHILE execute when condition are true<br>
-  WHILE $a = $true<br>
+<p>WHILE execute when condition are true DO<br>
+  WHILE $a = $true DO<br>
   Instruction<br>
-  ENDWHILE</p>
+  ENDWHILE ;</p>
 
   <h3>REPEAT</h3>
 
 <p> REPEAT execute when condition are false<br>
   REPEAT<br>
   Instruction<br>
-  UNTIL false</p>
+  UNTIL false ;</p>
 <h3>FOR</h3>
-<p>FOR $var = startvalue to endvalue step incrementvalue<br>
+<p>FOR $var = startvalue TO endvalue STEP incrementvalue DO<br>
   Instruction<br>
-  ENDFOR </p>
+  ENDFOR ;</p>
 <h3>BREAK</h3>
 <p>Exit FOR, REPEAT, WHILE</p>
 
 <h2>SWITCH<a name="switch"></a></h2>
 <p>You can use switch commande :</p>
-<p>SWITCH $var<br>
+<p>SWITCH $var DO<br>
   CASE "value1", "value2" :<br>
   Instruction1<br>
   break<br>
-  DEFAULT<br>
+  DEFAULT :<br>
   Default instruction<br>
-  ENDSWITCH </p>
+  ENDSWITCH ; </p>
 <h2>Condition IF/ELSEIF/ELSE<a name="condition"></a></h2>
 <p>If are very simple. </p>
-<p>IF $a = 'c' and $a&lt;&gt;'g' or $a&gt;'t' xor $a&lt;='g'<br>
+<p>IF $a = 'c' and $a&lt;&gt;'g' or $a&gt;'t' xor $a&lt;='g' THEN<br>
   Instruction<br>
-  ELSEIF $a = 'ccc'<br>
+  ELSEIF $a = 'ccc' THEN<br>
   Instruction <br>
   ELSE<br>
   Instruction<br>
-  ENDIF</p>
-<p>WARNING ! IF is on single line</p>
+  ENDIF ;</p>
 <h2> Comments<a name="commentaire"></a></h2>
-<p>Comment start by # or // and can be in line with instruction. Use/* */ (* *)for 
-  multiline comments but can't be in line with instruction.</p>
+<p>Comment start by // and can be in line with instruction. Use /* */ for 
+  multiline comments and can be in line with instruction.</p>
 <h2>Include in xHTML page<a name="inclusion"></a></h2>
 <p>To include SWS in xHTML page, just put you code between &lt;@ and @&gt;</p>
 <p>&lt;html&gt;<br>
@@ -86,8 +92,9 @@
   &lt;@ echo 'hello world!' @&gt;<br>
   &lt;/body&gt;<br>
   &lt;/html&gt;</p>
-<h2>Stop program EXIT<a name="exit"></a></h2>
-<p>To stop program use EXIT.</p>
+<h2>Stop program EXIT or DIE<a name="exit"></a></h2>
+<p>To stop program or function use EXIT.<br />
+   You can use DIE to exit a script. You can past a string to be show.</p>
 <h2>Operators<a name="operators"></a></h2>
 <p>Bellow list of operator, order by priority. Don"t forget, line code read
   left to right.</p>
@@ -95,7 +102,7 @@
   <tbody><tr>
     <td>in</td>
     <td>"text" in ["string to compare 1", "string to 
-      compare 2"]. Return position. 1 for first position. Else, return false 
+      compare 2"]. Return position. 0 for first position. Else, return -1 
       value. </td>
   </tr>
   <tr>
@@ -207,9 +214,9 @@
 <p>To exit procedure or stop program, uset EXIT keyword.</p>
 <h2>Array<a name="array"></a></h2>
 <p>You can use array (and mutlidimensionable array).<br>
-  To initialize an array juste use $myarray[1] = "first value" or $myarray 
+  To initialize an array juste use $myarray[0] = "first value" or $myarray 
   = array("first value")<br>
-  First position in array is 1 not 0.</p>
+  First position in array is 0.</p>
 <h2>String<a name="string"></a></h2>
 <p>To set string use " or ' delimiter</p>
 <h2>Reserved words<a name="reservedword"></a></h2>
@@ -244,14 +251,28 @@
 <p>array arraySlice(array, int offset, [int length]) Returns the sequence of elements from the array array<br>If offest is non-negative value, start à begin of array, else at end.<br>If length not specified, return array until the end.<br></p><h2>arraySort<a name="arraysort"></a></h2>
 <p>array arraySort($array) Return sort array.</p>
 <h2>arraySplice<a name="arrayslice"></a></h2>
-array arraySplice(array, int offset, [int length]) Returns the sequence of elements from the array array<br>If offest is non-negative value, start à begin of array, else at end.<br>If length not specified, return array until the end.<br>All return value was delete at the array.<h2>call<a name="call"></a></h2>
+<p>array arraySplice(array, int offset, [int length, array replacement]) Returns the sequence of elements from the array array<br>
+If offest is non-negative value, start à begin of array, else at end.<br>
+If length not specified, return array until the end.<br>
+All return value was delete at the array.<br />
+If replacement is specified, replace each item who are delete by replacement.<br />
+If replacement is not array, each item replace by replacement.</p>
+<h2>call<a name="call"></a></h2>
 <p>$resultfunction=call("name_of_command", arg1...) Call a function 
   with parameter. Use it for call dynamic function cause pointer of function does'nt 
-  exists. Warning, function use directely function (isset, unset...) does'nt work.</p>
+  exists. Warning, function use directely function (isset, unset...) does'nt work.<br />
+  </p>
 <h2>chr<a name="chr"></a></h2>
 <p>$var=chr(45) return char correspondent to number.</p>
 <h2>count<a name="count"></a></h2>
 <p>int count(array()) return number of element of array.</p>
+
+<h2>define<a name="define"></a></h2>
+<p>define("my_constante", "valeur") : set a constante.</p>
+
+<h2>defined<a name="defined"></a></h2>
+<p>defined("my_constante") : return true if constante is set.</p>
+
 <h2>eval<a name="eval"></a></h2>
 <p>$resultfunction=eval(<i>string or array</i>) execute commande or array of commande. 
   Return false if error occure, true else.</p>

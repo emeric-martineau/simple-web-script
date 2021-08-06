@@ -26,46 +26,50 @@ interface
 
 {$I config.inc}
 
+{$IFDEF FPC}
+    {$mode objfpc}{$H+}
+{$ENDIF}
+
 uses Classes, Functions, UnitMessages, InternalFunction ;
 
 procedure UrlFunctionsInit ;
-procedure urlDecodeCommande(arguments : TStringList) ;
-procedure urlEncodeCommande(arguments : TStringList) ;
+procedure urlDecodeCommande(aoArguments : TStringList) ;
+procedure urlEncodeCommande(aoArguments : TStringList) ;
 
 implementation
 
 uses Code, SysUtils ;
 
 
-procedure urlDecodeCommande(arguments : TStringList) ;
+procedure urlDecodeCommande(aoArguments : TStringList) ;
 begin
-    if arguments.count = 1
+    if aoArguments.count = 1
     then begin
-        ResultFunction := UrlDecode(arguments[0]) ;
+        gsResultFunction := UrlDecode(aoArguments[0]) ;
     end
-    else if arguments.count < 1
+    else if aoArguments.count < 1
     then begin
-        ErrorMsg(sMissingargument) ;
+        ErrorMsg(csMissingargument) ;
     end
-    else if arguments.count > 1
+    else if aoArguments.count > 1
     then begin
-        ErrorMsg(sTooArguments) ;
+        ErrorMsg(csTooArguments) ;
     end ;
 end ;
 
-procedure urlEncodeCommande(arguments : TStringList) ;
+procedure urlEncodeCommande(aoArguments : TStringList) ;
 begin
-    if arguments.count = 1
+    if aoArguments.count = 1
     then begin
-        ResultFunction := UrlEncode(arguments[0]) ;
+        gsResultFunction := UrlEncode(aoArguments[0]) ;
     end
-    else if arguments.count < 1
+    else if aoArguments.count < 1
     then begin
-        ErrorMsg(sMissingargument) ;
+        ErrorMsg(csMissingargument) ;
     end
-    else if arguments.count > 1
+    else if aoArguments.count > 1
     then begin
-        ErrorMsg(sTooArguments) ;
+        ErrorMsg(csTooArguments) ;
     end ;
 end ;
 
@@ -73,8 +77,8 @@ end ;
 
 procedure UrlFunctionsInit ;
 begin
-    ListFunction.Add('urldecode', @urlDecodeCommande, true) ;
-    ListFunction.Add('urlencode', @urlEncodeCommande, true) ;
+    goInternalFunction.Add('urldecode', @urlDecodeCommande, true) ;
+    goInternalFunction.Add('urlencode', @urlEncodeCommande, true) ;
 end ;
 
 end.

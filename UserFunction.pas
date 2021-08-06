@@ -18,210 +18,303 @@ unit UserFunction;
  * Place, Suite 330, Boston, MA 02111-1307 USA
  *
  *******************************************************************************
- * Class to register line of user function & label
+ * Class to register line of user function
  ******************************************************************************}
 
 interface
 
 {$I config.inc}
 
+{$IFDEF FPC}
+    {$mode objfpc}{$H+}
+{$ENDIF}
+
 uses Classes, SysUtils ;
 
 type
   TUserFunction = class
   private
-      FunctionName : TStringList ;
-      Arguments : TStringList ;
-      Line: array of Integer ;
-      LineToEnd : array of Integer ;
+      poFunctionName : TStringList ;
+      poArguments : TStringList ;
+      paLine: array of Integer ;
+      paLineToEnd : array of Integer ;
   protected
   public
       constructor Create ;
       destructor Free ;
-      procedure Add(NameOfVar : string; ValueOfVar : integer; EndPos : Integer; ArgumentsList : String) ;
-      function Give(NameOfVar : string) : integer;
-      function GiveEnd(NameOfVar : string) : integer ;
-      function GiveFunctionNameByIndex(Index : Integer) : string ;
-      procedure Delete(NameOfVar : String) ;
+      procedure Add(asNameOfFunction : string; aiStartPos : integer; aiEndPos : Integer; aoArgumentsList : String) ;
+      function Give(asNameOfFunction : string) : integer;
+      function GiveEnd(asNameOfFunction : string) : integer ;
+      function GiveFunctionNameByIndex(aiIndex : Integer) : string ;
+      procedure Delete(asNameOfFunction : String) ;
       function Count : integer ;
       procedure Clear ;
-      function isSet(NameOfVar : string) : boolean ;
-      function rename(OldName, NewName : String) : boolean ;
-      function GiveArguments(NameOfVar : string) : string ;            
+      function IsSet(asNameOfFunction : string) : boolean ;
+      function Rename(asOldName, asNewName : String) : boolean ;
+      function GiveArguments(asNameOfFunction : string) : string ;
   end ;
 
-Var ListProcedure : TUserFunction ;
+Var goListProcedure : TUserFunction ;
     
 implementation
 
-{******************************************************************************
+{*****************************************************************************
+ * Create
+ * MARTINEAU Emeric
+ *
  * Consructeur
- ******************************************************************************}
+ *****************************************************************************}
 constructor TUserFunction.Create ;
 begin
     inherited Create();
 
-    { Créer l'objet FileName }
-    FunctionName := TStringList.Create ;
-    Arguments := TStringList.Create ;
+    poFunctionName := TStringList.Create ;
+    poArguments := TStringList.Create ;
 end ;
 
-{******************************************************************************
+{*****************************************************************************
+ * Free
+ * MARTINEAU Emeric
+ *
  * Destructeur
- ******************************************************************************}
+ *****************************************************************************}
 destructor TUserFunction.Free ;
 begin
-    FunctionName.Free ;
-    Arguments.Free ;
-    SetLength(Line, 0) ;
+    poFunctionName.Free ;
+    poArguments.Free ;
+    SetLength(paLine, 0) ;
 end ;
 
-{******************************************************************************
- * Ajouter une variable
- ******************************************************************************}
-procedure TUserFunction.Add(NameOfVar : string; ValueOfVar : integer; EndPos : Integer; ArgumentsList : String) ;
+{*****************************************************************************
+ * Add
+ * MARTINEAU Emeric
+ *
+ * Ajoute une fonction
+ *
+ * Paramètres d'entrée :
+ *   - asNameOfFunction : nom de la fonction,
+ *   - aiStartPos : début de la fonction (après la ligne function),
+ *   - aiEndPost : fin de la fonction,
+ *   - aoArgumentsList : argument de la fonction,
+ *
+ *****************************************************************************}
+procedure TUserFunction.Add(asNameOfFunction : string; aiStartPos : integer; aiEndPos : Integer; aoArgumentsList : String) ;
 var nb : Integer ;
 begin
-    FunctionName.Add(LowerCase(NameOfVar)) ;
-    Arguments.Add(ArgumentsList) ;
+    poFunctionName.Add(LowerCase(asNameOfFunction)) ;
+    poArguments.Add(aoArgumentsList) ;
     
-    nb := FunctionName.Count ;
+    nb := poFunctionName.Count ;
 
-    SetLength(Line, nb) ;
-    SetLength(LineToEnd, nb) ;    
-    Line[nb - 1] := ValueOfVar ;
-    LineToEnd[nb - 1] := EndPos ;
+    SetLength(paLine, nb) ;
+    SetLength(paLineToEnd, nb) ;
+    paLine[nb - 1] := aiStartPos ;
+    paLineToEnd[nb - 1] := aiEndPos ;
 end ;
 
-{******************************************************************************
+{*****************************************************************************
+ * Delete
+ * MARTINEAU Emeric
+ *
  * Supprimer l'entrée correspondant dans le tableau.
- ******************************************************************************}
-procedure TUserFunction.Delete(NameOfVar : String) ;
-Var Index : Integer ;
-    i : Integer ;
+ *
+ * Paramètres d'entrée :
+ *   - asNameOfFunction : nom de la fonction,
+ *
+ *****************************************************************************}
+procedure TUserFunction.Delete(asNameOfFunction : String) ;
+Var
+    { Position de la fonction }
+    liIndexFunction : Integer ;
+    { Compteur de fonction }
+    liIndex : Integer ;
 begin
-    Index := FunctionName.IndexOf(LowerCase(NameOfVar)) ;
+    liIndexFunction := poFunctionName.IndexOf(LowerCase(asNameOfFunction)) ;
 
-    if (Index <> -1)
+    if (liIndexFunction <> -1)
     then begin
-        FunctionName.Delete(Index) ;
+        poFunctionName.Delete(liIndexFunction) ;
 
-        for i := Index to FunctionName.Count - 1 do
+        for liIndex := liIndexFunction to poFunctionName.Count - 1 do
         begin
-            Line[i] := Line[i + 1] ;
-            LineToEnd[i] := LineToEnd[i + 1] ;
+            paLine[liIndex] := paLine[liIndex + 1] ;
+            paLineToEnd[liIndex] := paLineToEnd[liIndex + 1] ;
         end ;
 
-        SetLength(Line, FunctionName.Count) ;
-        SetLength(LineToEnd, FunctionName.Count) ;        
+        SetLength(paLine, poFunctionName.Count) ;
+        SetLength(paLineToEnd, poFunctionName.Count) ;
     end ;
 end;
 
-{******************************************************************************
+{*****************************************************************************
+ * Count
+ * MARTINEAU Emeric
+ *
  * Donne le nombre de fichiers récents
- ******************************************************************************}
+ *****************************************************************************}
 function TUserFunction.Count : Integer ;
 begin
-    Result := FunctionName.Count ;
+    Result := poFunctionName.Count ;
 end ;
 
-{******************************************************************************
- * Donne la fichier correspondant à l'index.
- ******************************************************************************}
-function TUserFunction.Give(NameOfVar : string) : integer ;
+{*****************************************************************************
+ * Give
+ * MARTINEAU Emeric
+ *
+ * Donne le numéro de ligne de début de la fonction.
+ *
+ * Paramètres d'entrée :
+ *   - asNameOfFunction : nom de la fonction,
+ *
+ *****************************************************************************}
+function TUserFunction.Give(asNameOfFunction : string) : integer ;
 Var Index : Integer ;
 begin
-    Index := FunctionName.IndexOf(LowerCase(NameOfVar)) ;
-
-    if Index <> -1
-    then
-        Result := Line[Index]
-    else
-        Result := -1 ;
-end ;
-
-{******************************************************************************
- * Donne la fichier correspondant à l'index.
- ******************************************************************************}
-function TUserFunction.GiveEnd(NameOfVar : string) : integer ;
-Var Index : Integer ;
-begin
-    Index := FunctionName.IndexOf(LowerCase(NameOfVar)) ;
-
-    if Index <> -1
-    then
-        Result := LineToEnd[Index]
-    else
-        Result := -1 ;
-end ;
-
-{******************************************************************************
- * Indique si la variable existe
- ******************************************************************************}
-function TUserFunction.isSet(NameOfVar : string) : boolean ;
-Var Index : Integer ;
-begin
-    Index := FunctionName.IndexOf(LowerCase(NameOfVar)) ;
-
-    if Index <> -1
-    then
-        Result := True
-    else
-        Result := False ;
-end ;
-
-procedure TUserFunction.Clear ;
-begin
-    FunctionName.Clear ;
-    SetLength(Line, 0) ;
-end ;
-
-{*******************************************************************************
- * Retourne le nom de la variable par l'index
- ******************************************************************************}
-function TUserFunction.GiveFunctionNameByIndex(Index : Integer) : string ;
-begin
-    Result := '' ;
+    Index := poFunctionName.IndexOf(LowerCase(asNameOfFunction)) ;
 
     if Index <> -1
     then begin
-        if Index < FunctionName.Count
+        Result := paLine[Index] ;
+    end
+    else begin
+        Result := -1 ;
+    end ;
+end ;
+
+{*****************************************************************************
+ * GiveEnd
+ * MARTINEAU Emeric
+ *
+ * Donne le numéro de ligne de fin de la fonction.
+ *
+ * Paramètres d'entrée :
+ *   - asNameOfFunction : nom de la fonction,
+ *
+ *****************************************************************************}
+function TUserFunction.GiveEnd(asNameOfFunction : string) : integer ;
+Var Index : Integer ;
+begin
+    Index := poFunctionName.IndexOf(LowerCase(asNameOfFunction)) ;
+
+    if Index <> -1
+    then begin
+        Result := paLineToEnd[Index] ;
+    end
+    else begin
+        Result := -1 ;
+    end ;
+end ;
+
+{*****************************************************************************
+ * IsSend
+ * MARTINEAU Emeric
+ *
+ * Indique si la fonction existe
+ *
+ * Paramètres d'entrée :
+ *   - asNameOfFunction : nom de la fonction,
+ *
+ * Retour : true si la fonction existe
+ *****************************************************************************}
+function TUserFunction.IsSet(asNameOfFunction : string) : boolean ;
+Var Index : Integer ;
+begin
+    Index := poFunctionName.IndexOf(LowerCase(asNameOfFunction)) ;
+
+    if Index <> -1
+    then begin
+        Result := True ;
+    end
+    else begin
+        Result := False ;
+    end ;
+end ;
+
+{*****************************************************************************
+ * Clear
+ * MARTINEAU Emeric
+ *
+ * Vide la liste de fonction
+ *****************************************************************************}
+procedure TUserFunction.Clear ;
+begin
+    poFunctionName.Clear ;
+    SetLength(paLine, 0) ;
+    SetLength(paLineToEnd, 0);
+end ;
+
+{*****************************************************************************
+ * GiveFunctionNameByIndex
+ * MARTINEAU Emeric
+ *
+ * Retourne le nom de la variable par l'index
+ *
+ * Paramètres d'entrée :
+ *   - aiIndex : index dans la liste de fonction,
+ *
+ * Retour : nom de la fonction
+ *****************************************************************************}
+function TUserFunction.GiveFunctionNameByIndex(aiIndex : Integer) : string ;
+begin
+    Result := '' ;
+
+    if aiIndex <> -1
+    then begin
+        if aiIndex < poFunctionName.Count
         then begin
-            Result := FunctionName[Index] ;
+            Result := poFunctionName[aiIndex] ;
         end
     end
 end ;
 
-{******************************************************************************
+{*****************************************************************************
+ * Rename
+ * MARTINEAU Emeric
+ *
  * Renomme la fonction OldName par NewName
- ******************************************************************************}
-function TUserFunction.rename(OldName, NewName : String) : boolean ;
+ *
+ * Paramètres d'entrée :
+ *   - asOldName : nom de la fonction a renommer,
+ *   - asNewName : nouveau nom.
+ *
+ *****************************************************************************}
+function TUserFunction.Rename(asOldName, asNewName : String) : boolean ;
 var Index : Integer ;
 begin
-    Index := FunctionName.IndexOf(LowerCase(OldName)) ;
+    Index := poFunctionName.IndexOf(LowerCase(asOldName)) ;
 
     if Index <> -1
     then begin
-        FunctionName[Index] := LowerCase(NewName) ;
+        poFunctionName[Index] := LowerCase(asNewName) ;
         Result := True ;
     end
-    else
+    else begin
         Result := False ;
+    end ;
 end ;
 
-{******************************************************************************
+{*****************************************************************************
+ * GiveArguments
+ * MARTINEAU Emeric
+ *
  * Donne les arguments correspondant à l'index.
- ******************************************************************************}
-function TUserFunction.GiveArguments(NameOfVar : string) : string ;
+ *
+ * Paramètres d'entrée :
+ *   - asNameOfFunction : nom de la fonction
+ *
+ *****************************************************************************}
+function TUserFunction.GiveArguments(asNameOfFunction : string) : string ;
 Var Index : Integer ;
 begin
-    Index := FunctionName.IndexOf(LowerCase(NameOfVar)) ;
+    Index := poFunctionName.IndexOf(LowerCase(asNameOfFunction)) ;
 
     if Index <> -1
-    then
-        Result := Arguments[Index]
-    else
+    then begin
+        Result := poArguments[Index] ;
+    end
+    else begin
         Result := '' ;
+    end ;
 end ;
 
 end.

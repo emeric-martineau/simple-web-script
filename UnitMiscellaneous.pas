@@ -32,296 +32,400 @@ interface
 
 {$I config.inc}
 
-uses Classes, Functions, UnitMessages, InternalFunction, UnitHtml, MD5Api ;
+{$IFDEF FPC}
+    {$mode objfpc}{$H+}
+{$ENDIF}
+
+uses Classes, Functions, UnitMessages, InternalFunction, UnitHtml, MD5Api,
+     GetPostCookieFileData ;
 
 procedure MiscellaneousFunctionsInit ;
-procedure headerCommande(arguments : TStringList) ;
-procedure getGetCommande(arguments : TStringList) ;
-procedure getCookieCommande(arguments : TStringList) ;
-procedure getCookieNumberCommande(arguments : TStringList) ;
-procedure getGetNumberCommande(arguments : TStringList) ;
-procedure getEnvCommande(arguments : TStringList) ;
-procedure setCookieCommande(arguments : TStringList) ;
-procedure swsinfoCommande(arguments : TStringList) ;
-procedure getPostCommande(arguments : TStringList) ;
-procedure getPostNumberCommande(arguments : TStringList) ;
-procedure getCfgVarsCommande(arguments : TStringList) ;
-procedure getFileCommande(arguments : TStringList) ;
-procedure SetLocalCommande(arguments : TStringList) ;
-procedure OutputBufferStartCommande(arguments : TStringList) ;
-procedure OutputBufferWriteCommande(arguments : TStringList) ;
-procedure OutputBufferClearCommande(arguments : TStringList) ;
-procedure OutputBufferStopCommande(arguments : TStringList) ;
-procedure OutputBufferGetCommande(arguments : TStringList) ;
-procedure ShellExecCommande(arguments : TStringList) ;
-procedure Crc32Commande(arguments : TStringList) ;
-procedure SleepCommande(arguments : TStringList) ;
-procedure RolCommande(arguments : TStringList) ;
-procedure RorCommande(arguments : TStringList) ;
-procedure Md5Commande(arguments : TStringList) ;
+procedure headerCommande(aoArguments : TStringList) ;
+procedure getGetCommande(aoArguments : TStringList) ;
+procedure getCookieCommande(aoArguments : TStringList) ;
+procedure getCookieNumberCommande(aoArguments : TStringList) ;
+procedure getGetNumberCommande(aoArguments : TStringList) ;
+procedure getEnvCommande(aoArguments : TStringList) ;
+procedure setCookieCommande(aoArguments : TStringList) ;
+procedure swsinfoCommande(aoArguments : TStringList) ;
+procedure getPostCommande(aoArguments : TStringList) ;
+procedure getPostNumberCommande(aoArguments : TStringList) ;
+procedure getCfgVarsCommande(aoArguments : TStringList) ;
+procedure getFileCommande(aoArguments : TStringList) ;
+procedure SetLocalCommande(aoArguments : TStringList) ;
+procedure OutputBufferStartCommande(aoArguments : TStringList) ;
+procedure OutputBufferWriteCommande(aoArguments : TStringList) ;
+procedure OutputBufferClearCommande(aoArguments : TStringList) ;
+procedure OutputBufferStopCommande(aoArguments : TStringList) ;
+procedure OutputBufferGetCommande(aoArguments : TStringList) ;
+procedure ShellExecCommande(aoArguments : TStringList) ;
+procedure Crc32Commande(aoArguments : TStringList) ;
+procedure SleepCommande(aoArguments : TStringList) ;
+procedure RolCommande(aoArguments : TStringList) ;
+procedure RorCommande(aoArguments : TStringList) ;
+procedure Md5Commande(aoArguments : TStringList) ;
+procedure IsSetGetCommande(aoArguments : TStringList) ;
+procedure IsSetPostCommande(aoArguments : TStringList) ;
+procedure IsSetCookieCommande(aoArguments : TStringList) ;
+procedure IsSetFileCommande(aoArguments : TStringList) ;
 //
-function Rol(octet : byte; decalage : integer) : byte ;
-function Ror(octet : byte; decalage : integer) : byte ;
+function Rol(abOctet : byte; aiDecalage : integer) : byte ;
+function Ror(abOctet : byte; aiDecalage : integer) : byte ;
+function CRC32(asText : String) : Integer ;
 
 implementation
 
 uses Code, SysUtils, UnitOs, Variable, UserFunction, DateUtils ;
 
-procedure headerCommande(arguments : TStringList) ;
+{*****************************************************************************
+ * CRC32
+ * MARTINEAU Emeric
+ *
+ * Calcule le CRC32 d'une chaine de caractère
+ *
+ * Paramètres d'entrée :
+ *   - asText : chaine à traiter
+ *
+ * Retour : entier 32 bits représentant le CRC32
+ *****************************************************************************}
+function CRC32(asText : String) : Integer ;
+const  CRC32Table : array[0..255] of cardinal = (
+                                                  $00000000, $77073096, $EE0E612C, $990951BA, $076DC419, $706AF48F, $E963A535, $9E6495A3,
+                                                  $0EDB8832, $79DCB8A4, $E0D5E91E, $97D2D988, $09B64C2B, $7EB17CBD, $E7B82D07, $90BF1D91,
+                                                  $1DB71064, $6AB020F2, $F3B97148, $84BE41DE, $1ADAD47D, $6DDDE4EB, $F4D4B551, $83D385C7,
+                                                  $136C9856, $646BA8C0, $FD62F97A, $8A65C9EC, $14015C4F, $63066CD9, $FA0F3D63, $8D080DF5,
+                                                  $3B6E20C8, $4C69105E, $D56041E4, $A2677172, $3C03E4D1, $4B04D447, $D20D85FD, $A50AB56B,
+                                                  $35B5A8FA, $42B2986C, $DBBBC9D6, $ACBCF940, $32D86CE3, $45DF5C75, $DCD60DCF, $ABD13D59,
+                                                  $26D930AC, $51DE003A, $C8D75180, $BFD06116, $21B4F4B5, $56B3C423, $CFBA9599, $B8BDA50F,
+                                                  $2802B89E, $5F058808, $C60CD9B2, $B10BE924, $2F6F7C87, $58684C11, $C1611DAB, $B6662D3D,
+                                                  $76DC4190, $01DB7106, $98D220BC, $EFD5102A, $71B18589, $06B6B51F, $9FBFE4A5, $E8B8D433,
+                                                  $7807C9A2, $0F00F934, $9609A88E, $E10E9818, $7F6A0DBB, $086D3D2D, $91646C97, $E6635C01,
+                                                  $6B6B51F4, $1C6C6162, $856530D8, $F262004E, $6C0695ED, $1B01A57B, $8208F4C1, $F50FC457,
+                                                  $65B0D9C6, $12B7E950, $8BBEB8EA, $FCB9887C, $62DD1DDF, $15DA2D49, $8CD37CF3, $FBD44C65,
+                                                  $4DB26158, $3AB551CE, $A3BC0074, $D4BB30E2, $4ADFA541, $3DD895D7, $A4D1C46D, $D3D6F4FB,
+                                                  $4369E96A, $346ED9FC, $AD678846, $DA60B8D0, $44042D73, $33031DE5, $AA0A4C5F, $DD0D7CC9,
+                                                  $5005713C, $270241AA, $BE0B1010, $C90C2086, $5768B525, $206F85B3, $B966D409, $CE61E49F,
+                                                  $5EDEF90E, $29D9C998, $B0D09822, $C7D7A8B4, $59B33D17, $2EB40D81, $B7BD5C3B, $C0BA6CAD,
+                                                  $EDB88320, $9ABFB3B6, $03B6E20C, $74B1D29A, $EAD54739, $9DD277AF, $04DB2615, $73DC1683,
+                                                  $E3630B12, $94643B84, $0D6D6A3E, $7A6A5AA8, $E40ECF0B, $9309FF9D, $0A00AE27, $7D079EB1,
+                                                  $F00F9344, $8708A3D2, $1E01F268, $6906C2FE, $F762575D, $806567CB, $196C3671, $6E6B06E7,
+                                                  $FED41B76, $89D32BE0, $10DA7A5A, $67DD4ACC, $F9B9DF6F, $8EBEEFF9, $17B7BE43, $60B08ED5,
+                                                  $D6D6A3E8, $A1D1937E, $38D8C2C4, $4FDFF252, $D1BB67F1, $A6BC5767, $3FB506DD, $48B2364B,
+                                                  $D80D2BDA, $AF0A1B4C, $36034AF6, $41047A60, $DF60EFC3, $A867DF55, $316E8EEF, $4669BE79,
+                                                  $CB61B38C, $BC66831A, $256FD2A0, $5268E236, $CC0C7795, $BB0B4703, $220216B9, $5505262F,
+                                                  $C5BA3BBE, $B2BD0B28, $2BB45A92, $5CB36A04, $C2D7FFA7, $B5D0CF31, $2CD99E8B, $5BDEAE1D,
+                                                  $9B64C2B0, $EC63F226, $756AA39C, $026D930A, $9C0906A9, $EB0E363F, $72076785, $05005713,
+                                                  $95BF4A82, $E2B87A14, $7BB12BAE, $0CB61B38, $92D28E9B, $E5D5BE0D, $7CDCEFB7, $0BDBDF21,
+                                                  $86D3D2D4, $F1D4E242, $68DDB3F8, $1FDA836E, $81BE16CD, $F6B9265B, $6FB077E1, $18B74777,
+                                                  $88085AE6, $FF0F6A70, $66063BCA, $11010B5C, $8F659EFF, $F862AE69, $616BFFD3, $166CCF45,
+                                                  $A00AE278, $D70DD2EE, $4E048354, $3903B3C2, $A7672661, $D06016F7, $4969474D, $3E6E77DB,
+                                                  $AED16A4A, $D9D65ADC, $40DF0B66, $37D83BF0, $A9BCAE53, $DEBB9EC5, $47B2CF7F, $30B5FFE9,
+                                                  $BDBDF21C, $CABAC28A, $53B39330, $24B4A3A6, $BAD03605, $CDD70693, $54DE5729, $23D967BF,
+                                                  $B3667A2E, $C4614AB8, $5D681B02, $2A6F2B94, $B40BBE37, $C30C8EA1, $5A05DF1B, $2D02EF8D
+                                                ) ;
+var
+    i : integer;
+begin
+    Result := -1 ;
+
+    for i := 1 to Length(asText) do
+    begin
+        Result := (Result shr 8) xor Integer(CRC32Table[Byte(asText[i]) xor Byte(Result)]) ;
+    end;
+
+    Result := not result;
+end ;
+
+procedure headerCommande(aoArguments : TStringList) ;
 var FileName, LineNumber : String ;
 begin
-    ResultFunction := falseValue ;
+    gsResultFunction := csFalseValue ;
 
-    if arguments.count = 1
+    if aoArguments.count = 1
     then begin
-        if isHeaderSend
+        if gbIsHeaderSend
         then begin
-            if LineToFile.count > 0
-            then
-                FileName := AddSlashes(ListOfFile[MyStrToInt(LineToFile[CurrentLineNumber])])
-            else
-                FileName := sGeneralError ;
-
-            if (CurrentFunctionName.Count > 0) and (LineToFileLine.Count >0)
-            then
-                LineNumber := LineToFileLine[CurrentLineNumber]
-            else
+            if goLineToFile.count > 0
+            then begin
+                FileName := AddSlashes(goListOfFile[MyStrToInt(goLineToFile[giCurrentLineNumber])]) ;
+            end
+            else begin
+                FileName := csGeneralError ;
+            end ;
+            
+            if (goCurrentFunctionName.Count > 0) and (goLineToFileLine.Count >0)
+            then begin
+                LineNumber := goLineToFileLine[giCurrentLineNumber] ;
+            end
+            else begin
                 LineNumber := '0' ;
+            end ;
 
-            WarningMsg(Format('Cannot modify header information - headers already sent by (output started at %s:%s)', [FileName, LineNumber])) ;
+            WarningMsg(Format(csCanNotModifyHeader, [FileName, LineNumber])) ;
         end
         else begin
-            if not isOriginalHeaderClear
-            then
+            if not gbIsOriginalHeaderClear
+            then begin
                 Header.Clear ;
+            end ;
 
-            isOriginalHeaderClear := True ;
+            gbIsOriginalHeaderClear := True ;
             
-            AddHeader(arguments[0]) ;
+            AddHeader(aoArguments[0]) ;
             
-            ResultFunction := trueValue ;    
+            gsResultFunction := csTrueValue ;
         end ;
     end
-    else if arguments.count < 1
+    else if aoArguments.count < 1
     then begin
-        ErrorMsg(sMissingargument) ;
+        ErrorMsg(csMissingargument) ;
     end
-    else if arguments.count > 1
+    else if aoArguments.count > 1
     then begin
-        ErrorMsg(sTooArguments) ;
+        ErrorMsg(csTooArguments) ;
     end ;
 end ;
 
-procedure getGetCommande(arguments : TStringList) ;
+procedure getGetCommande(aoArguments : TStringList) ;
 begin
-    if arguments.count = 1
+    if aoArguments.count = 1
     then begin
-        ResultFunction := VarGetPostCookieFileData.getGet(arguments[0]) ;
+        gsResultFunction := goVarGetPostCookieFileData.getGet(aoArguments[0]) ;
     end
-    else if arguments.count < 1
+    else if aoArguments.count < 1
     then begin
-        ErrorMsg(sMissingargument) ;
+        ErrorMsg(csMissingargument) ;
     end
-    else if arguments.count > 1
+    else if aoArguments.count > 1
     then begin
-        ErrorMsg(sTooArguments) ;
+        ErrorMsg(csTooArguments) ;
     end ;
 end ;
 
-procedure getCookieCommande(arguments : TStringList) ;
+procedure getCookieCommande(aoArguments : TStringList) ;
 begin
-    if arguments.count = 1
+    if aoArguments.count = 1
     then begin
-        ResultFunction := VarGetPostCookieFileData.getCookie(arguments[0]) ;
+        gsResultFunction := goVarGetPostCookieFileData.getCookie(aoArguments[0]) ;
     end
-    else if arguments.count < 1
+    else if aoArguments.count < 1
     then begin
-        ErrorMsg(sMissingargument) ;
+        ErrorMsg(csMissingargument) ;
     end
-    else if arguments.count > 1
+    else if aoArguments.count > 1
     then begin
-        ErrorMsg(sTooArguments) ;
+        ErrorMsg(csTooArguments) ;
     end ;
 end ;
 
-procedure getCookieNumberCommande(arguments : TStringList) ;
+procedure getCookieNumberCommande(aoArguments : TStringList) ;
 begin
-    if arguments.count = 1
+    if aoArguments.count = 1
     then begin
-        ResultFunction := IntToStr(VarGetPostCookieFileData.GetData.Count) ;
+        gsResultFunction := IntToStr(goVarGetPostCookieFileData.goGetData.Count) ;
     end
-    else if arguments.count < 1
+    else if aoArguments.count < 1
     then begin
-        ErrorMsg(sMissingargument) ;
+        ErrorMsg(csMissingargument) ;
     end
-    else if arguments.count > 1
+    else if aoArguments.count > 1
     then begin
-        ErrorMsg(sTooArguments) ;
+        ErrorMsg(csTooArguments) ;
     end ;
 end ;
 
-procedure getGetNumberCommande(arguments : TStringList) ;
+procedure getGetNumberCommande(aoArguments : TStringList) ;
 begin
-    if arguments.count = 1
+    if aoArguments.count = 1
     then begin
-        ResultFunction := IntToStr(VarGetPostCookieFileData.CookieData.Count) ;
+        gsResultFunction := IntToStr(goVarGetPostCookieFileData.goCookieData.Count) ;
     end
-    else if arguments.count < 1
+    else if aoArguments.count < 1
     then begin
-        ErrorMsg(sMissingargument) ;
+        ErrorMsg(csMissingargument) ;
     end
-    else if arguments.count > 1
+    else if aoArguments.count > 1
     then begin
-        ErrorMsg(sTooArguments) ;
+        ErrorMsg(csTooArguments) ;
     end ;
 end ;
 
-procedure getEnvCommande(arguments : TStringList) ;
+procedure getEnvCommande(aoArguments : TStringList) ;
 begin
-    if arguments.count = 1
+    if aoArguments.count = 1
     then begin
-        ResultFunction := AddSlashes(GetEnvironmentVariable(arguments[0])) ;
+        gsResultFunction := AddSlashes(GetEnvironmentVariable(aoArguments[0])) ;
     end
-    else if arguments.count < 1
+    else if aoArguments.count < 1
     then begin
-        ErrorMsg(sMissingargument) ;
+        ErrorMsg(csMissingargument) ;
     end
-    else if arguments.count > 1
+    else if aoArguments.count > 1
     then begin
-        ErrorMsg(sTooArguments) ;
+        ErrorMsg(csTooArguments) ;
     end ;
 end ;
 
-procedure getPostCommande(arguments : TStringList) ;
+procedure getPostCommande(aoArguments : TStringList) ;
 begin
-    if arguments.count = 1
+    if aoArguments.count = 1
     then begin
-        ResultFunction := VarGetPostCookieFileData.getPost(arguments[0]) ;
+        gsResultFunction := goVarGetPostCookieFileData.getPost(aoArguments[0]) ;
     end
-    else if arguments.count < 1
+    else if aoArguments.count < 1
     then begin
-        ErrorMsg(sMissingargument) ;
+        ErrorMsg(csMissingargument) ;
     end
-    else if arguments.count > 1
+    else if aoArguments.count > 1
     then begin
-        ErrorMsg(sTooArguments) ;
+        ErrorMsg(csTooArguments) ;
     end ;
 end ;
 
-procedure getPostNumberCommande(arguments : TStringList) ;
+procedure getPostNumberCommande(aoArguments : TStringList) ;
 begin
-    if arguments.count = 1
+    if aoArguments.count = 1
     then begin
-        ResultFunction := IntToStr(VarGetPostCookieFileData.PostData.Count) ;
+        gsResultFunction := IntToStr(goVarGetPostCookieFileData.goPostData.Count) ;
     end
-    else if arguments.count < 1
+    else if aoArguments.count < 1
     then begin
-        ErrorMsg(sMissingargument) ;
+        ErrorMsg(csMissingargument) ;
     end
-    else if arguments.count > 1
+    else if aoArguments.count > 1
     then begin
-        ErrorMsg(sTooArguments) ;
+        ErrorMsg(csTooArguments) ;
     end ;
 end ;
 
-procedure setCookieCommande(arguments : TStringList) ;
-var Name : string ;
-    value : string ;
-    Expire : Integer ;
-    Path : string ;
-    domain : string ;
-    secure : string ;
-    httponly : string ;
-    tmp : String ;
+procedure setCookieCommande(aoArguments : TStringList) ;
+var
+    { Nom du cookie }
+    lsCookieName : string ;
+    { Value du cookie }
+    lsCookieValue : string ;
+    { Date d'expiration }
+    liExpireTime : Integer ;
+    { Chemin du cookie }
+    lsPath : string ;
+    { Domaine }
+    lsDomain : string ;
+    { Est-ce que le cookie est en https }
+    lsSecure : string ;
+    { Http seulement }
+    lsHttpOnly : string ;
+    { reçoit la ligne de cookie }
+    lsCookieString : String ;
 begin
     // Set-Cookie: emeric=coucou; expires=Thu, 29-Nov-2007 14:52:21 GMT; path=path; domain=domaine; secure; httponly
-    if (arguments.count > 0) and (arguments.count < 8)
+    if (aoArguments.count > 0) and (aoArguments.count < 8)
     then begin
-        tmp := 'Set-Cookie: ' ;
+        lsCookieString := 'Set-Cookie: ' ;
 
-        Name := UrlEncode(arguments[0]) ;
+        lsCookieName := UrlEncode(aoArguments[0]) ;
 
-        tmp := tmp + Name + '=' ;
+        lsCookieString := lsCookieString + lsCookieName + '=' ;
 
-        if arguments.count > 1
-        then
-            value := arguments[1]
-        else
-            value := '' ;
+        if aoArguments.count > 1
+        then begin
+            lsCookieValue := UrlEncode(aoArguments[1]) ;
+    end
+        else begin
+            lsCookieValue := '' ;
+    end ;
 
-        tmp := tmp + value ;
+        lsCookieString := lsCookieString + lsCookieValue ;
 
-        if arguments.count > 2
-        then
-            expire := MyStrToInt(arguments[2])
-        else
-            expire := 0 ;
+        if aoArguments.count > 2
+        then begin
+            liExpireTime := MyStrToInt(aoArguments[2]) ;
+        end
+        else begin
+            liExpireTime := 0 ;
+        end ;
 
-        if expire <> 0
+        if liExpireTime <> 0
         then begin
             { restaure les dates/mois en anglais }
             setShortDayName ;
             setShortMonthName ;
 
-            tmp := tmp + '; ' + FormatDateTime('ddd, dd-mmm-yyyy hh:nn:ss', UnixToDateTime(expire)) + ' GMT' ;
+            lsCookieString := lsCookieString + '; ' + FormatDateTime('ddd, dd-mmm-yyyy hh:nn:ss', UnixToDateTime(liExpireTime)) + ' GMT' ;
 
             { restaure les dates/mois définit par l'utilisateur }
-            InitDayName(ShortDayNames, UserShortDayNames) ;
-            InitMonthName(ShortMonthNames, UserShortMonthNames) ;
+            InitDayName(ShortDayNames, gaUserShortDayNames) ;
+            InitMonthName(ShortMonthNames, gaUserShortMonthNames) ;
         end ;
 
-        if arguments.count > 3
-        then
-            path := '; path=' + UrlEncode(arguments[3])
-        else
-            path := '' ;
+        if aoArguments.count > 3
+        then begin
+            lsPath := '; path=' + UrlEncode(aoArguments[3]) ;
+        end
+        else begin
+            lsPath := '' ;
+        end ;
 
-        tmp := tmp + path ;
+        lsCookieString := lsCookieString + lsPath ;
 
-        if arguments.count > 4
-        then
-            domain := '; damain=' + UrlEncode(arguments[4])
-        else
-            domain := '' ;
+        if aoArguments.count > 4
+        then begin
+            lsDomain := '; damain=' + UrlEncode(aoArguments[4]) ;
+        end
+        else begin
+            lsDomain := '' ;
+        end ;
 
-        tmp := tmp + domain ;
+        lsCookieString := lsCookieString + lsDomain ;
 
-        if arguments.count > 5
-        then
-            if arguments[5]  <> falseValue
-            then
-                secure := '; secure'
-        else
-            secure := '' ;
+        if aoArguments.count > 5
+        then begin
+            if aoArguments[5]  <> csFalseValue
+            then begin
+                lsSecure := '; secure' ;
+            end ;
+        end
+        else begin
+            lsSecure := '' ;
+        end ;
 
-        tmp := tmp + secure ;
+        lsCookieString := lsCookieString + lsSecure ;
 
-        if arguments.count > 6
-        then
-            if arguments[6]  <> falseValue
-            then
-                httponly := '; httponly'
-        else
-            httponly := '' ;
+        if aoArguments.count > 6
+        then begin
+            if aoArguments[6]  <> csFalseValue
+            then begin
+                lsHttpOnly := '; httponly' ;
+            end ;
+        end
+        else begin
+            lsHttpOnly := '' ;
+        end ;
 
-        tmp := tmp + httponly ;
+        lsCookieString := lsCookieString + lsHttpOnly ;
 
-        AddHeader(tmp) ;
+        AddHeader(lsCookieString) ;
     end
-    else if arguments.count < 1
+    else if aoArguments.count < 1
     then begin
-        ErrorMsg(sMissingargument) ;
+        ErrorMsg(csMissingargument) ;
     end
-    else if arguments.count > 7
+    else if aoArguments.count > 7
     then begin
-        ErrorMsg(sTooArguments) ;
+        ErrorMsg(csTooArguments) ;
     end ;
 end ;
 
-procedure swsinfoCommande(arguments : TStringList) ;
-var Liste : TStrings ;
-    i : Integer ;
-    name, value : String ;
+procedure swsinfoCommande(aoArguments : TStringList) ;
+var
+    { liste cookie/get/post/file }
+    loListe : TStrings ;
+    { index de cookie/get/post/file }
+    liIndex : Integer ;
+    { Nom du cookie/get/post/file }
+    lsName : String ;
+    { Valeur du cookie/get/post/file }
+    lsValue : String ;
+    
   procedure putCol(name, value : string) ;
   begin
         OutPutString('  <tr>', false) ;
@@ -334,9 +438,9 @@ var Liste : TStrings ;
         OutPutString('\n', True) ;        
   end ;
 begin
-    if arguments.count = 0
+    if aoArguments.count = 0
     then begin
-        Liste := TStringList.Create ;
+        loListe := TStringList.Create ;
 
         OutPutString('<?xml version="1.0" encoding="iso-8859-1"?>', false) ;
         OutPutString('<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">', false) ;
@@ -358,35 +462,35 @@ begin
         OutPutString('\n', true) ;
         OutPutString('<body>', false) ;
         OutPutString('\n', true) ;
-        OutPutString('<h1>Simple Web Script ' + version + ' Information </h1>', false) ;
+        OutPutString('<h1>Simple Web Script ' + csVersion + ' Information </h1>', false) ;
         OutPutString('<h2>Simple Web Scrip configuration (sws.ini)</h2>', false) ;
         OutPutString('<table width="0" border="0" cellspacing="0" cellpadding="3">', false) ;
 
-        putCol('Time maximum of execution in second', IntToStr(ElapseTime)) ;
-        putCol('Maximum memory can be used in Mb', IntToStr(MaxMemorySize)) ;
-        putCol('Maximum size of post data in Mb', IntToStr(MaxPostSize)) ;
-        putCol('Maximum size of file to post in Mb', IntToStr(uploadMaxFilesize)) ;
-        putCol('Disabled functions', DisabledFunctions) ;
+        putCol('Time maximum of execution in second', IntToStr(giElapseTime)) ;
+        putCol('Maximum memory can be used in Mb', IntToStr(giMaxMemorySize)) ;
+        putCol('Maximum size of post data in Mb', IntToStr(giMaxPostSize)) ;
+        putCol('Maximum size of file to post in Mb', IntToStr(giUploadMaxFilesize)) ;
+        putCol('Disabled functions', gsDisabledFunctions) ;
 
-        if not hideCfg
+        if not gbHideCfg
         then begin
-            putCol('Tempory directory', tmpDir) ;
-            putCol('Extention directory', ExtDir) ;
-            putCol('Root of document', doc_root) ;
+            putCol('Tempory directory', gsTmpDir) ;
+            putCol('Extention directory', gsExtDir) ;
+            putCol('Root of document', gsDocRoot) ;
         end ;
         
         OutPutString('</table>', false) ;
-        OutPutString('<h2>Serveur environement</h2>', false) ;
+        OutPutString('<h2>Server environment</h2>', false) ;
 
-        OSgetAllEnvVar(Liste) ;
+        OSgetAllEnvVar(loListe) ;
 
-        if Liste.Count > 0
+        if loListe.Count > 0
         then begin
             OutPutString('<table width="0" border="0" cellspacing="0" cellpadding="3">', false) ;
 
-            for i := 0 to Liste.Count - 1 do
+            for liIndex := 0 to loListe.Count - 1 do
             begin
-                putCol(Liste[i], htmlspecialcharencode(GetEnvironmentVariable(Liste[i]), DefaultCharset, 2, false)) ;
+                putCol(loListe[liIndex], htmlspecialcharencode(GetEnvironmentVariable(loListe[liIndex]), gsDefaultCharset, 2, false)) ;
             end ;
 
             OutPutString('</table>', false) ;
@@ -394,17 +498,17 @@ begin
 
         OutPutString('<h2>Get variables</h2>', false) ;
 
-        if VarGetPostCookieFileData.GetData.Count > 0
+        if goVarGetPostCookieFileData.goGetData.Count > 0
         then begin
             OutPutString('<table width="0" border="0" cellspacing="0" cellpadding="3">', false) ;
 
-            for i := 0 to VarGetPostCookieFileData.GetData.Count - 1 do
+            for liIndex := 0 to goVarGetPostCookieFileData.goGetData.Count - 1 do
             begin
-                name := VarGetPostCookieFileData.GetData.GiveVarNameByIndex(i) ;
-                value := VarGetPostCookieFileData.GetData.Give(Name) ;
-                value := showData(value, '', 0) ;
-                ReplaceOneOccurence('\n', value, '<br />', true) ;
-                putCol(name, htmlspecialcharencode(value, DefaultCharset, 2, false)) ;
+                lsName := goVarGetPostCookieFileData.goGetData.GiveVarNameByIndex(liIndex) ;
+                lsValue := goVarGetPostCookieFileData.goGetData.Give(lsName) ;
+                lsValue := showData(lsValue, '', 0) ;
+                ReplaceOneOccurence('\n', lsValue, '<br />', true) ;
+                putCol(lsName, htmlspecialcharencode(lsValue, gsDefaultCharset, 2, false)) ;
             end ;
 
             OutPutString('</table>', false) ;
@@ -412,17 +516,17 @@ begin
 
         OutPutString('<h2>Post variables</h2>', false) ;
 
-        if VarGetPostCookieFileData.PostData.Count > 0
+        if goVarGetPostCookieFileData.goPostData.Count > 0
         then begin
             OutPutString('<table width="0" border="0" cellspacing="0" cellpadding="3">', false) ;
 
-            for i := 0 to VarGetPostCookieFileData.PostData.Count - 1 do
+            for liIndex := 0 to goVarGetPostCookieFileData.goPostData.Count - 1 do
             begin
-                name := VarGetPostCookieFileData.PostData.GiveVarNameByIndex(i) ;
-                value := VarGetPostCookieFileData.PostData.Give(Name) ;
-                value := showData(value, '', 0) ;
-                ReplaceOneOccurence('\n', value, '<br />', true) ;
-                putCol(name, htmlspecialcharencode(value, 'iso-8859-1', 2, false)) ;
+                lsName := goVarGetPostCookieFileData.goPostData.GiveVarNameByIndex(liIndex) ;
+                lsValue := goVarGetPostCookieFileData.goPostData.Give(lsName) ;
+                lsValue := showData(lsValue, '', 0) ;
+                ReplaceOneOccurence('\n', lsValue, '<br />', true) ;
+                putCol(lsName, htmlspecialcharencode(lsValue, 'iso-8859-1', 2, false)) ;
             end ;
 
             OutPutString('</table>', false) ;
@@ -430,17 +534,17 @@ begin
 
         OutPutString('<h2>Cookie variables</h2>', false) ;
 
-        if VarGetPostCookieFileData.CookieData.Count > 0
+        if goVarGetPostCookieFileData.goCookieData.Count > 0
         then begin
             OutPutString('<table width="0" border="0" cellspacing="0" cellpadding="3">', false) ;
 
-            for i := 0 to VarGetPostCookieFileData.CookieData.Count - 1 do
+            for liIndex := 0 to goVarGetPostCookieFileData.goCookieData.Count - 1 do
             begin
-                name := VarGetPostCookieFileData.CookieData.GiveVarNameByIndex(i) ;
-                value := VarGetPostCookieFileData.CookieData.Give(Name) ;
-                value := showData(value, '', 0) ;
-                ReplaceOneOccurence('\n', value, '<br />', true) ;
-                putCol(name, htmlspecialcharencode(value, DefaultCharset, 2, false)) ;
+                lsName := goVarGetPostCookieFileData.goCookieData.GiveVarNameByIndex(liIndex) ;
+                lsValue := goVarGetPostCookieFileData.goCookieData.Give(lsName) ;
+                lsValue := showData(lsValue, '', 0) ;
+                ReplaceOneOccurence('\n', lsValue, '<br />', true) ;
+                putCol(lsName, htmlspecialcharencode(lsValue, gsDefaultCharset, 2, false)) ;
             end ;
 
             OutPutString('</table>', false) ;
@@ -448,525 +552,686 @@ begin
 
         OutPutString('<h2>File variables</h2>', false) ;
 
-        if VarGetPostCookieFileData.FileData.Count > 0
+        if goVarGetPostCookieFileData.goFileData.Count > 0
         then begin
             OutPutString('<table width="0" border="0" cellspacing="0" cellpadding="3">', false) ;
 
-            for i := 0 to VarGetPostCookieFileData.FileData.Count - 1 do
+            for liIndex := 0 to goVarGetPostCookieFileData.goFileData.Count - 1 do
             begin
-                name := VarGetPostCookieFileData.FileData.GiveVarNameByIndex(i) ;
-                value := VarGetPostCookieFileData.FileData.Give(Name) ;
-                value := showData(value, '', 0) ;
-                ReplaceOneOccurence('\n', value, '<br />', true) ;
-                putCol(name, htmlspecialcharencode(value, DefaultCharset, 2, false)) ;
+                lsName := goVarGetPostCookieFileData.goFileData.GiveVarNameByIndex(liIndex) ;
+                lsValue := goVarGetPostCookieFileData.goFileData.Give(lsName) ;
+                lsValue := showData(lsValue, '', 0) ;
+                lsValue := htmlspecialcharencode(lsValue, gsDefaultCharset, csAllQuoteConversion, false) ;
+                
+                ReplaceOneOccurence('\n', lsValue, '<br />', true) ;
+                putCol(lsName, lsValue) ;
             end ;
 
             OutPutString('</table>', false) ;
         end ;
 
+        OutPutString('<div><br /><br />Power by <a href="http://www.lazarus.freepascal.org/">Lazarus</a></div>', false) ;        
         OutPutString('</body>', false) ;
         OutPutString('</html>', false) ;
 
-        Liste.Free ;
+        loListe.Free ;
     end
-    else if arguments.count < 0
+    else if aoArguments.count < 0
     then begin
-        ErrorMsg(sMissingargument) ;
+        ErrorMsg(csMissingargument) ;
     end
-    else if arguments.count > 0
+    else if aoArguments.count > 0
     then begin
-        ErrorMsg(sTooArguments) ;
+        ErrorMsg(csTooArguments) ;
     end ;
 end ;
 
-procedure getCfgVarsCommande(arguments : TStringList) ;
+procedure getCfgVarsCommande(aoArguments : TStringList) ;
 begin
-    if arguments.count = 1
+    if aoArguments.count = 1
     then begin
-        ResultFunction := '' ;
+        gsResultFunction := '' ;
             
-        if arguments[0] = 'max_execution_time'
-        then
-            ResultFunction := IntToStr(ElapseTime)
-        else if arguments[0] = 'memory_limit'
-        then
-            ResultFunction := IntToStr(MaxMemorySize)
-        else if arguments[0] = 'disabled_function'
-        then
-            ResultFunction := DisabledFunctions
-        else if arguments[0] = 'upload_max_filesize'
-        then
-            ResultFunction := IntToStr(uploadMaxFilesize)
-        else if arguments[0] = 'file_uploads'
-        then
-            if (fileUpload = True)
-            then
-                ResultFunction := TrueValue
-            else
-                ResultFunction := FalseValue ;
-
+        if aoArguments[0] = 'max_execution_time'
+        then begin
+            gsResultFunction := IntToStr(giElapseTime) ;
+        end
+        else if aoArguments[0] = 'memory_limit'
+        then begin
+            gsResultFunction := IntToStr(giMaxMemorySize) ;
+        end
+        else if aoArguments[0] = 'disabled_function'
+        then begin
+            gsResultFunction := gsDisabledFunctions ;
+        end
+        else if aoArguments[0] = 'upload_max_filesize'
+        then begin
+            gsResultFunction := IntToStr(giUploadMaxFilesize) ;
+        end
+        else if aoArguments[0] = 'file_uploads'
+        then begin
+            if (gbFileUpload = True)
+            then begin
+                gsResultFunction := csTrueValue ;
+        end
+            else begin
+                gsResultFunction := csFalseValue ;
+        end ;
+        end ;
     end
-    else if arguments.count < 1
+    else if aoArguments.count < 1
     then begin
-        ErrorMsg(sMissingargument) ;
+        ErrorMsg(csMissingargument) ;
     end
-    else if arguments.count > 1
+    else if aoArguments.count > 1
     then begin
-        ErrorMsg(sTooArguments) ;
+        ErrorMsg(csTooArguments) ;
     end ;
 end ;
 
-procedure getFileCommande(arguments : TStringList) ;
+procedure getFileCommande(aoArguments : TStringList) ;
 begin
-    if arguments.count = 1
+    if aoArguments.count = 1
     then begin
-        ResultFunction := VarGetPostCookieFileData.getFile(arguments[0]) ;
+        gsResultFunction := goVarGetPostCookieFileData.getFile(aoArguments[0]) ;
     end
-    else if arguments.count < 1
+    else if aoArguments.count < 1
     then begin
-        ErrorMsg(sMissingargument) ;
+        ErrorMsg(csMissingargument) ;
     end
-    else if arguments.count > 1
+    else if aoArguments.count > 1
     then begin
-        ErrorMsg(sTooArguments) ;
+        ErrorMsg(csTooArguments) ;
     end ;
 end ;
 
-procedure SetLocalCommande(arguments : TStringList) ;
-var Liste : TStringList ;
-    i : Integer ;
-    len : Integer ;
+procedure SetLocalCommande(aoArguments : TStringList) ;
+var
+    { Liste des valeurs passé en paramètre }
+    loListe : TStringList ;
+    { Compteur de boucle }
+    liIndex : Integer ;
+    { Longueur du tableau passé en paramètre }
+    liListeLength : Integer ;
 begin
-    if arguments.count = 2
+    if aoArguments.count = 2
     then begin
-        Liste := TStringList.Create ;
-        arguments[0] := LowerCase(arguments[0]) ;
+        loListe := TStringList.Create ;
+        aoArguments[0] := LowerCase(aoArguments[0]) ;
 
-        if arguments[0] = 'shortdayname'
+        if aoArguments[0] = 'shortdayname'
         then begin
-            if Variables.InternalIsArray(arguments[1])
+            if goVariables.InternalIsArray(aoArguments[1])
             then begin
-                Variables.Explode(Liste, arguments[1]) ;
+                goVariables.Explode(loListe, aoArguments[1]) ;
 
-                if Liste.Count > 7
-                then
-                    len := 7
-                else
-                    len := Liste.Count ;
+                if loListe.Count > 7
+                then begin
+                    liListeLength := 7 ;
+                end
+                else begin
+                    liListeLength := loListe.Count ;
+                end ;
 
-                for i := 0 to len - 1 do
+                for liIndex := 0 to liListeLength - 1 do
                 begin
-                    UserShortDayNames[i + 1] := Liste[i] ;
-                    ShortDayNames[i + 1] := Liste[i] ;
+                    gaUserShortDayNames[liIndex + 1] := loListe[liIndex] ;
+                    ShortDayNames[liIndex + 1] := loListe[liIndex] ;
                 end ;
             end
-            else
-                WarningMsg(sMustBeAnArray) ;
+            else begin
+                WarningMsg(csMustBeAnArray) ;
+        end ;
         end
-        else if arguments[0] = 'longdayname'
+        else if aoArguments[0] = 'longdayname'
         then begin
-            if Variables.InternalIsArray(arguments[1])
+            if goVariables.InternalIsArray(aoArguments[1])
             then begin
-                Variables.Explode(Liste, arguments[1]) ;
+                goVariables.Explode(loListe, aoArguments[1]) ;
 
-                if Liste.Count > 7
-                then
-                    len := 7
-                else
-                    len := Liste.Count ;
-
-                for i := 0 to len - 1 do
-                begin
-                    LongDayNames[i + 1] := Liste[i] ;
-                end ;
-            end
-            else
-                WarningMsg(sMustBeAnArray) ;
-        end
-        else if arguments[0] = 'shortmonthname'
-        then begin
-            if Variables.InternalIsArray(arguments[1])
-            then begin
-                Variables.Explode(Liste, arguments[1]) ;
-
-                if Liste.Count > 12
-                then
-                    len := 12
-                else
-                    len := Liste.Count ;
-
-                for i := 0 to len - 1 do
-                begin
-                    UserShortMonthNames[i + 1] := Liste[i] ;
-                    ShortMonthNames[i + 1] := Liste[i] ;
-                end ;
-            end
-            else
-                WarningMsg(sMustBeAnArray) ;
-        end
-        else if arguments[0] = 'longmonthname'
-        then begin
-            if Variables.InternalIsArray(arguments[1])
-            then begin
-                Variables.Explode(Liste, arguments[1]) ;
-
-                if Liste.Count > 12
-                then
-                    len := 12
-                else
-                    len := Liste.Count ;
-
-                for i := 0 to len - 1 do
-                begin
-                    LongMonthNames[i + 1] := Liste[i] ;
-                end ;
-            end
-            else
-                WarningMsg(sMustBeAnArray) ;
-        end
-        else if arguments[0] = 'floatseparator'
-        then begin
-            FloatSeparator := arguments[1] ;
-        end
-        else if arguments[0] = 'millierseparator'
-        then begin
-            MillierSeparator := arguments[1] ;
-        end
-        else if arguments[0] = 'charset'
-        then begin
-            DefaultCharset := LowerCase(arguments[1]) ;
+                if loListe.Count > 7
+                then begin
+                    liListeLength := 7 ;
+                end
+                else begin
+                    liListeLength := loListe.Count ;
         end ;
 
-        Liste.Free ;
+                for liIndex := 0 to liListeLength - 1 do
+                begin
+                    LongDayNames[liIndex + 1] := loListe[liIndex] ;
+                end ;
+            end
+            else begin
+                WarningMsg(csMustBeAnArray) ;
+            end ;
+        end
+        else if aoArguments[0] = 'shortmonthname'
+        then begin
+            if goVariables.InternalIsArray(aoArguments[1])
+            then begin
+                goVariables.Explode(loListe, aoArguments[1]) ;
+
+                if loListe.Count > 12
+                then begin
+                    liListeLength := 12
+                end
+                else begin
+                    liListeLength := loListe.Count ;
+        end ;
+
+                for liIndex := 0 to liListeLength - 1 do
+                begin
+                    gaUserShortMonthNames[liIndex + 1] := loListe[liIndex] ;
+                    ShortMonthNames[liIndex + 1] := loListe[liIndex] ;
+                end ;
+            end
+            else begin
+                WarningMsg(csMustBeAnArray) ;
+            end ;
+        end
+        else if aoArguments[0] = 'longmonthname'
+        then begin
+            if goVariables.InternalIsArray(aoArguments[1])
+            then begin
+                goVariables.Explode(loListe, aoArguments[1]) ;
+
+                if loListe.Count > 12
+                then begin
+                    liListeLength := 12
+                end
+                else begin
+                    liListeLength := loListe.Count ;
+                end ;
+
+                for liIndex := 0 to liListeLength - 1 do
+                begin
+                    LongMonthNames[liIndex + 1] := loListe[liIndex] ;
+                end ;
+            end
+            else begin
+                WarningMsg(csMustBeAnArray) ;
+            end ;
+        end
+        else if aoArguments[0] = 'floatseparator'
+        then begin
+            gsFloatSeparator := aoArguments[1] ;
+        end
+        else if aoArguments[0] = 'millierseparator'
+        then begin
+            gsMillierSeparator := aoArguments[1] ;
+        end
+        else if aoArguments[0] = 'charset'
+        then begin
+            gsDefaultCharset := LowerCase(aoArguments[1]) ;
+        end ;
+
+        loListe.Free ;
     end
-    else if arguments.count < 2
+    else if aoArguments.count < 2
     then begin
-        ErrorMsg(sMissingargument) ;
+        ErrorMsg(csMissingargument) ;
     end
-    else if arguments.count > 2
+    else if aoArguments.count > 2
     then begin
-        ErrorMsg(sTooArguments) ;
+        ErrorMsg(csTooArguments) ;
     end ;
 end ;
 
-procedure OutputBufferStartCommande(arguments : TStringList) ;
+procedure OutputBufferStartCommande(aoArguments : TStringList) ;
 Var ListArguments : TStringList ;
 begin
-    if (arguments.count = 0) or (arguments.count = 1)
+    if (aoArguments.count = 0) or (aoArguments.count = 1)
     then begin
-        ResultFunction := FalseValue ;
+        gsResultFunction := csFalseValue ;
 
-        if ListProcedure.Give(arguments[0]) <> - 1
+        if goListProcedure.Give(aoArguments[0]) <> - 1
         then begin
             ListArguments := TStringList.Create ;
-            ListArguments.Text := ListProcedure.GiveArguments(arguments[0]) ;
+            ListArguments.Text := goListProcedure.GiveArguments(aoArguments[0]) ;
 
             if ListArguments.Count = 1
             then begin
-                isOutPuBuffered := True ;
+                gbIsOutPuBuffered := True ;
 
-                if arguments.Count > 0
-                then
-                    OutPutFunction := arguments[0]
-                else
-                    OutPutFunction := '' ;
+                if aoArguments.Count > 0
+                then begin
+                    gsOutPutFunction := aoArguments[0] ;
+                end
+                else begin
+                    gsOutPutFunction := '' ;
+        end ;
 
-                ResultFunction := TrueValue ;
+                gsResultFunction := csTrueValue ;
                 ListArguments.Free ;
             end ;
         end ;
     end
-    else if arguments.count > 1
+    else if aoArguments.count > 1
     then begin
-        ErrorMsg(sTooArguments) ;
+        ErrorMsg(csTooArguments) ;
     end ;
 end ;
 
-procedure OutputBufferWriteCommande(arguments : TStringList) ;
+procedure OutputBufferWriteCommande(aoArguments : TStringList) ;
 begin
-    if arguments.count = 0
+    if aoArguments.count = 0
     then begin
-        if (not isHeaderSend)
+        if (not gbIsHeaderSend)
         then
             SendHeader ;
 
-        write(OutPutContent) ;
-        OutPutContent := '' ;
+        write(gsOutPutContent) ;
+        gsOutPutContent := '' ;
     end
-    else if arguments.count > 0
+    else if aoArguments.count > 0
     then begin
-        ErrorMsg(sTooArguments) ;
+        ErrorMsg(csTooArguments) ;
     end ;
 end ;
 
-procedure OutputBufferClearCommande(arguments : TStringList) ;
+procedure OutputBufferClearCommande(aoArguments : TStringList) ;
 begin
-    if arguments.count = 0
+    if aoArguments.count = 0
     then begin
-        OutPutContent := '' ;
+        gsOutPutContent := '' ;
     end
-    else if arguments.count > 0
+    else if aoArguments.count > 0
     then begin
-        ErrorMsg(sTooArguments) ;
+        ErrorMsg(csTooArguments) ;
     end ;
 end ;
 
-procedure OutputBufferStopCommande(arguments : TStringList) ;
+procedure OutputBufferStopCommande(aoArguments : TStringList) ;
 begin
-    if arguments.count = 0
+    if aoArguments.count = 0
     then begin
-        isOutPuBuffered := False ;
+        gbIsOutPuBuffered := False ;
     end
-    else if arguments.count > 0
+    else if aoArguments.count > 0
     then begin
-        ErrorMsg(sTooArguments) ;
+        ErrorMsg(csTooArguments) ;
     end ;
 end ;
 
-procedure OutputBufferGetCommande(arguments : TStringList) ;
+procedure OutputBufferGetCommande(aoArguments : TStringList) ;
 begin
-    if arguments.count = 0
+    if aoArguments.count = 0
     then begin
-        ResultFunction := OutPutContent ;
+        gsResultFunction := gsOutPutContent ;
     end
-    else if arguments.count > 0
+    else if aoArguments.count > 0
     then begin
-        ErrorMsg(sTooArguments) ;
+        ErrorMsg(csTooArguments) ;
     end ;
 end ;
 
-procedure ShellExecCommande(arguments : TStringList) ;
-var delay : integer ;
+procedure ShellExecCommande(aoArguments : TStringList) ;
+var
+    { temps maximal d'exécution de la commande }
+    liDelay : integer ;
 begin
-    if arguments.count = 1
+    if aoArguments.count = 1
     then begin
-        Delay := FloatToInt(SecondSpan(Now, now + (ElapseTime  div (24*3600)))) * 1000 ;
+        liDelay := FloatToInt(SecondSpan(Now, now + (giElapseTime  div (24*3600)))) * 1000 ;
 
-        ResultFunction := OsShellExec(arguments[0], Delay) ;
+        gsResultFunction := OsShellExec(aoArguments[0], liDelay) ;
     end
-    else if arguments.count < 1
+    else if aoArguments.count < 1
     then begin
-        ErrorMsg(sMissingargument) ;
+        ErrorMsg(csMissingargument) ;
     end
-    else if arguments.count > 1
+    else if aoArguments.count > 1
     then begin
-        ErrorMsg(sTooArguments) ;
+        ErrorMsg(csTooArguments) ;
     end ;
 end ;
 
-procedure Crc32Commande(arguments : TStringList) ;
+procedure Crc32Commande(aoArguments : TStringList) ;
 begin
-    if arguments.count = 1
+    if aoArguments.count = 1
     then begin
-        ResultFunction := IntToStr(CRC32(arguments[0])) ;
+        gsResultFunction := IntToStr(CRC32(aoArguments[0])) ;
     end
-    else if arguments.count < 1
+    else if aoArguments.count < 1
     then begin
-        ErrorMsg(sMissingargument) ;
+        ErrorMsg(csMissingargument) ;
     end
-    else if arguments.count > 1
+    else if aoArguments.count > 1
     then begin
-        ErrorMsg(sTooArguments) ;
+        ErrorMsg(csTooArguments) ;
     end ;
 end ;
 
-procedure SleepCommande(arguments : TStringList) ;
-var delay : Integer ;
+procedure SleepCommande(aoArguments : TStringList) ;
+var
+    { Temps d'attente }
+    liDelay : Integer ;
 begin
-    if arguments.count = 1
+    if aoArguments.count = 1
     then begin
-        delay := MyStrToInt(arguments[0]) ;
+        liDelay := MyStrToInt(aoArguments[0]) ;
 
-        if delay >= 0
-        then
-            Sleep(delay)
-        else
-            WarningMsg(sNotAcceptNegativeValue) ;
+        if liDelay >= 0
+        then begin
+            Sleep(liDelay)
     end
-    else if arguments.count < 1
-    then begin
-        ErrorMsg(sMissingargument) ;
+        else begin
+            WarningMsg(csNotAcceptNegativeValue) ;
+    end ;
     end
-    else if arguments.count > 1
+    else if aoArguments.count < 1
     then begin
-        ErrorMsg(sTooArguments) ;
+        ErrorMsg(csMissingargument) ;
+    end
+    else if aoArguments.count > 1
+    then begin
+        ErrorMsg(csTooArguments) ;
     end ;
 end  ;
 
-procedure bintohexCommande(arguments : TStringList) ;
-var i : Integer ;
+procedure bintohexCommande(aoArguments : TStringList) ;
+var
+    { Index de chaine à convertir }
+    liIndex : Integer ;
 begin
-    if arguments.count = 1
+    if aoArguments.count = 1
     then begin
-        ResultFunction := '' ;
+        gsResultFunction := '' ;
 
-        for i := 1 to Length(arguments[0]) do
+        for liIndex := 1 to Length(aoArguments[0]) do
         begin
-            ResultFunction := ResultFunction + DecToHex(Byte(arguments[0][i])) ;
+            gsResultFunction := gsResultFunction + DecToHex(Byte(aoArguments[0][liIndex])) ;
         end ;
     end
-    else if arguments.count < 1
+    else if aoArguments.count < 1
     then begin
-        ErrorMsg(sMissingargument) ;
+        ErrorMsg(csMissingargument) ;
     end
-    else if arguments.count > 1
+    else if aoArguments.count > 1
     then begin
-        ErrorMsg(sTooArguments) ;
+        ErrorMsg(csTooArguments) ;
     end ;
 end  ;
 
-function Rol(octet : byte; decalage : integer) : byte ;
-var i : Integer ;
+{*****************************************************************************
+ * Rol
+ * MARTINEAU Emeric
+ *
+ * Effectue un rotation logique de bit à gauche
+ *
+ * Paramètres d'entrée :
+ *   - abOctet : octet à transformer,
+ *   - aiDecalage : décalage à effectuer,
+ *
+ * Retour : octet transformé
+ *****************************************************************************}
+function Rol(abOctet : byte; aiDecalage : integer) : byte ;
+var
+    { Compteur de décalage }
+    liIndex : Integer ;
 begin
-    Result := octet ;
-    for i := 1 to decalage do
+    Result := abOctet ;
+    
+    for liIndex := 1 to aiDecalage do
     begin
         Result := (Result shl 1) or ((Result and 128) shr 7) ;
     end ;
 end ;
 
-function Ror(octet : byte; decalage : integer) : byte ;
-var i : Integer ;
+{*****************************************************************************
+ * Rol
+ * MARTINEAU Emeric
+ *
+ * Effectue un rotation logique de bit à droite
+ *
+ * Paramètres d'entrée :
+ *   - abOctet : octet à transformer,
+ *   - aiDecalage : décalage à effectuer,
+ *
+ * Retour : octet transformé
+ *****************************************************************************}
+function Ror(abOctet : byte; aiDecalage : integer) : byte ;
+var
+    { Compteur de décalage }
+    liIndex : Integer ;
 begin
-    Result := octet ;
-    for i := 1 to decalage do
+    Result := abOctet ;
+    
+    for liIndex := 1 to aiDecalage do
     begin
         Result := ((Result and 1) shl 7) or (Result shr 1) ;
     end ;
 end ;
 
-procedure RolCommande(arguments : TStringList) ;
+procedure RolCommande(aoArguments : TStringList) ;
 var
-    val : Integer ;
-    decalage : Integer ;
+    { Octet à décaler }
+    liOctet : Integer ;
+    { Décalage à éffecter }
+    liDecalage : Integer ;
 begin
-    if (arguments.count = 1) or (arguments.count = 2)
+    if (aoArguments.count = 1) or (aoArguments.count = 2)
     then begin
-        if IsInteger(arguments[0])
+        if IsInteger(aoArguments[0])
         then begin
-            val := MyStrToInt(arguments[0]) ;
-            decalage := 1 ;
+            liOctet := MyStrToInt(aoArguments[0]) ;
+            liDecalage := 1 ;
 
-            if arguments.count = 2
+            if aoArguments.count = 2
             then begin
-                if IsInteger(arguments[0])
+                if IsInteger(aoArguments[0])
                 then begin
-                    decalage := MyStrToInt(arguments[1]) ;
+                    liDecalage := MyStrToInt(aoArguments[1]) ;
                 end
                 else begin
-                    ErrorMsg(sDecalgeMustBeInteger) ;
+                    ErrorMsg(csDecalgeMustBeInteger) ;
                 end ;
             end ;
 
-            if val < 256
+            if liOctet < 256
             then begin
-                ResultFunction := IntToStr(Rol(Byte(val), decalage))
+                gsResultFunction := IntToStr(Rol(Byte(liOctet), liDecalage))
             end
             else begin
-                ErrorMsg(sMustBeAByte) ;
+                ErrorMsg(csMustBeAByte) ;
             end ;
         end
         else begin
-            ErrorMsg(sMustBeAByte) ;
+            ErrorMsg(csMustBeAByte) ;
         end ;
     end
-    else if arguments.count < 1
+    else if aoArguments.count < 1
     then begin
-        ErrorMsg(sMissingargument) ;
+        ErrorMsg(csMissingargument) ;
     end
-    else if arguments.count > 2
+    else if aoArguments.count > 2
     then begin
-        ErrorMsg(sTooArguments) ;
+        ErrorMsg(csTooArguments) ;
     end ;
 end  ;
 
-procedure RorCommande(arguments : TStringList) ;
+procedure RorCommande(aoArguments : TStringList) ;
 var
-    val : Integer ;
-    decalage : Integer ;
+    { Octet à décaler }
+    liOctet : Integer ;
+    { Décalage à éffecter }
+    liDecalage : Integer ;
 begin
-    if (arguments.count = 1) or (arguments.count = 2)
+    if (aoArguments.count = 1) or (aoArguments.count = 2)
     then begin
-        if IsInteger(arguments[0])
+        if IsInteger(aoArguments[0])
         then begin
-            val := MyStrToInt(arguments[0]) ;
-            decalage := 1 ;
+            liOctet := MyStrToInt(aoArguments[0]) ;
+            liDecalage := 1 ;
 
-            if arguments.count = 2
+            if aoArguments.count = 2
             then begin
-                if IsInteger(arguments[0])
+                if IsInteger(aoArguments[0])
                 then begin
-                    decalage := MyStrToInt(arguments[1]) ;
+                    liDecalage := MyStrToInt(aoArguments[1]) ;
                 end
                 else begin
-                    ErrorMsg(sDecalgeMustBeInteger) ;
+                    ErrorMsg(csDecalgeMustBeInteger) ;
                 end ;
             end ;
 
-            if val < 256
+            if liOctet < 256
             then begin
-                ResultFunction := IntToStr(Ror(Byte(val), decalage))
+                gsResultFunction := IntToStr(Ror(Byte(liOctet), liDecalage))
             end
             else begin
-                ErrorMsg(sMustBeAByte) ;
+                ErrorMsg(csMustBeAByte) ;
             end ;
         end
         else begin
-            ErrorMsg(sMustBeAByte) ;
+            ErrorMsg(csMustBeAByte) ;
         end ;
     end
-    else if arguments.count < 1
+    else if aoArguments.count < 1
     then begin
-        ErrorMsg(sMissingargument) ;
+        ErrorMsg(csMissingargument) ;
     end
-    else if arguments.count > 2
+    else if aoArguments.count > 2
     then begin
-        ErrorMsg(sTooArguments) ;
+        ErrorMsg(csTooArguments) ;
     end ;
 end  ;
 
-procedure Md5Commande(arguments : TStringList) ;
+procedure Md5Commande(aoArguments : TStringList) ;
 begin
-    if arguments.count = 1
+    if aoArguments.count = 1
     then begin
-        ResultFunction := MD5(arguments[0]) ;
+        gsResultFunction := MD5(aoArguments[0]) ;
     end
-    else if arguments.count < 1
+    else if aoArguments.count < 1
     then begin
-        ErrorMsg(sMissingargument) ;
+        ErrorMsg(csMissingargument) ;
     end
-    else if arguments.count > 1
+    else if aoArguments.count > 1
     then begin
-        ErrorMsg(sTooArguments) ;
+        ErrorMsg(csTooArguments) ;
+    end ;
+end  ;
+
+procedure IsSetGetCommande(aoArguments : TStringList) ;
+begin
+    if aoArguments.count = 1
+    then begin
+        if goVarGetPostCookieFileData.IsSetGet(aoArguments[0])
+        then begin
+            gsResultFunction := csTrueValue ;
+        end
+        else begin
+            gsResultFunction := csFalseValue ;
+        end ;
+    end
+    else if aoArguments.count < 1
+    then begin
+        ErrorMsg(csMissingargument) ;
+    end
+    else if aoArguments.count > 1
+    then begin
+        ErrorMsg(csTooArguments) ;
+    end ;
+end  ;
+
+procedure IsSetPostCommande(aoArguments : TStringList) ;
+begin
+    if aoArguments.count = 1
+    then begin
+        if goVarGetPostCookieFileData.IsSetPost(aoArguments[0])
+        then begin
+            gsResultFunction := csTrueValue ;
+        end
+        else begin
+            gsResultFunction := csFalseValue ;
+        end ;
+    end
+    else if aoArguments.count < 1
+    then begin
+        ErrorMsg(csMissingargument) ;
+    end
+    else if aoArguments.count > 1
+    then begin
+        ErrorMsg(csTooArguments) ;
+    end ;
+end  ;
+
+procedure IsSetCookieCommande(aoArguments : TStringList) ;
+begin
+    if aoArguments.count = 1
+    then begin
+        if goVarGetPostCookieFileData.IsSetCookie(aoArguments[0])
+        then begin
+            gsResultFunction := csTrueValue ;
+        end
+        else begin
+            gsResultFunction := csFalseValue ;
+        end ;
+    end
+    else if aoArguments.count < 1
+    then begin
+        ErrorMsg(csMissingargument) ;
+    end
+    else if aoArguments.count > 1
+    then begin
+        ErrorMsg(csTooArguments) ;
+    end ;
+end  ;
+
+procedure IsSetFileCommande(aoArguments : TStringList) ;
+begin
+    if aoArguments.count = 1
+    then begin
+        if goVarGetPostCookieFileData.IsSetFile(aoArguments[0])
+        then begin
+            gsResultFunction := csTrueValue ;
+        end
+        else begin
+            gsResultFunction := csFalseValue ;
+        end ;
+    end
+    else if aoArguments.count < 1
+    then begin
+        ErrorMsg(csMissingargument) ;
+    end
+    else if aoArguments.count > 1
+    then begin
+        ErrorMsg(csTooArguments) ;
     end ;
 end  ;
 
 procedure MiscellaneousFunctionsInit ;
 begin
-    ListFunction.Add('header', @headerCommande, true) ;
-    ListFunction.Add('getget', @getGetCommande, true) ;
-    ListFunction.Add('getcookie', @getCookieCommande, true) ;
-    ListFunction.Add('getgetnumber', @getGetNumberCommande, true) ;
-    ListFunction.Add('getcookienumber', @getCookieCommande, true) ;
-    ListFunction.Add('getenv', @getenvCommande, true) ;
-    ListFunction.Add('setcookie', @setCookieCommande, true) ;
-    ListFunction.Add('swsinfo', @swsinfoCommande, true) ;
-    ListFunction.Add('getpost', @getpostCommande, true) ;
-    ListFunction.Add('getpostnumber', @getPostNumberCommande, true) ;
-    ListFunction.Add('getcfgvars', @getCfgVarsCommande, true) ;
-    ListFunction.Add('getfile', @getFileCommande, true) ;
-    ListFunction.Add('setlocal', @setLocalCommande, true) ;
-    ListFunction.Add('outputbufferstart', @OutputBufferStartCommande, true) ;
-    ListFunction.Add('outputbufferwrite', @OutputBufferWriteCommande, true) ;
-    ListFunction.Add('outputbufferclear', @OutputBufferClearCommande, true) ;
-    ListFunction.Add('outputbufferstop', @OutputBufferStopCommande, true) ;
-    ListFunction.Add('outputbufferget', @OutputBufferGetCommande, true) ;
-    ListFunction.Add('shellexec', @ShellExecCommande, true) ;
-    ListFunction.Add('crc32', @Crc32Commande, true) ;
-    ListFunction.Add('sleep', @SleepCommande, true) ;
-    ListFunction.Add('rol', @RolCommande, true) ;
-    ListFunction.Add('ror', @RorCommande, true) ;
-    ListFunction.Add('md5', @Md5Commande, true) ;    
+    goInternalFunction.Add('header', @headerCommande, true) ;
+    goInternalFunction.Add('getget', @getGetCommande, true) ;
+    goInternalFunction.Add('getcookie', @getCookieCommande, true) ;
+    goInternalFunction.Add('getgetnumber', @getGetNumberCommande, true) ;
+    goInternalFunction.Add('getcookienumber', @getCookieCommande, true) ;
+    goInternalFunction.Add('getenv', @getenvCommande, true) ;
+    goInternalFunction.Add('setcookie', @setCookieCommande, true) ;
+    goInternalFunction.Add('swsinfo', @swsinfoCommande, true) ;
+    goInternalFunction.Add('getpost', @getpostCommande, true) ;
+    goInternalFunction.Add('getpostnumber', @getPostNumberCommande, true) ;
+    goInternalFunction.Add('getcfgvars', @getCfgVarsCommande, true) ;
+    goInternalFunction.Add('getfile', @getFileCommande, true) ;
+    goInternalFunction.Add('setlocal', @setLocalCommande, true) ;
+    goInternalFunction.Add('outputbufferstart', @OutputBufferStartCommande, true) ;
+    goInternalFunction.Add('outputbufferwrite', @OutputBufferWriteCommande, true) ;
+    goInternalFunction.Add('outputbufferclear', @OutputBufferClearCommande, true) ;
+    goInternalFunction.Add('outputbufferstop', @OutputBufferStopCommande, true) ;
+    goInternalFunction.Add('outputbufferget', @OutputBufferGetCommande, true) ;
+    goInternalFunction.Add('shellexec', @ShellExecCommande, true) ;
+    goInternalFunction.Add('crc32', @Crc32Commande, true) ;
+    goInternalFunction.Add('sleep', @SleepCommande, true) ;
+    goInternalFunction.Add('rol', @RolCommande, true) ;
+    goInternalFunction.Add('ror', @RorCommande, true) ;
+    goInternalFunction.Add('md5', @Md5Commande, true) ;
+    goInternalFunction.Add('issetget', @IsSetGetCommande, true) ;
+    goInternalFunction.Add('issetpost', @IsSetPostCommande, true) ;
+    goInternalFunction.Add('issetcookie', @IsSetCookieCommande, true) ;
+    goInternalFunction.Add('issetfile', @IsSetFileCommande, true) ;
 end ;
 
 end.

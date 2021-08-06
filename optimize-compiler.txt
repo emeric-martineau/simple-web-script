@@ -1,0 +1,16 @@
+option compilateur :
+
+Code
+----
+  Générer : 
+    Code le plus petit : -Og
+  Style de l'unité
+    Table des liens intelligentes (-CX)
+
+Edition des liens
+-----------------
+  Déboguage :
+    Cocher Eliminer les symboles de l'exécutable
+    Décocher Afficher les numéros de ligne dans les traçages d'erreur d'exécution (-gl)
+  Style de lien :
+    Lien intelligent (-XX)

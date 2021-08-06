@@ -8,11 +8,7 @@
 
 <h1>Langage</h1>
 <h2>Variables<a name="variables"></a></h2>
-<p>Les variables commence toujours par $. Il n'y a pas constantes, tout est variable. 
-  Ainsi, TRUE ou FALSE s'&eacute;crivent $true (ou $TRUE=1) et $false (ou $FALSE=0), 
-  ce sont simplement des variables pr&eacute;d&eacute;finies (comme $version et 
-  $coreversion, réspectivement la version de OpenAutoKey et la version du coeur 
-  du langage). Toutefois, elle ne sont pas modifiable.<br>
+<p>Les variables commence toujours par $.
   Si vous mettez deux $ (exemple $$var) c'est le r&eacute;sultat ou la variable 
   contenu dans $var qui sera affect&eacute;e. Le nom de la variable peut &ecirc;tre 
   ou nom pr&eacute;c&eacute;d&eacute; du $, c'est &agrave; dire que $var=mavariable 
@@ -28,12 +24,22 @@
   Vous pouvez notez les chiffres en hexad&eacute;cimal comme ceci 0x1234.</p>
 <p>Les variables ne sont pas interpr&eacute;t&eacute;e dans les chaines de caract&egrave;res. 
   Ainsi, "$truc" donne "$truc" et non pas la valeur de la variable $truc</p>
-<p>La variable $_VERSION d&eacute;finit la version de Simple Web Script.<br>
-  La variable $_LINE d&eacute;finit le num&eacute;ro de ligne courante. <br>
-  La variable $_SCRIPTNAME d&eacute;finit le script actuellement execut&eacute;</p>
 <p>Les chaine supportent \n (retour &agrave; la ligne) \r (retour debut ligne) 
   \0 (valeur nul) \t (tabulation).</p>
 
+<h2>Constantes<a name="constante"></a></h2>  
+<p>Les constantes commence par un dièse (#). Comme les variables elle ne peuvent pas commancer
+par un chiffre.<br />
+Pour définir une constante utiliser define(). Pour savoir si on constante est définie utiliser defined().<br />
+3 constantes sont pr&eacute;-d&eacute;finie:<br /> 
+<ul>
+  <li>#_line : ligne courrant</li>
+  <li>#_version : version de SimpleWebScript</li>
+  <li>#_scriptname : nom du script en cours d'&eacute;x&eacute;cution.</li>
+</ul>
+<br />
+true et false sont des constantes ne nécessitant un dièse (#) devant.</p>
+  
 <h2>Saut GOTO<a name="goto"></a></h2>
 <p>On peut si on le souhaite sauter un endroit du programme avec l'instruction 
   GOTO (ou goto). Exemple :<br>
@@ -51,47 +57,44 @@ OpenAutoKey est dot&eacute; de boucle de contr&ocirc;le.
 <h3>WHILE</h3>
 <p>C'est instruction ce lit TANT QUE vrai FAIRE<br>
   La fin du WHILE est marqu&eacute; par ENDWHILE.<br />
-  WHILE $a = $true<br>
+  WHILE $a = $true DO<br>
   Instruction<br>
-  ENDWHILE</p>
+  ENDWHILE ;</p>
 
   <h3>REPEAT</h3>
 
 <p>Le REPEAT se traduit par faire jusqu'&agrave;<br>
   REPEAT<br>
   Instruction<br>
-  UNTIL vrai</p>
+  UNTIL vrai ;</p>
 <h3>FOR</h3>
-<p>FOR $var = startvalue to endvalue step incrementvalue<br>
+<p>FOR $var = startvalue TO endvalue STEP incrementvalue DO<br>
   Instruction<br>
-  ENDFOR </p>
+  ENDFOR ;</p>
 <h3>BREAK</h3>
 <p>Quitte un boucle FOR, REPEAT, WHILE</p>
 
 <h2>SWITCH<a name="switch"></a></h2>
 <p>Vous pouvez utiliser les switchs de la mani&egrave;re suivante :</p>
-<p>SWITCH $var<br>
+<p>SWITCH $var DO<br>
   CASE &quot;value1&quot;, &quot;value2&quot; :<br>
   Instruction1<br>
   break<br>
-  DEFAULT<br>
+  DEFAULT :<br>
   Default instruction<br>
-  ENDSWITCH </p>
+  ENDSWITCH ;</p>
 <h2>Condition IF/ELSE<a name="condition"></a></h2>
 <p>Le IF est tr&egrave;s simple.</p>
-<p>IF $a = 'c' and $a&lt;&gt;'g' or $a&gt;'t' xor $a&lt;='g'<br>
+<p>IF $a = 'c' and $a&lt;&gt;'g' or $a&gt;'t' xor $a&lt;='g' THEN<br>
   Instruction<br>
-  ELSEIF $a = 'ccc'<br>
+  ELSEIF $a = 'ccc' THEN<br>
   Instruction <br>
   ELSE<br>
   Instruction<br>
-  ENDIF</p>
-<p>ATTENTION ! Le IF est sur une ligne seulement.</p>
+  ENDIF ;</p>
 <h2> Commentaires<a name="commentaire"></a></h2>
-<p>Les commentaires d&eacute;butent pas le caract&egrave;re di&egrave;se (#) ou 
-  //. Ils peuvent &ecirc;tre sur la m&ecirc;me ligne qu'une instruction.<br>
-  Vous pouvez utiliser les /* */ ou (* *) pour un commentaire multi-ligne mais 
-  impossible d'avoir sur la m&ecirc;me ligne qu'une instruction.</p>
+<p>Les commentaires d&eacute;butent par //, ils peuvent &ecirc;tre sur la m&ecirc;me ligne qu'une instruction.<br>
+  Vous pouvez utiliser les /* */ pour un commentaire multi-ligne, ils peuvent &ecirc;tre sur la m&ecirc;me ligne qu'une instruction.</p>
 <h2>Inclusion dans des pages xHTML<a name="inclusion"></a></h2>
 <p>Pour inclure du code SWS dans une page xHTML, il suffit de mettre le code entre 
   &lt;@ et @&gt;. Exemple :</p>
@@ -100,8 +103,9 @@ OpenAutoKey est dot&eacute; de boucle de contr&ocirc;le.
   &lt;@ echo 'hello world!' @&gt;<br>
   &lt;/body&gt;<br>
   &lt;/html&gt; </p>
-<h2>Arr&ecirc;ter le programme avec EXIT<a name="exit"></a></h2>
-<p>Pour terminer le programme ou une fonction utiliser l'instruction EXIT.</p>
+<h2>Arr&ecirc;ter le programme avec EXIT ou DIE<a name="exit"></a></h2>
+<p>Pour terminer le programme ou une fonction utiliser l'instruction EXIT.<br />
+   Vous utiliser aussi utiliser la commande DIE pour arrêter le script, en passant en paramètre le message à afficher.</p>
 <h2>Op&eacute;rateurs<a name="operators"></a></h2>
 <p>Voici la liste des op&eacute;rateurs class&eacute;s par ordre de priorit&eacute;.
   N'oubliez pas que les chaines lignes de code sont lu de gauche &agrave; droite.</p>
@@ -109,8 +113,8 @@ OpenAutoKey est dot&eacute; de boucle de contr&ocirc;le.
   <tr>
     <td>in</td>
     <td>&quot;texte&quot; in [&quot;chaine de comparaison 1&quot;, &quot;chaine 
-      de comparaison 2&quot;]. Le premier &eacute;l&eacute;ment est 1. Si pas 
-      d'&eacute;l&eacute;ment trouv&eacute;, la valeur false est renvoy&eacute;.</td>
+      de comparaison 2&quot;]. Le premier &eacute;l&eacute;ment est 0. Si pas 
+      d'&eacute;l&eacute;ment trouv&eacute;, la valeur -1 est renvoy&eacute;.</td>
   </tr>
   <tr> 
     <td>~</td>
@@ -228,9 +232,9 @@ OpenAutoKey est dot&eacute; de boucle de contr&ocirc;le.
 <p>Pour terminer le programme ou une fonction, utiliser le mot clef exit.</p>
 <h2>Tableau<a name="array"></a></h2>
 <p>Vous pouvez utiliser les tableaux (et tableaux multidimensionnel).<br>
-  Pour initialiser un tableau utiliser $montableau[1] = &quot;Ma premi&egrave;re 
+  Pour initialiser un tableau utiliser $montableau[0] = &quot;Ma premi&egrave;re 
   valeur&quot; ou $montableau = array(&quot;Ma premi&egrave;re valeur&quot;)<br>
-  Le premier &eacute;l&eacute;ment du tableau est 1 et non 0</p>
+  Le premier &eacute;l&eacute;ment du tableau est 0</p>
 <h2>Chaine de caract&egrave;res<a name="string"></a></h2>
 <p>Pour utiliser les chaines, d&eacute;limitez les avec &quot; ou '.</p>
 <h2>Mots r&eacute;serv&eacute;s<a name="reservedword"></a></h2>
@@ -272,8 +276,16 @@ OpenAutoKey est dot&eacute; de boucle de contr&ocirc;le.
 <h2>chr<a name="chr"></a></h2>
 <p>$var=chr(45) Renvoie le caract&egrave;re correspondant au nombre pass&eacute; 
   en param&egrave;tre.</p>
+
 <h2>count<a name="count"></a></h2>
 <p>$var=count(array()) retourne le nombre d'&eacute;l&eacute;ment d'un tableau.</p>
+
+<h2>define<a name="define"></a></h2>
+<p>define("ma_constante", "valeur") : d&eacute;finie une constante.</p>
+
+<h2>defined<a name="defined"></a></h2>
+<p>defined("ma_constante") : retour true si la constante est d&eacute;finie.</p>
+
 <h2>eval<a name="eval"></a></h2>
 <p>$resultfunction=eval(<i>string or array</i>) ex&eacute;cute la/les commandes 
   pass&eacute;e(s) en param&egrave;tre. Retourn false s'il y a eu une erreur, 
@@ -328,9 +340,9 @@ charg&eacute;e.
 <p>$len=LENGHT($variable/chaine de caract&egrave;re) : retourne la longueur de 
   la chaine de caract&egrave;re ou de la variable</p>
 <h2>ord<a name="ord"></a></h2>
-<p>$var=chr(&quot;e&quot;)<br>
+<p>$var=ord(&quot;e&quot;)<br>
   or<br>
-  $var=chr(&quot;etrer&quot;) Renvoie la valeur ascii du/des caract&egrave;res.</p>
+  $var=ord(&quot;etrer&quot;) Renvoie la valeur ascii du/des caract&egrave;res.</p>
 <p>&nbsp;</p>
 </body>
 </html>

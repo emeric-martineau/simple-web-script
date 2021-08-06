@@ -1,4 +1,4 @@
-unit UnitDirectory;
+unit Constantes;
 {*******************************************************************************
  * Copyright (C) 2007 MARTINEAU Emeric (php4php@free.fr)
  *
@@ -17,11 +17,7 @@ unit UnitDirectory;
  * this program; if not, write to the Free Software Foundation, Inc., 59 Temple
  * Place, Suite 330, Boston, MA 02111-1307 USA
  *
- *******************************************************************************
- * Containt directory function
  ******************************************************************************}
-
-interface
 
 {$I config.inc}
 
@@ -29,12 +25,15 @@ interface
     {$mode objfpc}{$H+}
 {$ENDIF}
 
-uses SysUtils ;
+interface
+
+uses
+  Classes, SysUtils, DoubleStrings;
+
+var
+    goConstantes : TDoubleStrings ;
 
 implementation
 
-uses Functions,
-     UnitOs;
-
-
 end.
+

@@ -25,335 +25,411 @@ interface
 
 {$I config.inc}
 
+{$IFDEF FPC}
+    {$mode objfpc}{$H+}
+{$ENDIF}
+
 uses SysUtils, classes ;
 
 type
   TVariables = class
   private
-      VarName : TStringList ;
-      VarValue: TStringList ;
+      poVarName : TStringList ;
+      poVarValue: TStringList ;
   protected
-      function getValueOfArray(Text : String; Index : Integer) : string ;  
-      procedure setValueOfArray(NameOfVar : String; Value : String; Index : Integer) ;
-      function InternalGive(NameOfVar : String) : String ;
-      procedure InternalAdd(NameOfVar, Value : String) ;
-      procedure internalExplodeNumber(Text : String; Liste : TStringList) ;
-      function InternalCreateArray(Liste : TStringList) : String ;
-      procedure QuickSort(Tab : TStringList) ;
-      procedure QuickRSort(Tab : TStringList) ;
+      function GetValueOfArray(asText : String; aiIndex : Integer) : string ;
+      procedure SetValueOfArray(asNameOfVar : String; asValue : String; aiIndex : Integer) ;
+      function InternalGive(asNameOfVar : String) : String ;
+      procedure InternalAdd(asNameOfVar, Value : String) ;
+      procedure internalExplodeNumber(asText : String; aoListe : TStringList) ;
+      function InternalCreateArray(aoListe : TStringList) : String ;
+      procedure QuickSort(aoTab : TStringList) ;
+      procedure QuickRSort(aoTab : TStringList) ;
   public
       constructor Create ;
       destructor Free ;
-      procedure Add(NameOfVar : string; ValueOfVar : string) ;
-      function Give(NameOfVar : string) : string;
-      function GiveVarNameByIndex(Index : Integer) : string ;
-      procedure Delete(NameOfVar : String) ;
+      procedure Add(asNameOfVar : string; asValueOfVar : string) ;
+      function Give(asNameOfVar : string) : string;
+      procedure Delete(asNameOfVar : String) ;
       function Count : integer ;
       procedure Clear ;
-      function isSet(NameOfVar : string) : boolean ;
-      function isArray(NameOfVar : string) : boolean ;
-      function length(NameOfVar : string) : Integer ;
-      function AddSlashes(text : string) : string ;
-      function DeleteSlashes(text : string) : string ;
-      procedure Push(NameOfVar : String; Value : String) ;
-      function Insert(NameOfVar : String; Index : Integer; Value : String) : Boolean ;
-      function Pop(NameOfVar : String) : string ;
-      function Exchange(NameOfVar : String; Index1, Index2 : Integer) : Boolean ;
-      function Chunk(NameOfVar : String; Size : Integer) : boolean ;
-      function Merge(NameOfVars : TStringList) : string ;
-      function CreateArray(Value : TStringList) : string ;
-      function ArrayFill(NameOfVar : String; Value : String) : boolean ;
-      function arraySort(var Tableau : String) : boolean ;
-      function arraySearch(Tableau : string; ChaineARechercher : String; CaseSensitive : Boolean) : Integer ;
-      function arrayRSort(var Tableau : String) : boolean ;      
+      function IsSet(asNameOfVar : string) : boolean ;
+      function IsArray(asNameOfVar : string) : boolean ;
+      function Length(asNameOfVar : string) : Integer ;
+      function AddSlashes(asText : string) : string ;
+      function DeleteSlashes(asText : string) : string ;
+      procedure Push(asNameOfVar : String; asValue : String) ;
+      function Insert(asNameOfVar : String; aiIndex : Integer; asValue : String) : Boolean ;
+      function Pop(asNameOfVar : String) : string ;
+      function Exchange(asNameOfVar : String; aiIndex1, aiIndex2 : Integer) : Boolean ;
+      function Chunk(asNameOfVar : String; aiSize : Integer) : boolean ;
+      function Merge(aoNameOfVars : TStringList) : string ;
+      function CreateArray(aoValue : TStringList) : string ;
+      function ArrayFill(asNameOfVar : String; asValue : String) : boolean ;
+      function ArraySort(var asTableau : String) : boolean ;
+      function ArraySearch(asTableau : string; asChaineARechercher : String; abCaseSensitive : Boolean) : Integer ;
+      function ArrayRSort(var asTableau : String) : boolean ;
+      function GiveVarNameByIndex(aiIndex : Integer) : string ;
       // Public uniquement pour utilisation avec les fonctions qui ne parse pas
       // automatiquement
-      function InternalisArray(value : String) : boolean ;
-      procedure explode(var Liste : TStringList; Tab : String) ;
-      function InternalLength(value : string) : integer ;      
+      function InternalIsArray(asValue : String) : boolean ;
+      procedure Explode(var aoListe : TStringList; asTab : String) ;
+      function InternalLength(asValue : string) : integer ;
   end ;
 
-Var Variables : TVariables ;
+Var goVariables : TVariables ;
   
 implementation
 
-{******************************************************************************
+{*****************************************************************************
+ * Create
+ * MARTINEAU Emeric
+ *
  * Consructeur
- ******************************************************************************}
+ *****************************************************************************}
 constructor TVariables.Create ;
 begin
     inherited Create();
 
-    { Créer l'objet FileName }
-    VarName := TStringList.Create ;
-    VarValue := TStringList.Create ;
+    poVarName := TStringList.Create ;
+    poVarValue := TStringList.Create ;
 end ;
 
-{******************************************************************************
+{*****************************************************************************
+ * Free
+ * MARTINEAU Emeric
+ *
  * Destructeur
- ******************************************************************************}
+ *****************************************************************************}
 destructor TVariables.Free ;
 begin
-    VarName.Free ;
-    VarValue.Free ;
+    poVarName.Free ;
+    poVarValue.Free ;
 end ;
 
-{******************************************************************************
- * Ajouter une variable
- ******************************************************************************}
-procedure TVariables.Add(NameOfVar : string; ValueOfVar : string) ;
-Var Index, Index2 : Integer ;
-    tmp : string ;
-    posTabStart : Integer ;
-    len : Integer ;
-    i : Integer ;
-    Tab : TStringList ;
-    Tableau : TStringList ;
+{*****************************************************************************
+ * Add
+ * MARTINEAU Emeric
+ *
+ * Ajoute une variable
+ *
+ * Paramètres d'entrée :
+ *   - asNameOfVar : nom de la variable,
+ *   - asValueOfVar : valeur de la variable
+ *
+ *****************************************************************************}
+procedure TVariables.Add(asNameOfVar : string; asValueOfVar : string) ;
+Var
+    { Index de la variable dans la liste }
+    liIndexVar : Integer ;
+    { Index du caractère à copier si la variable est une chaine }
+    liIndexOfChar : Integer ;
+    { Variable temporaire }
+    lsTmp : string ;
+    { position du crochet ouvrant }
+    liPosTabStart : Integer ;
+    { Longueur de la variable si c'est une chaine }
+    liLengthOfNameOfVar : Integer ;
+    { Compteur de tableau }
+    liIndexTab : Integer ;
+    { Reçoit le tableau d'index venant de la variable }
+    loTabIndex : TStringList ;
+    { Contient le tableau en cours de traitement}
+    loTableau : TStringList ;
 begin
-    posTabStart := pos('[', NameOfVar) ;
-    Tab := TStringList.Create ;
+    liPosTabStart := pos('[', asNameOfVar) ;
+    loTabIndex := TStringList.Create ;
 
-    tmp := '0' ;
+    lsTmp := '0' ;
     
-    if posTabStart <> 0
+    if liPosTabStart <> 0
     then begin
-        len := System.length(NameOfVar) ;
-        tmp := copy(NameOfVar, posTabStart, len - posTabStart + 1) ;
+        liLengthOfNameOfVar := System.length(asNameOfVar) ;
+        lsTmp := copy(asNameOfVar, liPosTabStart, liLengthOfNameOfVar - liPosTabStart + 1) ;
 
-        internalExplodeNumber(tmp, Tab) ;
+        internalExplodeNumber(lsTmp, loTabIndex) ;
 
-        NameOfVar := copy(NameOfVar, 1, posTabStart - 1) ;
+        asNameOfVar := copy(asNameOfVar, 1, liPosTabStart - 1) ;
     end ;
 
-    if posTabStart = 0
-    then
-        InternalAdd(NameOfVar, ValueOfVar)
-    else if (not isArray(NameOfVar)) and (isSet(NameOfVar))
+    if liPosTabStart = 0
     then begin
-        Index := VarName.IndexOf(NameOfVar) ;
+        InternalAdd(asNameOfVar, asValueOfVar) ;
+    end
+    else if (not isArray(asNameOfVar)) and (isSet(asNameOfVar))
+    then begin
+        liIndexVar := poVarName.IndexOf(asNameOfVar) ;
         
         { La variable n'est pas un tableau mais une chaine }
-        if posTabStart <> 0
+        if liPosTabStart <> 0
         then begin
-            if Tab.Count = 1
+            if loTabIndex.Count = 1
             then begin
-                { On copie seulement le premier caractère }
-                Index2 := StrToInt(Tab[0]) ;
+                { On copie seulement le caractère }
+                liIndexOfChar := StrToInt(loTabIndex[0]) ;
 
-                tmp := VarValue[Index] ;
+                lsTmp := poVarValue[liIndexVar] ;
 
-                if Index2 <= System.Length(tmp)
+                if liIndexOfChar < System.Length(lsTmp)
                 then begin
-                    tmp[Index2] := ValueOfVar[1] ;
-                    VarValue[Index] := tmp ;
+                    { +1 car en pascal sur les chaines commence à 1 }
+                    lsTmp[liIndexOfChar + 1] := asValueOfVar[1] ;
+                    poVarValue[liIndexVar] := lsTmp ;
                 end ;
             end ;
         end
         else begin
-            VarValue[Index] := ValueOfVar ;
+            poVarValue[liIndexVar] := asValueOfVar ;
         end ;
     end
     else begin
         { C'est un tableau }
 
-        if Tab.Count = 1
+        if loTabIndex.Count = 1
         then begin
-            setValueOfArray(NameOfVar, ValueOfVar, StrToInt(Tab[0]))
+            setValueOfArray(asNameOfVar, asValueOfVar, StrToInt(loTabIndex[0]))
         end
         else begin
-            Tableau := TStringList.Create ;
-            Tableau.Add(Give(NameOfVar)) ;
+            loTableau := TStringList.Create ;
+            loTableau.Add(Give(asNameOfVar)) ;
 
-            tmp := '' ;
+            lsTmp := '' ;
                         
-            for i := 1 to Tab.Count - 1 do
+            for liIndexTab := 1 to loTabIndex.Count - 1 do
             begin
-                tmp := tmp + '[' + Tab[i - 1] + ']' ;
-                Tableau.Add(Give(NameOfVar + tmp)) ;
+                lsTmp := lsTmp + '[' + loTabIndex[liIndexTab - 1] + ']' ;
+                loTableau.Add(Give(asNameOfVar + lsTmp)) ;
             end ;
 
             { L'avant dernier tableau est-il un tableau }
-            if InternalisArray(Tableau[Tableau.Count - 1])
+            if InternalisArray(loTableau[loTableau.Count - 1])
             then begin
-                { Si c'est un tableu, le dernier élément de Tableau c'est le
+                { Si c'est un tableau, le dernier élément de Tableau c'est le
                   tableau dans lequel on doit affecter la variable. Or si ce
                   n'est pas un tableau, il contient la chaine à modifier.
                   On ajoute dans la valeur à mettre à jour }
-                Tableau.Add(ValueOfVar) ;
+                loTableau.Add(asValueOfVar) ;
             end
             else begin
-                tmp := Tableau[Tableau.Count - 1] ;
-                tmp[StrToInt(Tab[Tab.Count - 1])] := ValueOfVar[1] ;
-                Tableau[Tableau.Count - 1] := tmp ;
+                lsTmp := loTableau[loTableau.Count - 1] ;
+                lsTmp[StrToInt(loTabIndex[loTabIndex.Count - 1])] := asValueOfVar[1] ;
+                loTableau[loTableau.Count - 1] := lsTmp ;
             end ;
 
             { Tableau.Count - 1 contient la donnée qui va mettre à jour le
               tableau }
-            for i := Tableau.Count - 2 downto 0 do
+            for liIndexTab := loTableau.Count - 2 downto 0 do
             begin
-                add(NameOfVar, Tableau[i]) ;
+                add(asNameOfVar, loTableau[liIndexTab]) ;
 
-                setValueOfArray(NameOfVar, Tableau[i + 1], StrToInt(Tab[i])) ;
+                setValueOfArray(asNameOfVar, loTableau[liIndexTab + 1], StrToInt(loTabIndex[liIndexTab])) ;
 
-                Tableau[i] := InternalGive(NameOfVar) ;
+                loTableau[liIndexTab] := InternalGive(asNameOfVar) ;
             end ;
 
-            Tableau.Free ;
+            loTableau.Free ;
         end ;
     end ;
 
-    Tab.Free ;
+    loTabIndex.Free ;
 end ;
 
-{******************************************************************************
+{*****************************************************************************
+ * Delete
+ * MARTINEAU Emeric
+ *
  * Supprimer l'entrée correspondant dans le tableau.
- ******************************************************************************}
-procedure TVariables.Delete(NameOfVar : String) ;
-Var Index : Integer ;
-    len : Integer ;
-    tmp : String ;
-    Liste : TStringList ;
-    i : Integer ;
-    posTabStart : Integer ;
-    Tableau, Tab : TStringList ;
+ *
+ * Paramètres d'entrée :
+ *   - asNameOfVar : nom de la variable,
+ *
+ *****************************************************************************}
+procedure TVariables.Delete(asNameOfVar : String) ;
+Var
+    { Position de la variable dans la liste de variables }
+    liIndexOfVar : Integer ;
+    { Longueur de la variable }
+    liLength : Integer ;
+    { Variable temporaire }
+    lsTmp : String ;
+    { Index du tableau à supprimer }
+    liIndexTabToDelete : Integer ;
+    { Lise des éléments de la variable si c'est un taleau}
+    loTableau : TStringList ;
+    { Compteur de liste tableau }
+    liIndexListeTableau : Integer ;
+    { Compteur de loTableauIndex }
+    liIndexTab : Integer;
+    { Position du crochet ouvrant }
+    liPosTabStart : Integer ;
+    { Contient la liste des variables tableau à lire $truc[0] + $truc[0][1] }
+    loListeTableau : TStringList ;
+    { Contient la liste des index de la variable si c'est un tableau }
+    loIndexTab : TStringList ;
 begin
-    posTabStart := pos('[', NameOfVar) ;
+    liPosTabStart := pos('[', asNameOfVar) ;
 
-    tmp := '0' ;
+    lsTmp := '0' ;
 
-    if posTabStart = 0
+    if liPosTabStart = 0
     then begin
-        Index := VarName.IndexOf(NameOfVar) ;
+        liIndexOfVar := poVarName.IndexOf(asNameOfVar) ;
 
-        if (Index <> -1)
+        if (liIndexOfVar <> -1)
         then begin
-            VarName.Delete(Index) ;
-            VarValue.Delete(Index) ;
+            poVarName.Delete(liIndexOfVar) ;
+            poVarValue.Delete(liIndexOfVar) ;
         end ;
     end
     else begin
-            Tab := TStringList.Create ;
-            Liste := TStringList.Create ;
+        loIndexTab := TStringList.Create ;
+        loTableau := TStringList.Create ;
 
-            if posTabStart <> 0
+        if liPosTabStart <> 0
+        then begin
+            liLength := System.length(asNameOfVar) ;
+            lsTmp := copy(asNameOfVar, liPosTabStart, liLength - liPosTabStart + 1) ;
+
+            internalExplodeNumber(lsTmp, loIndexTab) ;
+
+            asNameOfVar := copy(asNameOfVar, 1, liPosTabStart - 1) ;
+        end ;
+
+        loListeTableau := TStringList.Create ;
+
+        loListeTableau.Add(Give(asNameOfVar)) ;
+
+        lsTmp := '' ;
+                    
+        for liIndexTab := 1 to loIndexTab.Count - 1 do
+        begin
+            lsTmp := lsTmp + '[' + loIndexTab[liIndexTab - 1] + ']' ;
+            loListeTableau.Add(Give(asNameOfVar + lsTmp)) ;
+        end ;
+
+        { L'avant dernier tableau est-il un tableau }
+        if InternalisArray(loListeTableau[loListeTableau.Count - 1])
+        then begin
+            // On ne fait rien
+        end
+        else begin
+            { On pointe sur le contenu d'une chaine on supprime dons le
+              niveau inférieur }
+            loListeTableau.Delete(loListeTableau.Count - 1) ;
+        end ;
+
+        { Tableau.Count - 1 contient la donnée qui va mettre à jour le
+          tableau }
+        for liIndexListeTableau := loListeTableau.Count - 1 downto 0 do
+        begin
+            add(asNameOfVar, loListeTableau[liIndexListeTableau]) ;
+
+            if liIndexListeTableau = (loListeTableau.Count - 1)
             then begin
-                len := System.length(NameOfVar) ;
-                tmp := copy(NameOfVar, posTabStart, len - posTabStart + 1) ;
+                Explode(loTableau, loListeTableau[liIndexListeTableau]) ;
 
-                internalExplodeNumber(tmp, Tab) ;
+                liIndexTabToDelete := StrToInt(loIndexTab[liIndexListeTableau]) ;
 
-                NameOfVar := copy(NameOfVar, 1, posTabStart - 1) ;
-            end ;
+                if (liIndexTabToDelete >= 0) and (liIndexTabToDelete <= loTableau.Count)
+                then begin
+                    loTableau.Delete(liIndexTabToDelete);
+                    
+                    lsTmp := InternalCreateArray(loTableau) ;
 
-            Tableau := TStringList.Create ;
-
-            Tableau.Add(Give(NameOfVar)) ;
-
-            tmp := '' ;
-                        
-            for i := 1 to Tab.Count - 1 do
-            begin
-                tmp := tmp + '[' + Tab[i - 1] + ']' ;
-                Tableau.Add(Give(NameOfVar + tmp)) ;
-            end ;
-
-            { L'avant dernier tableau est-il un tableau }
-            if InternalisArray(Tableau[Tableau.Count - 1])
-            then begin
-                // On ne fait rien
+                    InternalAdd(asNameOfVar, lsTmp) ;
+                end ;
             end
             else begin
-                { On pointe sur le contenu d'une chaine on supprime dons le
-                  niveau inférieur }
-                Tableau.Delete(Tableau.Count - 1) ;
+                setValueOfArray(asNameOfVar, loListeTableau[liIndexListeTableau + 1], StrToInt(loIndexTab[liIndexListeTableau])) ;
             end ;
 
-            { Tableau.Count - 1 contient la donnée qui va mettre à jour le
-              tableau }
-            for i := Tableau.Count - 1 downto 0 do
-            begin
-                add(NameOfVar, Tableau[i]) ;
+            loListeTableau[liIndexListeTableau] := InternalGive(asNameOfVar) ;
+        end ;
 
-                if i = (Tableau.Count - 1)
-                then begin
-                    Explode(Liste, Tableau[i]) ;
-
-                    if (StrToInt(Tab[i]) > 0) and (StrToInt(Tab[i]) <= Liste.Count)
-                    then begin
-
-                        tmp := InternalCreateArray(Liste) ;
-
-                        InternalAdd(NameOfVar, tmp) ;
-                    end ;
-                end
-                else begin
-                    setValueOfArray(NameOfVar, Tableau[i + 1], StrToInt(Tab[i])) ;
-                end ;
-
-                Tableau[i] := InternalGive(NameOfVar) ;
-            end ;
-
-            Tableau.Free ;
+        loListeTableau.Free ;
     end ;
 end;
 
 {******************************************************************************
- * Donne le nombre de fichiers récents
+ * Count
+ * MARTINEAU Emeric
+ *
+ * Donne le nombre de variable
  ******************************************************************************}
 function TVariables.Count : Integer ;
 begin
-    Result := VarName.Count ;
+    Result := poVarName.Count ;
 end ;
 
-{******************************************************************************
+{*****************************************************************************
+ * Give
+ * MARTINEAU Emeric
+ *
  * Donne la fichier correspondant à l'index.
- ******************************************************************************}
-function TVariables.Give(NameOfVar : string) : string ;
-Var Index, Index2 : Integer ;
-    posTabStart : Integer ;
-    len : Integer ;
-    tmp : String ;
-    Tab : TStringList ;
-    i : Integer ;
+ *
+ * Paramètres d'entrée :
+ *   - asNameOfVar : nom de la variable
+ *
+ * Retour : valeur de la variable
+ *****************************************************************************}
+function TVariables.Give(asNameOfVar : string) : string ;
+Var
+    { Index de la variable dans la liste de variable }
+    liIndexOfVar : Integer ;
+    { Index du caractère si la variable est une chaine de caractère }
+    liIndexOfChar : Integer ;
+    { Position du crochet ouvrant }
+    liPosTabStart : Integer ;
+    { Longueur de la variable si c'est une chaine de caractère }
+    liLength : Integer ;
+    { Variable temporaire }
+    lsTmp : String ;
+    { Liste des éléments de la variable si c'est un tableau }
+    loTab : TStringList ;
+    { Compteur du tableau }
+    liIndexTab : Integer ;
 begin
-    posTabStart := pos('[', NameOfVar) ;
-    Tab := TStringList.Create ;
+    liPosTabStart := pos('[', asNameOfVar) ;
+    loTab := TStringList.Create ;
 
-    tmp := '0' ;
+    lsTmp := '0' ;
 
-    if posTabStart <> 0
+    if liPosTabStart <> 0
     then begin
-        len := System.length(NameOfVar) ;
-        tmp := copy(NameOfVar, posTabStart, len - posTabStart + 1) ;
+        liLength := System.length(asNameOfVar) ;
+        lsTmp := copy(asNameOfVar, liPosTabStart, liLength - liPosTabStart + 1) ;
 
-        internalExplodeNumber(tmp, Tab) ;
+        internalExplodeNumber(lsTmp, loTab) ;
 
-        NameOfVar := copy(NameOfVar, 1, posTabStart - 1) ;
+        asNameOfVar := copy(asNameOfVar, 1, liPosTabStart - 1) ;
     end ;
 
-    if posTabStart = 0
+    if liPosTabStart = 0
     then
-        Result := InternalGive(NameOfVar)
-    else if not isArray(NameOfVar)
+        Result := InternalGive(asNameOfVar)
+    else if not isArray(asNameOfVar)
     then begin
-        Index := VarName.IndexOf(NameOfVar) ;
+        liIndexOfVar := poVarName.IndexOf(asNameOfVar) ;
 
-        if Index <> -1
+        if liIndexOfVar <> -1
         then begin
-            if posTabStart = 0
+            if liPosTabStart = 0
             then begin
-                Result := VarValue[index] ;
+                Result := poVarValue[liIndexOfVar] ;
             end
             else begin
-                Index2 := StrToInt(tab[0]) ;
-                tmp := VarValue[Index] ;
 
-                if Index2 <= System.Length(tmp)
+                liIndexOfChar := StrToInt(loTab[0]) ;
+                lsTmp := poVarValue[liIndexOfVar] ;
+
+                if liIndexOfChar < System.Length(lsTmp)
                 then begin
-                    Result := VarValue[index][Index2] ;
+                    { + 1 car en pascal les chaines commence à 1 }
+                    Result := poVarValue[liIndexOfVar][liIndexOfChar + 1] ;
                 end
-                else
+                else begin
                      Result := '' ;
+                end ;
             end ;
         end
         else
@@ -361,17 +437,18 @@ begin
     end
     else begin
         { Le premier élément est forcément un tableau }
-        tmp := InternalGive(NameOfVar) ;
-        tmp := getValueOfArray(tmp, StrToInt(Tab[0])) ;
+        lsTmp := InternalGive(asNameOfVar) ;
+        lsTmp := GetValueOfArray(lsTmp, StrToInt(loTab[0])) ;
 
-        { Parcous tout les sous tableau }
-        for i := 1 to Tab.Count - 1 do
+        { Parcours tout les sous tableau }
+        for liIndexTab := 1 to loTab.Count - 1 do
         begin
-            if InternalisArray(tmp)
-            then
-                tmp := getValueOfArray(tmp, StrToInt(Tab[i]))
+            if InternalisArray(lsTmp)
+            then begin
+                lsTmp := getValueOfArray(lsTmp, StrToInt(loTab[liIndexTab])) ;
+            end
             else begin
-                tmp := tmp[StrToInt(Tab[i])] ;
+                lsTmp := lsTmp[StrToInt(loTab[liIndexTab])] ;
 
                 { Si ce n'ai pas un tableau on doit arrêter la recherche de
                   tableau }
@@ -379,72 +456,93 @@ begin
             end ;
         end ;
 
-        Result := Tmp ;
+        Result := lsTmp ;
     end ;
 
-    Tab.Free ;
+    loTab.Free ;
 end ;
 
-{******************************************************************************
+{*****************************************************************************
+ * IsSet
+ * MARTINEAU Emeric
+ *
  * Indique si la variable existe
- ******************************************************************************}
-function TVariables.isSet(NameOfVar : string) : boolean ;
-Var Index : Integer ;
-    Liste, Tab : TStringList ;
-    posTabStart : Integer ;
-    len : Integer ;
-    tmp : String ;
-    i : Integer ;
-    Value : String ;
+ *
+ * Paramètres d'entrée :
+ *   - asNameOfVar : nom de la variable,
+ *
+ *****************************************************************************}
+function TVariables.IsSet(asNameOfVar : string) : boolean ;
+Var
+    { Position de la variable dans la liste de variable }
+    liIndexOfVar : Integer ;
+    { Elément de la variable si c'est un tableau }
+    loItemOfArray : TStringList ;
+    { Liste des index de la variable si c'est un tableau }
+    loListIndexOfArray : TStringList ;
+    { Position du crochet ouvrant }
+    liPosTabStart : Integer ;
+    { Taille du nom de la variable }
+    liLengthOfNameVar : Integer ;
+    { Variable temporaire }
+    lsTmp : String ;
+    { Index de ListIndexOfArray }
+    liIndexListIndexOfArray : Integer ;
+    { Valeur de la variable }
+    lsValueOfVar : String ;
 begin
-    posTabStart := pos('[', NameOfVar) ;
+    liPosTabStart := pos('[', asNameOfVar) ;
     Result := False ;
 
-    if posTabStart = 0
+    if liPosTabStart = 0
     then begin
-        Index := VarName.IndexOf(LowerCase(NameOfVar)) ;
+        liIndexOfVar := poVarName.IndexOf(LowerCase(asNameOfVar)) ;
             
-        if Index <> -1
-        then
-            Result := True
-        else
+        if liIndexOfVar <> -1
+        then begin
+            Result := True ;
+        end
+        else begin
             Result := False ;
+        end ;
     end
     else begin
-        len := System.length(NameOfVar) ;
-        tmp := copy(NameOfVar, posTabStart, len - posTabStart + 1) ;
+        liLengthOfNameVar := System.length(asNameOfVar) ;
+        lsTmp := copy(asNameOfVar, liPosTabStart, liLengthOfNameVar - liPosTabStart + 1) ;
 
-        NameOfVar := copy(NameOfVar, 1, posTabStart - 1) ;
+        asNameOfVar := copy(asNameOfVar, 1, liPosTabStart - 1) ;
 
-        Tab := TStringList.Create ;
-        Liste := TStringList.Create ;
+        loListIndexOfArray := TStringList.Create ;
+        loItemOfArray := TStringList.Create ;
 
-        internalExplodeNumber(tmp, Tab) ;
+        internalExplodeNumber(lsTmp, loListIndexOfArray) ;
 
-        tmp := '' ;
+        lsTmp := '' ;
 
-        for i := 0 to Tab.Count - 1 do
+        for liIndexListIndexOfArray := 0 to loListIndexOfArray.Count - 1 do
         begin
             { On récupère le contenu de la variable (la première est sans
               crochet) }
-            Value := Give(NameOfVar + tmp) ;
+            lsValueOfVar := Give(asNameOfVar + lsTmp) ;
 
-            Explode(Liste, Value) ;
+            Explode(loItemOfArray, lsValueOfVar) ;
 
-            if isArray(tmp)
+            if isArray(lsTmp)
             then begin
-                if StrToInt(Tab[i]) <= Liste.Count
-                then
-                    Result := True
+                if StrToInt(loListIndexOfArray[liIndexListIndexOfArray]) <= loItemOfArray.Count
+                then begin
+                    Result := True ;
+                end
                 else begin
                     Result := False ;
                     Break ;
                 end ;
             end
             else begin
-                if Length(NameOfVar + tmp) >= StrToInt(Tab[i])
-                then
-                    Result := True
+                if Length(asNameOfVar + lsTmp) >= StrToInt(loListIndexOfArray[liIndexListIndexOfArray])
+                then begin
+                    Result := True ;
+                end
                 else begin
                     Result := False ;
                     break ;
@@ -452,736 +550,1103 @@ begin
             end ;
 
             { Récupère le tableau suivant }
-            tmp := tmp + '[' + Tab[i] + ']' ;
+            lsTmp := lsTmp + '[' + loListIndexOfArray[liIndexListIndexOfArray] + ']' ;
         end ;
 
-        Tab.Free ;
+        loListIndexOfArray.Free ;
 
-        Liste.Free ;
+        loItemOfArray.Free ;
     end ;
 
 end ;
 
+{******************************************************************************
+ * Clear
+ * MARTINEAU Emeric
+ *
+ * Efface la liste de variable
+ ******************************************************************************}
 procedure TVariables.Clear ;
 begin
-    VarValue.Clear ;
-    VarName.Clear ;
+    poVarValue.Clear ;
+    poVarName.Clear ;
 end ;
 
-{*******************************************************************************
- * Retourne le nom de la variable par l'index
- ******************************************************************************}
-function TVariables.GiveVarNameByIndex(Index : Integer) : string ;
-begin
-    Result := '' ;
-
-    if Index <> -1
-    then begin
-        if Index < VarName.Count
-        then begin
-            Result := VarName[Index] ;
-        end
-    end
-end ;
-
-{*******************************************************************************
+{*****************************************************************************
+ * IsArray
+ * MARTINEAU Emeric
+ *
  * Indique s'il s'agit d'un tableau
- ******************************************************************************}
-function TVariables.isArray(NameOfVar : string) : boolean ;
-var value : String ;
+ *
+ * Paramètres d'entrée :
+ *   - asNameOfVar : nom de la variable,
+ *
+ * Retour : true si la variable est un tableau
+ *****************************************************************************}
+function TVariables.IsArray(asNameOfVar : string) : boolean ;
+var
+    { Valeur de la variable }
+    lsValueOfVar : String ;
 begin
     Result := False ;
 
-    if isset(NameOfVar)
+    if IsSet(asNameOfVar)
     then begin
-        if isSet(NameOfVar)
-        then begin
-            value := Give(NameOfVar) ;
-            Result := InternalisArray(value) ;
-        end ;
+        lsValueOfVar := Give(asNameOfVar) ;
+        Result := InternalIsArray(lsValueOfVar) ;
     end ;
 end ;
 
-{*******************************************************************************
+{*****************************************************************************
+ * Length
+ * MARTINEAU Emeric
+ *
  * Longueur d'une variable
- ******************************************************************************}
-function TVariables.length(NameOfVar : string) : Integer ;
+ *
+ * Paramètres d'entrée :
+ *   - asNameOfVar : nom de la variable
+ *
+ * Retour : longueur de la variable
+ *****************************************************************************}
+function TVariables.Length(asNameOfVar : string) : Integer ;
 var
-    value : String ;
+    { Valeur de la variable }
+    lsValueOfVar : String ;
 begin
-    if isSet(NameOfVar)
+    if IsSet(asNameOfVar)
     then begin
-        value := Give(NameOfVar) ;
+        lsValueOfVar := Give(asNameOfVar) ;
 
-        result := InternalLength(value) ;
+        Result := InternalLength(lsValueOfVar) ;
     end
-    else
+    else begin
         Result := 0 ;
+    end ;
 end ;
 
-{*******************************************************************************
+{*****************************************************************************
+ * InternalLength
+ * MARTINEAU Emeric
+ *
  * Longueur de la chaine ou du tableau
- ******************************************************************************}
-function TVariables.InternalLength(value : string) : integer ;
-var i : Integer ;
-    len : Integer ;
+ *
+ * Paramètres d'entrée :
+ *   - asValeur : valeur à traiter. Soit une chaine soit un tableau
+ *
+ * Retour : longueur de la valeur
+ *****************************************************************************}
+function TVariables.InternalLength(asValue : string) : integer ;
+var
+    { Compteur de boucle }
+    liIndex : Integer ;
+    { Longueur de asValue }
+    liLength : Integer ;
 begin
-    len := System.Length(value) ;
+    liLength := System.Length(asValue) ;
 
-    if InternalisArray(value)
+    if InternalisArray(asValue)
     then begin
         Result := 0 ;
-        i := 3 ;
+        liIndex := 3 ;
 
-        while i < len do
+        while liIndex < liLength do
         begin
-            if value[i] = '"'
+            if asValue[liIndex] = '"'
             then begin
-                Inc(i) ;
+                Inc(liIndex) ;
                 Inc(Result) ;
 
-                while value[i] <> '"' do
+                while asValue[liIndex] <> '"' do
                 begin
-                    if value[i] = '\'
-                    then
-                        Inc(i) ;
-                    Inc(i) ;
+                    if asValue[liIndex] = '\'
+                    then begin
+                        Inc(liIndex) ;
+                    end ;
+                    
+                    Inc(liIndex) ;
                 end ;
             end ;
 
-            Inc(i) ;
+            Inc(liIndex) ;
         end ;
     end
-    else
-        Result := Len ;
-
-end ;
-
-
-(*******************************************************************************
- * Remplit une TStringList avec un tableau a{"2222";"555"}
- ******************************************************************************)
-procedure TVariables.explode(var Liste : TStringList; Tab : String) ;
-var i, len : Integer ;
-    tmp : String ;
-begin
-    i := 3 ;
-    len := System.Length(Tab) ;
-
-    while i < len do
-    begin
-        if Tab[i] = '"'
-        then begin
-            tmp := '' ;
-            Inc(i) ;
-
-            while Tab[i] <> '"' do
-            begin
-                if Tab[i] = '\'
-                then begin
-                    tmp := tmp + Tab[i] ;
-                    Inc(i) ;
-                end ;
-                tmp := tmp + Tab[i] ;
-                Inc(i) ;
-            end ;
-
-            Liste.Add(DeleteSlashes(tmp)) ;
-        end ;
-
-        Inc(i) ;
+    else begin
+        Result := liLength ;
     end ;
 end ;
 
-{*******************************************************************************
- * Remplit un tableau depuis un index
- ******************************************************************************}
-procedure TVariables.setValueOfArray(NameOfVar : String; Value : String; Index : Integer) ;
-var tmp : string ;
-    i : Integer ;
-    len : Integer ;
-    ValueOfVar : String ;
-    ListOfArray : TStringList ;
+{*****************************************************************************
+ * Explode
+ * MARTINEAU Emeric
+ *
+ * Remplit une TStringList avec un tableau a{"2222";"555"}
+ *
+ * Paramètres d'entrée :
+ *   - aoListe : TStringList à remplir,
+ *   - asTab : tableau sous forme de chaine à traiter,
+ *
+ * Retour : nombre de bidule
+ *****************************************************************************}
+procedure TVariables.Explode(var aoListe : TStringList; asTab : String) ;
+var
+    { Compteur de boucle }
+    liIndex : Integer ;
+    { Longeur de asTab }
+    liLength : Integer ;
+    { Valeur de l'élément courant }
+    lsValueOfItem : String ;
 begin
-    ListOfArray := TStringList.Create ;
-    
-    if isArray(NameOfVar)
-    then begin
-        Len := Length(NameOfVar) ;
+    liIndex := 3 ;
+    liLength := System.Length(asTab) ;
 
-        if Index > Len
+    while liIndex < liLength do
+    begin
+        if asTab[liIndex] = '"'
         then begin
-            tmp := InternalGive(NameOfVar) ;
+            lsValueOfItem := '' ;
+            Inc(liIndex) ;
 
-            explode(ListOfArray, tmp) ;
-
-            for i := Len to Index - 2 do
+            while asTab[liIndex] <> '"' do
             begin
-                ListOfArray.Add('') ;
+                if asTab[liIndex] = '\'
+                then begin
+                    lsValueOfItem := lsValueOfItem + asTab[liIndex] ;
+                    Inc(liIndex) ;
+                end ;
+                
+                lsValueOfItem := lsValueOfItem + asTab[liIndex] ;
+                Inc(liIndex) ;
             end ;
 
-            ListOfArray.Add(Value) ;
+            aoListe.Add(DeleteSlashes(lsValueOfItem)) ;
+        end ;
 
-            tmp := InternalCreateArray(ListOfArray) ;
+        Inc(liIndex) ;
+    end ;
+end ;
 
-            InternalAdd(NameOfVar, tmp) ;
+{*****************************************************************************
+ * SetValueOfArray
+ * MARTINEAU Emeric
+ *
+ * Remplit un tableau depuis un index
+ *
+ * Paramètres d'entrée :
+ *   - asNameOfVar : nom de la variable tableau,
+ *   - asValue : valeur,
+ *   - aiIndex : index à ajouter,
+ *
+ * Retour : nombre de bidule
+ *****************************************************************************}
+procedure TVariables.SetValueOfArray(asNameOfVar : String; asValue : String; aiIndex : Integer) ;
+var
+    { Compteur de boucle }
+    liIndexBoucle : Integer ;
+    { Nouveau tableau }
+    lsNewArray : string ;
+    { Valeur de la variable }
+    lsValueOfVar : String ;
+    { Taille du tableau }
+    liCountOfArray : Integer ;
+    { Elément du tableau }
+    loListOfArray : TStringList ;
+begin
+    loListOfArray := TStringList.Create ;
+    
+    if IsArray(asNameOfVar)
+    then begin
+        liCountOfArray := Length(asNameOfVar) ;
+
+        if aiIndex > (liCountOfArray - 1)
+        then begin
+            lsValueOfVar := InternalGive(asNameOfVar) ;
+
+            explode(loListOfArray, lsValueOfVar) ;
+
+            for liIndexBoucle := liCountOfArray to aiIndex - 1 do
+            begin
+                loListOfArray.Add('') ;
+            end ;
+
+            loListOfArray.Add(asValue) ;
+
+            lsNewArray := InternalCreateArray(loListOfArray) ;
+
+            InternalAdd(asNameOfVar, lsNewArray) ;
         end
         else begin
             { Explose le tableau }
-            ValueOfVar := InternalGive(NameOfVar) ;
+            lsValueOfVar := InternalGive(asNameOfVar) ;
 
-            explode(ListOfArray, ValueOfVar) ;
+            explode(loListOfArray, lsValueOfVar) ;
 
-            ListOfArray[Index - 1] := Value ;
+            loListOfArray[aiIndex] := asValue ;
 
-            tmp := InternalCreateArray(ListOfArray) ;
+            lsNewArray := InternalCreateArray(loListOfArray) ;
 
-            InternalAdd(NameOfVar, tmp) ;
+            InternalAdd(asNameOfVar, lsNewArray) ;
         end ;
     end
     else begin
-        for i := 1 to Index - 1 do
+        for liIndexBoucle := 0 to aiIndex - 1 do
         begin
-            ListOfArray.Add('') ;
+            loListOfArray.Add('') ;
         end ;
 
-        ListOfArray.Add(Value) ;
+        loListOfArray.Add(asValue) ;
 
-        tmp := InternalCreateArray(ListOfArray) ;
+        lsNewArray := InternalCreateArray(loListOfArray) ;
 
-        InternalAdd(NameOfVar, tmp) ;
+        InternalAdd(asNameOfVar, lsNewArray) ;
     end ;
 
-    ListOfArray.Free ;
+    loListOfArray.Free ;
 end ;
 
-{*******************************************************************************
- * Remplit un tableau depuis un index
- ******************************************************************************}
-function TVariables.getValueOfArray(Text : String; Index : Integer) : string ;
-var Liste : TStringList ;
+(*****************************************************************************
+ * GetValueOfArray
+ * MARTINEAU Emeric
+ *
+ * Retour un élément d'un tableau
+ *
+ * Paramètres d'entrée :
+ *   - asText : valeur du tableau a{..}
+ *   - aiIndex : index du tableau à retourner
+ *
+ * Retour : valeur de l'élément du tableau
+ *****************************************************************************)
+function TVariables.GetValueOfArray(asText : String; aiIndex : Integer) : string ;
+var
+    { Liste contenant les éléments du tableau }
+    loListe : TStringList ;
 begin
-    Liste := TStringList.Create ;
+    loListe := TStringList.Create ;
 
-    Explode(Liste, Text) ;
+    Explode(loListe, asText) ;
 
-    if Index > Liste.Count
-    then
-        Result := ''
-    else
-        Result := Liste[Index-1] ;
-
-    Liste.Free ;
-end ;
-
-{*******************************************************************************
- * Ajoute des \ devant \ et "
- ******************************************************************************}
-function TVariables.AddSlashes(text : string) : string ;
-var i, nb : Integer ;
-begin
-    nb := System.Length(text) ;
-    Result := '' ;
-
-    for i := 1 to nb do
-    begin
-         if (Text[i] = '\') or (Text[i] = '"') or (Text[i] = '''')
-         then
-             Result := Result + '\' ;
-
-         Result := Result + Text[i] ;
-    end ;
-end ;
-
-{*******************************************************************************
- * Supprime les \
- ******************************************************************************}
-function TVariables.DeleteSlashes(text : string) : string ;
-var i, nb : Integer ;
-begin
-    nb := System.Length(text) ;
-    Result := '' ;
-
-    i := 1 ;
-    while i <= nb do
-    begin
-        if Text[i] = '\'
-        then
-            Inc(i) ;
-
-        Result := Result + Text[i] ;
-        Inc(i) ;
-    end ;
-end ;
-
-function TVariables.InternalGive(NameOfVar : String) : String ;
-var Index : Integer ;
-begin
-    Index := VarName.IndexOf(LowerCase(NameOfVar)) ;
-
-    if Index <> -1
-    then
-        Result := VarValue[Index]
-    else
-        Result := '' ;
-end ;
-
-procedure TVariables.InternalAdd(NameOfVar, Value : String) ;
-var Index : Integer ;
-begin
-    NameOfVar := LowerCase(NameOfVar) ;
-    
-    Index := VarName.IndexOf(NameOfVar) ;
-
-    if Index = - 1
+    if aiIndex > loListe.Count
     then begin
-        VarName.Add(NameOfVar) ;
-        VarValue.Add(Value) ;
+        Result := ''
     end
     else begin
-        VarValue[Index] := Value ;
+        Result := loListe[aiIndex] ;
     end ;
+
+    loListe.Free ;
 end ;
 
-{*******************************************************************************
- * Convertit une chaine "[1][1]" en liste
- ******************************************************************************}
-procedure TVariables.internalExplodeNumber(Text : String; Liste : TStringList) ;
-var i : Integer ;
-    tmp : String ;
+(*****************************************************************************
+ * AddSlashes
+ * MARTINEAU Emeric
+ *
+ * Ajoute des \ devant \ et "
+ *
+ * Paramètres d'entrée :
+ *   - asText : chaine à traiter
+ *
+ * Retour : chaine traitée
+ *****************************************************************************)
+function TVariables.AddSlashes(asText : string) : string ;
+var
+    { Compteur de boucle }
+    liIndex : Integer ;
+    { Taille de la chaine à traiter }
+    liLength : Integer ;
 begin
-    tmp := '' ;
+    liLength := System.Length(asText) ;
+    Result := '' ;
 
-    for i := 1 to System.Length(Text) do
+    for liIndex := 1 to liLength do
     begin
-        if Text[i] = ']'
-        then
-            Liste.Add(tmp)
-        else if Text[i] = '['
-        then
-            tmp := ''
-        else
-            tmp := tmp + Text[i] ;
+        if (asText[liIndex] = '\') or (asText[liIndex] = '"') or (asText[liIndex] = '''')
+        then begin
+            Result := Result + '\' ;
+        end ;
+
+         Result := Result + asText[liIndex] ;
     end ;
 end ;
 
-function TVariables.InternalisArray(value : String) : boolean ;
-Var len : Integer ;
+(*****************************************************************************
+ * DeleteSlashes
+ * MARTINEAU Emeric
+ *
+ * Supprime les \
+ *
+ * Paramètres d'entrée :
+ *   - asText : chaine à traiter
+ *
+ * Retour : chaine traitée
+ *****************************************************************************)
+function TVariables.DeleteSlashes(asText : string) : string ;
+var
+    { Compteur de boucle }
+    liIndex : Integer ;
+    { Taille de la chaine à traiter }
+    liLength : Integer ;
 begin
-    Result := False ;
+    liLength := System.Length(asText) ;
+    Result := '' ;
 
-    len := System.length(value) ;
+    liIndex := 1 ;
+    
+    while liIndex <= liLength do
+    begin
+        if asText[liIndex] = '\'
+        then begin
+            Inc(liIndex) ;
+        end ;
 
-    if len > 2
-    then
-        if (value[1] = 'a') and (value[2] = '{') and (value[len] = '}')
-        then
-            Result := True ;
+        Result := Result + asText[liIndex] ;
+        Inc(liIndex) ;
+    end ;
 end ;
 
-{*******************************************************************************
- * Ajoute un élément à la fin du tableau
- ******************************************************************************}
-procedure TVariables.Push(NameOfVar : String; Value : String) ;
-var nb : Integer ;
+{*****************************************************************************
+ * InternalGive
+ * MARTINEAU Emeric
+ *
+ * Retour la valeur brut d'une variable
+ *
+ * Paramètres d'entrée :
+ *   - asNameOfVar : nom de la bariable
+ *
+ * Retour : valeur brut de la variable
+ *****************************************************************************}
+function TVariables.InternalGive(asNameOfVar : String) : String ;
+var
+    { Position de la variable dans la liste des variables }
+    liIndex : Integer ;
 begin
-    nb := Length(NameOfVar) + 1 ;
-    Add(NameOfVar + '[' + IntToStr(nb) + ']', Value) ;
-end ;
+    liIndex := poVarName.IndexOf(LowerCase(asNameOfVar)) ;
 
-{*******************************************************************************
- * Insère un élément dans un tableau
- ******************************************************************************}
-function TVariables.Insert(NameOfVar : String; Index : Integer; Value : String) : Boolean ;
-var Liste : TStringList ;
-    tmp : String ;
-begin
-    Result := False ;
-
-    if isSet(NameOfVar) and (Index > 0)
+    if liIndex <> -1
     then begin
-        Liste := TStringList.Create ;
+        Result := poVarValue[liIndex] ;
+    end
+    else begin
+        Result := '' ;
+    end ;
+end ;
 
-        Explode(Liste, Give(NameOfVar)) ;
+{*****************************************************************************
+ * InternalAdd
+ * MARTINEAU Emeric
+ *
+ * Ajoute la valeur brut d'une variable
+ *
+ * Paramètres d'entrée :
+ *   - asNameOfVar : nom de la bariable
+ *****************************************************************************}
+procedure TVariables.InternalAdd(asNameOfVar, Value : String) ;
+var
+    { Position de la variable dans la liste des variables }
+    liIndex : Integer ;
+begin
+    asNameOfVar := LowerCase(asNameOfVar) ;
+    
+    liIndex := poVarName.IndexOf(asNameOfVar) ;
 
-        Liste.Insert(Index - 1, Value) ;
+    if liIndex = -1
+    then begin
+        poVarName.Add(asNameOfVar) ;
+        poVarValue.Add(Value) ;
+    end
+    else begin
+        poVarValue[liIndex] := Value ;
+    end ;
+end ;
 
-        tmp := InternalCreateArray(Liste) ;
+{*****************************************************************************
+ * InternalExplodeNumber
+ * MARTINEAU Emeric
+ *
+ * Convertit une chaine "[1][1]" en liste
+ *
+ * Paramètres d'entrée :
+ *   - asNameOfVar : nom de la bariable
+ *
+ * Paramètre de sortie :
+ *   - aoListe : liste contenant les nombres
+ *****************************************************************************}
+procedure TVariables.InternalExplodeNumber(asText : String; aoListe : TStringList) ;
+var
+    { Compteur de chaine }
+    liIndex : Integer ;
+    { Variable temporaire recevant les nombres entre crochet }
+    lsTmp : String ;
+begin
+    lsTmp := '' ;
 
-        InternalAdd(NameOfVar, tmp) ;
+    for liIndex := 1 to System.Length(asText) do
+    begin
+        if asText[liIndex] = ']'
+        then begin
+            aoListe.Add(lsTmp) ;
+        end
+        else if asText[liIndex] = '['
+        then begin
+            lsTmp := '' ;
+        end
+        else begin
+            lsTmp := lsTmp + asText[liIndex] ;
+        end ;
+    end ;
+end ;
 
-        Liste.Free ;
+{*****************************************************************************
+ * InternalIsArray
+ * MARTINEAU Emeric
+ *
+ * Indique s'il s'agit d'un tableau
+ *
+ * Paramètres d'entrée :
+ *   - asValue : valeur à regarder
+ *
+ * Retour : true si c'est un tableau
+ *****************************************************************************}
+function TVariables.InternalIsArray(asValue : String) : boolean ;
+Var
+     { Longueur de asValue }
+    liLength : Integer ;
+begin
+    Result := False ;
+
+    liLength := System.length(asValue) ;
+
+    if liLength > 2
+    then begin
+        if (asValue[1] = 'a') and (asValue[2] = '{') and (asValue[liLength] = '}')
+        then begin
+            Result := True ;
+        end ;
+    end ;
+end ;
+
+{*****************************************************************************
+ * Push
+ * MARTINEAU Emeric
+ *
+ * Ajoute un élément à la fin du tableau
+ *
+ * Paramètres d'entrée :
+ *   - asNameOfVar : nom de la bariable
+ *   - asValue : valeur du tableau
+ *
+ *****************************************************************************}
+procedure TVariables.Push(asNameOfVar : String; asValue : String) ;
+var
+    { Nombre d'élément dans le tableau }
+    liCount : Integer ;
+begin
+    liCount := Length(asNameOfVar) + 1 ;
+    Add(asNameOfVar + '[' + IntToStr(liCount) + ']', asValue) ;
+end ;
+
+{*****************************************************************************
+ * Insert
+ * MARTINEAU Emeric
+ *
+ * Insère un élément dans un tableau
+ *
+ * Paramètres d'entrée :
+ *   - asNameOfVar : nom de la bariable
+ *   - asValue : valeur du tableau
+ *   - asIndex : position où il faut insérer l'élément
+ *
+ *****************************************************************************}
+function TVariables.Insert(asNameOfVar : String; aiIndex : Integer; asValue : String) : Boolean ;
+var
+    { Contient la liste des éléments du tableau }
+    liTableau : TStringList ;
+    { Varaible temporaire }
+    lsTmp : String ;
+begin
+    Result := False ;
+
+    if isSet(asNameOfVar) and (aiIndex > 0)
+    then begin
+        liTableau := TStringList.Create ;
+
+        Explode(liTableau, Give(asNameOfVar)) ;
+
+        liTableau.Insert(aiIndex - 1, asValue) ;
+
+        lsTmp := InternalCreateArray(liTableau) ;
+
+        InternalAdd(asNameOfVar, lsTmp) ;
+
+        liTableau.Free ;
 
         Result := True ;
     end ;
 end ;
 
-{*******************************************************************************
- * Créer un tableau
- ******************************************************************************}
-function TVariables.InternalCreateArray(Liste : TStringList) : String ;
-var i : Integer ;
+(*****************************************************************************
+ * InternalCreateArray
+ * MARTINEAU Emeric
+ *
+ * Créer un tableau a{} depuis un liste
+ *
+ * Paramètres d'entrée :
+ *   - aoList : Liste de valeur
+ *
+ * Retour : chaine représentant le tableau
+ *****************************************************************************)
+function TVariables.InternalCreateArray(aoListe : TStringList) : String ;
+var
+    { Compteur d'élément du tableau}
+    liIndex : Integer ;
 begin
     Result := 'a{' ;
 
-    for i := 1 to Liste.Count do
+    for liIndex := 1 to aoListe.Count do
     begin
-        Result := Result + '"' + AddSlashes(Liste[i - 1]) + '"' ;
+        Result := Result + '"' + AddSlashes(aoListe[liIndex - 1]) + '"' ;
 
-        if i <> Liste.Count
-        then
+        if liIndex <> aoListe.Count
+        then begin
             Result := Result + ';' ;
+        end ;
     end ;
 
     Result := Result + '}' ;
 end ;
 
-{*******************************************************************************
+(*****************************************************************************
+ * Pop
+ * MARTINEAU Emeric
+ *
  * Retourne et supprime le dernier élément d'un tableau
- ******************************************************************************}
-function TVariables.Pop(NameOfVar : String) : string ;
-var Liste : TStringList ;
-    tmp : String ;
+ *
+ * Paramètres d'entrée :
+ *   - asNameOfVar : nom du tableau à traiter
+ *
+ * Retour : valeur supprimée
+ *****************************************************************************)
+function TVariables.Pop(asNameOfVar : String) : string ;
+var
+    { Tableau à traiter }
+    loTableau : TStringList ;
+    { Variable temporaire }
+    lsTmp : String ;
 begin
     Result := '' ;
 
-    if isSet(NameOfVar)
+    if isSet(asNameOfVar)
     then begin
-        if isArray(NameOfVar)
+        if isArray(asNameOfVar)
         then begin
-            if Length(NameOfVar) > 0
+            if Length(asNameOfVar) > 0
             then begin
-                Liste := TStringList.Create ;
+                loTableau := TStringList.Create ;
 
-                Explode(Liste, Give(NameOfVar)) ;
+                Explode(loTableau, Give(asNameOfVar)) ;
 
-                Result := Liste[Liste.Count - 1] ;
+                Result := loTableau[loTableau.Count - 1] ;
 
-                Liste.Delete(Liste.Count - 1) ;
+                loTableau.Delete(loTableau.Count - 1) ;
 
-                tmp := InternalCreateArray(Liste) ;
+                lsTmp := InternalCreateArray(loTableau) ;
 
-                InternalAdd(NameOfVar, tmp) ;
+                InternalAdd(asNameOfVar, lsTmp) ;
                 
-                Liste.Free ;
+                loTableau.Free ;
             end ;
         end ;
     end ;
 end ;
 
-{*******************************************************************************
- * Insère un élément dans un tableau
- ******************************************************************************}
-function TVariables.Exchange(NameOfVar : String; Index1, Index2 : Integer) : Boolean ;
-var Liste : TStringList ;
-    tmp : String ;
-    nb : Integer ;
+(*****************************************************************************
+ * Exchange
+ * MARTINEAU Emeric
+ *
+ * Echange deux éléments d'un tableau
+ *
+ * Paramètres d'entrée :
+ *   - asNameOfVar : nom du tableau à traiter
+ *
+ * Retour : true si traitée
+ *****************************************************************************)
+function TVariables.Exchange(asNameOfVar : String; aiIndex1, aiIndex2 : Integer) : Boolean ;
+var
+    { Tableau à traiter }
+    loTableau : TStringList ;
+    { Varaible temporaire }
+    lsTmp : String ;
 begin
     Result := False ;
 
-    if isSet(NameOfVar) and (Index1 >= 0) and (Index2 >= 0)
+    if IsSet(asNameOfVar) and (aiIndex1 >= 0) and (aiIndex2 >= 0)
     then begin
-        if isArray(NameOfVar)
+        if IsArray(asNameOfVar)
         then begin
-            nb := Length(NameOfVar) ;
-            if  (nb > 0) and (Index1 < Nb) and (Index2 < Nb)
+            loTableau := TStringList.Create ;
+
+            Explode(loTableau, Give(asNameOfVar)) ;
+            
+            if  (loTableau.Count > 0) and (aiIndex1 < loTableau.Count) and (aiIndex2 < loTableau.Count)
             then begin
-                Liste := TStringList.Create ;
+                loTableau.Exchange(aiIndex1, aiIndex2) ;
 
-                Explode(Liste, Give(NameOfVar)) ;
+                lsTmp := InternalCreateArray(loTableau) ;
 
-                Liste.Exchange(Index1, Index2) ;
-
-                tmp := InternalCreateArray(Liste) ;
-
-                InternalAdd(NameOfVar, tmp) ;
-
-                Liste.Free ;
+                InternalAdd(asNameOfVar, lsTmp) ;
 
                 Result := True ;
             end ;
+            
+            loTableau.Free ;
         end ;
     end ;
 end ;
 
-{*******************************************************************************
+(*****************************************************************************
+ * Chunk
+ * MARTINEAU Emeric
+ *
  * Split un tableau en plusieurs tableau
- ******************************************************************************}
-function TVariables.Chunk(NameOfVar : String; Size : Integer) : boolean ;
-var Liste : TStringList ;
-    Tableau : TStringList ;
-    i : Integer ;
-    tmp : String ;
-    nbTab : Integer ;
+ *
+ * Paramètres d'entrée :
+ *   - asNameOfVar : nom du tableau à traiter,
+ *   - aiSize : taille d'élément maximum
+ *
+ * Retour : true si traitée
+ *****************************************************************************)
+function TVariables.Chunk(asNameOfVar : String; aiSize : Integer) : boolean ;
+var
+    { Tableau à traiter }
+    loTableauATraiter : TStringList ;
+    { Nouveau tableau }
+    loNouveauTableau : TStringList ;
+    { Index du tableau à traiter }
+    liIndexTableauATraiter : Integer ;
+    { Valeur du nouveau tableau }
+    lsNouveauTableau : String ;
+    { Nombre de tableau créé }
+    liNbTab : Integer ;
 begin
     Result := False ;
 
-    if isSet(NameOfVar) and (Size > 0)
+    if isSet(asNameOfVar) and (aiSize > 0)
     then begin
-        if isArray(NameOfVar)
+        if isArray(asNameOfVar)
         then begin
-            Liste := TStringList.Create ;
-            Tableau := TStringList.Create ;
+            loTableauATraiter := TStringList.Create ;
+            loNouveauTableau := TStringList.Create ;
 
-            Explode(Liste, Give(NameOfVar)) ;
+            Explode(loTableauATraiter, Give(asNameOfVar)) ;
 
-            nbTab := 1 ;
+            liNbTab := 1 ;
 
             { On supprime la valeur car on va la recréer ensuite }
-            Delete(NameOfVar) ;
+            Delete(asNameOfVar) ;
 
-            for i := 0 to Liste.Count - 1 do
+            for liIndexTableauATraiter := 0 to loTableauATraiter.Count - 1 do
             begin
-                Tableau.Add(Liste[i]) ;
+                loNouveauTableau.Add(loTableauATraiter[liIndexTableauATraiter]) ;
 
-                if (Tableau.Count = Size) or
-                   ((Tableau.Count < Size) and (Tableau.Count > 0) and (i = Liste.Count - 1))
+                if (loNouveauTableau.Count = aiSize) or
+                   ((loNouveauTableau.Count < aiSize) and
+                    (loNouveauTableau.Count > 0) and
+                    (liIndexTableauATraiter = loTableauATraiter.Count - 1))
                 then begin
-                    tmp := InternalCreateArray(Tableau) ;
-                    Add(NameOfVar + '[' + IntToStr(nbTab) + ']', tmp) ;
-                    Inc(nbTab) ;
-                    Tableau.Clear ;
+                    lsNouveauTableau := InternalCreateArray(loNouveauTableau) ;
+                    Add(asNameOfVar + '[' + IntToStr(liNbTab) + ']', lsNouveauTableau) ;
+                    Inc(liNbTab) ;
+                    loNouveauTableau.Clear ;
                 end ;
             end ;
 
-            Liste.Free ;
-            Tableau.Free ;
+            loTableauATraiter.Free ;
+            loNouveauTableau.Free ;
 
             Result := True ;
         end ;
     end ;
 end ;
 
-{*******************************************************************************
- * Fusion 2 tableau
- ******************************************************************************}
-function TVariables.Merge(NameOfVars : TStringList) : string ;
-var Liste : TStringList ;
-    Liste2 : TStringList ;
-    i, j : Integer ;
+(*****************************************************************************
+ * Chunk
+ * MARTINEAU Emeric
+ *
+ * Fusionne des tableau
+ *
+ * Paramètres d'entrée :
+ *   - aoNameOfVar : nom des tableau à traiter,
+ *
+ * Retour : true si traitée
+ *****************************************************************************)
+function TVariables.Merge(aoNameOfVars : TStringList) : string ;
+var
+    { Nouveau tableau }
+    loNouveauTableau : TStringList ;
+    { Tableau en cours }
+    loTableauEnCours : TStringList ;
+    { Index tableau à traiter }
+    liIndexTableauATraiter : Integer ;
+    { Index tableau en cours }
+    liIndexTableauEnCours : Integer ;
 begin
     Result := '' ;
 
-    Liste := TStringList.Create ;
-    Liste2 := TStringList.Create ;
+    loNouveauTableau := TStringList.Create ;
+    loTableauEnCours := TStringList.Create ;
 
-    for j := 0 to NameOfVars.Count - 1 do
+    for liIndexTableauATraiter := 0 to aoNameOfVars.Count - 1 do
     begin
-        Explode(Liste2, NameOfVars[j]) ;
+        Explode(loTableauEnCours, aoNameOfVars[liIndexTableauATraiter]) ;
 
-        for i := 0 to Liste2.Count - 1 do
+        for liIndexTableauEnCours := 0 to loTableauEnCours.Count - 1 do
         begin
-            Liste.Add(Liste2[i]) ;
+            loNouveauTableau.Add(loTableauEnCours[liIndexTableauEnCours]) ;
         end ;
 
-        Liste2.Clear ;
+        loTableauEnCours.Clear ;
     end ;
 
-    Result := InternalCreateArray(Liste) ;
+    Result := InternalCreateArray(loNouveauTableau) ;
 
-    Liste.Free ;
-    Liste2.Free ;
-
+    loNouveauTableau.Free ;
+    loTableauEnCours.Free ;
 end ;
 
-{*******************************************************************************
+(*****************************************************************************
+ * CreateArray
+ * MARTINEAU Emeric
+ *
  * Créer un tableau
- ******************************************************************************}
-function TVariables.CreateArray(Value : TStringList) : string ;
+ *
+ * Paramètres d'entrée :
+ *   - aoValue: valeur du tableau
+ *
+ * Retour : chaine représentant le tableau
+ *****************************************************************************)
+function TVariables.CreateArray(aoValue : TStringList) : string ;
 begin
-    Result := InternalCreateArray(Value) ;
+    Result := InternalCreateArray(aoValue) ;
 end ;
 
-{*******************************************************************************
+(*****************************************************************************
+ * ArrayFill
+ * MARTINEAU Emeric
+ *
  * Créer un tableau
- ******************************************************************************}
-function TVariables.ArrayFill(NameOfVar : String; Value : String) : boolean ;
-Var nb : Integer ;
-    i  : Integer ;
+ *
+ * Paramètres d'entrée :
+ *   - aoValue: valeur de remplissage
+ *   - asNameOfVar : nom de la variable tableau
+ *
+ * Retour : true si tableau traité
+ *****************************************************************************)
+function TVariables.ArrayFill(asNameOfVar : String; asValue : String) : boolean ;
+Var
+    { Nombre d'élément du tableau }
+    liCount : Integer ;
+    { Compteur de boucle du tableau }
+    liIndex  : Integer ;
 begin
      Result := False ;
 
-     if isArray(NameOfVar)
+     if isArray(asNameOfVar)
      then begin
-         nb := Length(NameOfVar) ;
+         liCount := Length(asNameOfVar) ;
 
-         for i := 1 to nb do
+         for liIndex := 1 to liCount do
          begin
-             Add(NameOfVar + '[' + IntToStr(i) + ']', Value) ;
+             Add(asNameOfVar + '[' + IntToStr(liIndex) + ']', asValue) ;
          end ;
 
          Result := True ;
      end ;
 end ;
 
-{*******************************************************************************
+{*****************************************************************************
  * Trie un TStringList
- * D'après http://fr.wikipedia.org/wiki/Quicksort et 
+ * MARTINEAU Emeric
+ *
+ * Trie un TStringList
+ * D'après http://fr.wikipedia.org/wiki/Quicksort et
  * http://www.dsdt.info/tipps/?id=380
- ******************************************************************************}
-procedure TVariables.QuickSort(Tab : TStringList) ;
-    procedure Quick_Sort(Tab : TStringList; iLo, iHi : Integer);
+ *
+ * Paramètres d'entrée :
+ *   - aoTab : tableau à trier
+ *
+ * Paramètre de sortie :
+ *   - aoTab : tableau trié
+ *****************************************************************************}
+procedure TVariables.QuickSort(aoTab : TStringList) ;
+    procedure Quick_Sort(aoTab : TStringList; aiLo, aiHi : Integer);
     var
-       Lo, Hi : Integer ;
-       Mid, Tmp : string;
+        { Pointeur sur le haut du tableau }
+        liLo : Integer ;
+        { Pointeur sur le bas du tableau }
+        liHi : Integer ;
+        { Valeur du milieu du tableau }
+        lsMid : string ;
+        { Varaible temporaire pour l'échange d'élément }
+        lsTmp : string;
     begin
-        Lo := iLo;
-        Hi := iHi ;
+        liLo := aiLo;
+        liHi := aiHi ;
 
-        Mid := Tab[(Lo + Hi) div 2] ;
+        lsMid := aoTab[(liLo + liHi) div 2] ;
 
         repeat
-            while Tab[Lo] < Mid do
-                Inc(Lo);
-
-            while Tab[Hi] > Mid do
-                Dec(Hi);
-
-            if Lo <= Hi then
+            while aoTab[liLo] < lsMid do
             begin
-                Tmp := Tab[Lo];
-                Tab[Lo] := Tab[Hi];
-                Tab[Hi] := Tmp;
-                Inc(Lo);
-                Dec(Hi);
+                Inc(liLo);
+            end ;
+
+            while aoTab[liHi] > lsMid do
+            begin
+                Dec(liHi);
+            end ;
+
+            if liLo <= liHi then
+            begin
+                lsTmp := aoTab[liLo];
+                aoTab[liLo] := aoTab[liHi];
+                aoTab[liHi] := lsTmp;
+                Inc(liLo);
+                Dec(liHi);
             end;
-        until Lo > Hi;
+        until liLo > liHi;
 
-        if Hi > iLo then
-            Quick_Sort(Tab, iLo, Hi);
+        if liHi > aiLo then
+        begin
+            Quick_Sort(aoTab, aiLo, liHi);
+        end ;
 
-        if Lo < iHi then
-            Quick_Sort(Tab, Lo, iHi);
+        if liLo < aiHi then
+        begin
+            Quick_Sort(aoTab, liLo, aiHi);
+        end ;
     end;
 begin
-   Quick_Sort(Tab, 0, Tab.Count - 1);
+   Quick_Sort(aoTab, 0, aoTab.Count - 1);
 end ;
 
-{*******************************************************************************
+(*****************************************************************************
+ * ArrayFill
+ * MARTINEAU Emeric
+ *
  * Trie un tableau
- ******************************************************************************}
-function TVariables.arraySort(var Tableau : String) : boolean ;
-var ListOfArray : TStringList ;
+ *
+ * Paramètres d'entrée :
+ *   - asTableau : tableau à trier
+ *
+ * Paramètre de sortie :
+ *   - asTableau : tableau trié
+ *
+ * Retour : true si tableau traité
+ *****************************************************************************)
+function TVariables.arraySort(var asTableau : String) : boolean ;
+var
+    { Contenu du tableau }
+    aoListOfArray : TStringList ;
 begin
-    if InternalisArray(Tableau)
+    if InternalIsArray(asTableau)
     then begin
-        ListOfArray := TStringList.Create ;
+        aoListOfArray := TStringList.Create ;
 
-        explode(ListOfArray, Tableau) ;
+        explode(aoListOfArray, asTableau) ;
 
-        QuickSort(ListOfArray) ;
+        QuickSort(aoListOfArray) ;
 
-        Tableau := InternalCreateArray(ListOfArray) ;
+        asTableau := InternalCreateArray(aoListOfArray) ;
 
-        ListOfArray.Free ;
+        aoListOfArray.Free ;
 
         Result := True ;
     end
-    else
+    else begin
         Result := False ;
+    end ;
 end ;
 
-{*******************************************************************************
+(*****************************************************************************
+ * ArraySearch
+ * MARTINEAU Emeric
+ *
  * Recherche un élément dans un tableau
- ******************************************************************************}
-function TVariables.arraySearch(Tableau : string; ChaineARechercher : String; CaseSensitive : Boolean) : Integer ;
-var i : Integer ;
-    Resultat : Boolean ;
-    ListOfArray : TStringList ;
+ *
+ * Paramètres d'entrée :
+ *   - asTableau : tableau dans lequel il faut chercher,
+ *   - asChaineARechercher : chaine à rechercher,
+ *   - abCaseSensitive : sensible à la case
+ *
+ * Retour : position de l'élément
+ *****************************************************************************)
+function TVariables.ArraySearch(asTableau : string; asChaineARechercher : String; abCaseSensitive : Boolean) : Integer ;
+var
+    { Compteur de boucle }
+    liIndex : Integer ;
+    { Indique si la chaine a été trouvée }
+    lbResultatTrouve : Boolean ;
+    { Elément du tableau }
+    loListOfArray : TStringList ;
 begin
     Result := 0 ;
 
-    if InternalisArray(Tableau)
+    if InternalisArray(asTableau)
     then begin
-        ListOfArray := TStringList.Create ;
+        loListOfArray := TStringList.Create ;
 
-        explode(ListOfArray, Tableau) ;
+        explode(loListOfArray, asTableau) ;
 
-        for i := 0 to ListOfArray.Count - 1 do
+        if abCaseSensitive = True
+        then begin
+            asChaineARechercher := LowerCase(asChaineARechercher) ;
+        end ;
+
+        for liIndex := 0 to loListOfArray.Count - 1 do
         begin
-            if CaseSensitive
-            then
-                Resultat := ChaineARechercher = ListOfArray[i]
-            else
-                Resultat := LowerCase(ChaineARechercher) = LowerCase(ListOfArray[i]) ;
-
-            if Resultat
+            if abCaseSensitive = True
             then begin
-                { +1 car nos tableau commence à 1 }
-                Result := i + 1 ;
+                lbResultatTrouve := asChaineARechercher = loListOfArray[liIndex] ;
+            end
+            else begin
+                lbResultatTrouve :=  asChaineARechercher = LowerCase(loListOfArray[liIndex]) ;
+            end ;
+
+            if lbResultatTrouve = True
+            then begin
+                Result := liIndex ;
                 break ;
             end ;
         end ;
 
-        ListOfArray.Free ;
+        loListOfArray.Free ;
     end ;
 end ;
 
-{*******************************************************************************
+{*****************************************************************************
+ * Trie un TStringList en sens inverse
+ * MARTINEAU Emeric
+ *
  * Trie un TStringList
  * D'après http://fr.wikipedia.org/wiki/Quicksort et
  * http://www.dsdt.info/tipps/?id=380
- ******************************************************************************}
-procedure TVariables.QuickRSort(Tab : TStringList) ;
-    procedure Quick_r_Sort(Tab : TStringList; iLo, iHi : Integer);
+ *
+ * Paramètres d'entrée :
+ *   - aoTab : tableau à trier
+ *
+ * Paramètre de sortie :
+ *   - aoTab : tableau trié
+ *****************************************************************************}
+procedure TVariables.QuickRSort(aoTab : TStringList) ;
+    procedure Quick_r_Sort(aoTab : TStringList; aiLo, aiHi : Integer);
     var
-       Lo, Hi : Integer ;
-       Mid, Tmp : string;
+        { Pointeur sur le haut du tableau }
+        liLo : Integer ;
+        { Pointeur sur le bas du tableau }
+        liHi : Integer ;
+        { Valeur du milieu du tableau }
+        lsMid : string ;
+        { Varaible temporaire pour l'échange d'élément }
+        lsTmp : string;
     begin
-        Lo := iLo;
-        Hi := iHi ;
+        liLo := aiLo;
+        liHi := aiHi ;
 
-        Mid := Tab[(Lo + Hi) div 2] ;
+        lsMid := aoTab[(liLo + liHi) div 2] ;
 
         repeat
-            while Tab[Hi] < Mid do
-                Dec(Hi) ;
-
-            while Tab[Lo] > Mid do
-                Inc(Lo) ;
-
-            if Hi >= Lo
-            then begin
-                Tmp := Tab[Hi] ;
-                Tab[Hi] := Tab[Lo] ;
-                Tab[Lo] := Tmp ;
-                Inc(Lo);
-                Dec(Hi);
+            while aoTab[liHi] < lsMid do
+            begin
+                Dec(liHi) ;
             end ;
-        until Lo > Hi ;
 
-        if Hi > iLo then
-            Quick_r_Sort(Tab, iLo, Hi);
+            while aoTab[liLo] > lsMid do
+            begin
+                Inc(liLo) ;
+            end ;
 
-        if Lo < iHi then
-            Quick_r_Sort(Tab, Lo, iHi);
+            if liHi >= liLo
+            then begin
+                lsTmp := aoTab[liHi] ;
+                aoTab[liHi] := aoTab[liLo] ;
+                aoTab[liLo] := lsTmp ;
+                Inc(liLo);
+                Dec(liHi);
+            end ;
+        until liLo > liHi ;
+
+        if liHi > aiLo then
+        begin
+            Quick_r_Sort(aoTab, aiLo, liHi);
+        end ;
+
+        if liLo < aiHi then
+        begin
+            Quick_r_Sort(aoTab, liLo, aiHi);
+        end ;
     end;
 begin
-   Quick_r_Sort(Tab, 0, Tab.Count - 1);
+   Quick_r_Sort(aoTab, 0, aoTab.Count - 1);
 end ;
 
-{*******************************************************************************
- * Trie un tableau
- ******************************************************************************}
-function TVariables.arrayRSort(var Tableau : String) : boolean ;
-var ListOfArray : TStringList ;
+(*****************************************************************************
+ * ArraySearch
+ * MARTINEAU Emeric
+ *
+ * Trie un tableau à l'envers
+ *
+ * Paramètres d'entrée :
+ *   - asTableau : tableau dans lequel il faut chercher,
+ *
+ * Paramètres de sortie :
+ *   - asTableau : taleau trié
+ *
+ * Retour : true si tableau trié
+ *****************************************************************************)
+function TVariables.ArrayRSort(var asTableau : String) : boolean ;
+var
+    { Elément du tableau }
+    loListOfArray : TStringList ;
 begin
-    if InternalisArray(Tableau)
+    if InternalisArray(asTableau)
     then begin
-        ListOfArray := TStringList.Create ;
+        loListOfArray := TStringList.Create ;
 
-        explode(ListOfArray, Tableau) ;
+        explode(loListOfArray, asTableau) ;
 
-        QuickRSort(ListOfArray) ;
+        QuickRSort(loListOfArray) ;
 
-        Tableau := InternalCreateArray(ListOfArray) ;
+        asTableau := InternalCreateArray(loListOfArray) ;
 
-        ListOfArray.Free ;
+        loListOfArray.Free ;
 
         Result := True ;
     end
-    else
+    else begin
         Result := False ;
+    end ;
+end ;
+
+(*****************************************************************************
+ * GiveVarNameByIndex
+ * MARTINEAU Emeric
+ *
+ * Retourne le nom de la variable par l'index
+ *
+ * Paramètres d'entrée :
+ *   - aiIndex : index de la variable
+ *
+ * Retour : nom de la variable
+ *****************************************************************************)
+function TVariables.GiveVarNameByIndex(aiIndex : Integer) : string ;
+begin
+    Result := '' ;
+
+    if aiIndex <> -1
+    then begin
+        if aiIndex < poVarName.Count
+        then begin
+            Result := poVarName[aiIndex] ;
+        end
+    end
 end ;
 
 end.

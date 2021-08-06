@@ -25,6 +25,10 @@ interface
 
 {$I config.inc}
 
+{$IFDEF FPC}
+    {$mode objfpc}{$H+}
+{$ENDIF}
+
 uses Extension, Classes ;
 
 function OsSwsPathToOsPath(path : string) : string ;

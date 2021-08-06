@@ -25,6 +25,10 @@ interface
 
 {$I config.inc}
 
+{$IFDEF FPC}
+    {$mode objfpc}{$H+}
+{$ENDIF}
+
 uses Code, Windows, SysUtils, Extension, Classes
      {$IFNDEF FPC}
      , psApi
@@ -39,311 +43,433 @@ function ConProc(CtrlType : DWord) : Bool; stdcall;
 function ConProc(CtrlType : DWord) : Bool; stdcall; far;
 {$ENDIF}
 procedure InstallTrapOfCtrlC ;
-function SwsPathToOsPath(path : string) : string ;
-procedure MyLoadExtension(NameOfExt : String; var HandleProc : Integer; var proc : TProcExt; var procresult : TProcResult; var procinit : TProcInit) ;
-procedure MyUnLoadExtension(NameOfExt : String) ;
-procedure MygetAllEnvVar(var Liste : Tstrings);
-function AddFinalDirSeparator(Text : String) : String ;
+function SwsPathToOsPath(asPath : string) : string ;
+procedure MyLoadExtension(asNameOfExt : String; var aiHandleProc : Integer; var aProc : TProcExt; var aProcResult : TProcResult; var aProcInit : TProcInit) ;
+procedure MyUnLoadExtension(asNameOfExt : String) ;
+procedure MygetAllEnvVar(var aoListe : Tstrings);
+function AddFinalDirSeparator(asPath : String) : String ;
 function MyUsageMemory : Integer ;
 function MyEOL : String ;
 function MyGetTmpName : String ;
-function MyIsRootDirectory(Chemin : String) : boolean ;
-function MyOsPathToSwsPath(path : string) : string ;
+function MyIsRootDirectory(asPath : String) : boolean ;
+function MyOsPathToSwsPath(asPath : string) : string ;
 function MyRootDirectory : string ;
-function MyShellExec(cmd:String; Delay : Integer) : string ;
+function MyShellExec(asCommand : String; aiDelay : Integer) : string ;
 
 implementation
 
-{*******************************************************************************
+{*****************************************************************************
+ * ConProc
+ * MARTINEAU Emeric
+ *
  * Fonction qui gère le ctrl+c
- ******************************************************************************}
+ *****************************************************************************}
 {$IFDEF FPC}
 function ConProc(CtrlType : DWord) : Bool; stdcall;
 {$ELSE}
 function ConProc(CtrlType : DWord) : Bool; stdcall; far;
 {$ENDIF}
 begin
-    GlobalError := True ;
+    gbError := True ;
 
     Result := False;
 end;
 
-{*******************************************************************************
+{*****************************************************************************
+ * ConProc
+ * MARTINEAU Emeric
+ *
  * Fonction qui install le gestionnaire de ctrl+c
- ******************************************************************************}
+ *****************************************************************************}
+
 procedure InstallTrapOfCtrlC ;
 begin
     SetConsoleCtrlHandler(@ConProc, True);
 end ;
 
-{*******************************************************************************
+{*****************************************************************************
+ * SwsPathToOsPath
+ * MARTINEAU Emeric
+ *
  * Convertit les chemin passer dans Sws vers un chemin lisible par l'os
- ******************************************************************************}
-function SwsPathToOsPath(path : string) : string ;
+ *
+ * Paramètres d'entrée :
+ *   - asPath : chemin à convertir
+ *
+ * Retour : chemin script converti en chemin pour l'OS
+ *****************************************************************************}
+function SwsPathToOsPath(asPath : string) : string ;
 var i : Integer ;
 begin
     Result := '' ;
 
-    for i := 1 to Length(path) do
+    for i := 1 to Length(asPath) do
     begin
-        if path[i] = '/'
-        then
-            Result := Result + '\'
-        else
-            Result := Result + path[i] ;
+        if asPath[i] = '/'
+        then begin
+            Result := Result + '\' ;
+        end
+        else begin
+            Result := Result + asPath[i] ;
+        end ;
     end ;
 end ;
 
-{*******************************************************************************
+{*****************************************************************************
+ * MyLoadExtension
+ * MARTINEAU Emeric
+ *
  * Charge une DLL
- ******************************************************************************}
-procedure MyLoadExtension(NameOfExt : String; var HandleProc : Integer; var proc : TProcExt; var procresult : TProcResult; var procinit : TProcInit) ;
-var nb : Integer ;
-    tmp : String ;
-    tmpPchar  : array of Char ;
+ *
+ * Paramètres d'entrée :
+ *   - asNameOfExt : nom de l'extension,
+ *
+ * Paramètre de sortie :
+ *   - aiHandleProc : handle windows de la DLL,
+ *   - aProc : pointeur sur Execute,
+ *   - aProcResult : pointe sur GetResult,
+ *   - aProcInit : pointe sur Init,
+ *
+ * Retour : chemin script converti en chemin pour l'OS
+ *****************************************************************************}
+procedure MyLoadExtension(asNameOfExt : String; var aiHandleProc : Integer; var aProc : TProcExt; var aProcResult : TProcResult; var aProcInit : TProcInit) ;
+var
+    { Taille de asNameOfExt }
+    liLength : Integer ;
+    { Chaine temporaire contenant le nom de la dll à charger }
+    lsTmp : String ;
+    { Chaine temporaire contenant le nom de la dll à charger en chaine ASCIIZ }
+    lsTmpPchar  : array of Char ;
 begin
-    nb := Length(NameOfExt) ;
+    liLength := Length(asNameOfExt) ;
 
-    if nb > 0
+    if liLength > 0
     then begin
-        tmp := AddFinalDirSeparator(ExtDir) ;
+        lsTmp := AddFinalDirSeparator(gsExtDir) ;
 
-        tmp := tmp + NameOfExt + '.dll' ;
+        lsTmp := lsTmp + asNameOfExt + '.dll' ;
 
-        nb := Length(tmp) ;
+        liLength := Length(lsTmp) ;
 
         { + 1 pour le \0 }
-        SetLength(tmpPChar, nb + 1) ;
+        SetLength(lsTmpPChar, liLength + 1) ;
 
-        tmpPChar[0] := #0 ;
+        lsTmpPChar[0] := #0 ;
 
-        StrPCopy(PCHar(tmpPChar), tmp) ;
+        StrPCopy(PCHar(lsTmpPChar), lsTmp) ;
 
-        HandleProc := LoadLibrary(PChar(tmpPChar));
+        aiHandleProc := LoadLibrary(PChar(lsTmpPChar));
 
-        if HandleProc <> 0
+        if aiHandleProc <> 0
         then begin
             {$IFDEF FPC}
-            pointer(proc) := GetProcAddress(HandleProc, 'Execute') ;
-            pointer(procresult) := GetProcAddress(HandleProc, 'GetResult');
-            pointer(procinit) := GetProcAddress(HandleProc, 'Init') ;
+            pointer(aProc) := GetProcAddress(aiHandleProc, 'Execute') ;
+            pointer(aProcResult) := GetProcAddress(aiHandleProc, 'GetResult');
+            pointer(aProcInit) := GetProcAddress(aiHandleProc, 'Init') ;
             {$ELSE}
-            @proc := GetProcAddress(HandleProc, 'Execute') ;
-            @procresult := GetProcAddress(HandleProc, 'GetResult') ;
-            @procinit := GetProcAddress(HandleProc, 'Init') ;
+            @aProc := GetProcAddress(HandleProc, 'Execute') ;
+            @aProcResult := GetProcAddress(HandleProc, 'GetResult') ;
+            @aProcInit := GetProcAddress(HandleProc, 'Init') ;
             {$ENDIF}
         end
         else begin
             {$IFDEF FPC}
-            pointer(proc) := nil ;
-            pointer(procresult) := nil ;
-            pointer(procinit) := nil
+            pointer(aProc) := nil ;
+            pointer(aProcResult) := nil ;
+            pointer(aProcInit) := nil
             {$ELSE}
-            @proc := nil ;
-            @procresult := nil ;
-            @procinit := nil ;
+            @aProc := nil ;
+            @aProcResult := nil ;
+            @aProcInit := nil ;
             {$ENDIF}
         end ;
     end ;
 end ;
 
-{*******************************************************************************
+{*****************************************************************************
+ * MyUnLoadExtension
+ * MARTINEAU Emeric
+ *
  * Décharge une DLL
- ******************************************************************************}
-procedure MyUnLoadExtension(NameOfExt : String) ;
-var HandleOfExt : Integer;
-    proc : TProcExt ;
-begin
-    HandleOfExt := -1 ;
-    proc := nil ;
-
-    ListOfExtension.Give(NameOfExt, HandleOfExt, proc) ;
-
-    if HandleOfExt > -1
-    then
-        FreeLibrary(HandleOfExt);
-
-    ListOfExtension.DeleteByName(NameOfExt) ;
-end ;
-
-{*******************************************************************************
- * Liste toutes les variables d'environnement
- ******************************************************************************}
-procedure MygetAllEnvVar(var Liste : Tstrings);
+ *
+ * Paramètres d'entrée :
+ *   - asNameOfExt : nom de la DLL
+ *
+ *****************************************************************************}
+procedure MyUnLoadExtension(asNameOfExt : String) ;
 var
-  Env: PChar;
-  tmp : String ;
-  i : Integer ;
+    { Handle de la DLL windows }
+    liHandleOfExt : Integer;
+    { Pointeur sur Execute. Sert uniquement pour l'appel Give }
+    lProc : TProcExt ;
 begin
-  Env := GetEnvironmentStrings;
+    liHandleOfExt := -1 ;
+    lProc := nil ;
 
-  while Env^ <> #0 do
-  begin
-    tmp := StrPas(Env) ;
-    i := pos('=', tmp) - 1 ;
-    tmp := copy(tmp, 1, i) ;
+    goListOfExtension.Give(asNameOfExt, liHandleOfExt, lProc) ;
 
-    Liste.Add(tmp);
-
-    Inc(Env, StrLen(Env) + 1);
-  end;
-
-  FreeEnvironmentStrings(Env);
-end ;
-
-{*******************************************************************************
- * Ajout un slash final
- ******************************************************************************}
-function AddFinalDirSeparator(Text : String) : String ;
-var len : Integer ;
-begin
-    Result := Text ;
-
-    len := Length(Text) ;
-
-    if len > 0
+    if liHandleOfExt > -1
     then begin
-        if (Text[len] <> '\')
-        then
-            Result := Result + '\' ;
-    end
-    else
-        Result := '\' ;
+        FreeLibrary(liHandleOfExt) ;
+    end ;
+
+    goListOfExtension.DeleteByName(asNameOfExt) ;
 end ;
 
-{*******************************************************************************
+{*****************************************************************************
+ * MyGetAllEnvVar
+ * MARTINEAU Emeric
+ *
+ * Liste toutes les variables d'environnement
+ *
+ * Paramètres d'entrée :
+ *   - aoListe : liste des variable disponible
+ *
+ *****************************************************************************}
+procedure MyGetAllEnvVar(var aoListe : Tstrings);
+var
+    { Pointeur du une chaine contenant les chaines et leurs valeurs }
+    lpEnv: PChar;
+    { Variable nom=valeur }
+    lsEnv : String ;
+    { Nom de la variable d'environnement }
+    lsEnvName : String ;
+    { Position du = }
+    liPosistionEgale : Integer ;
+begin
+    lpEnv := GetEnvironmentStrings;
+
+    while lpEnv^ <> #0 do
+    begin
+        lsEnv := StrPas(lpEnv) ;
+        liPosistionEgale := pos('=', lsEnv) - 1 ;
+        lsEnvName := copy(lsEnv, 1, liPosistionEgale) ;
+
+        aoListe.Add(lsEnvName);
+
+        Inc(lpEnv, StrLen(lpEnv) + 1);
+    end;
+
+    FreeEnvironmentStrings(lpEnv);
+end ;
+
+{*****************************************************************************
+ * AddFinalDirSeparator
+ * MARTINEAU Emeric
+ *
+ * Ajout un slash final
+ *
+ * Paramètres d'entrée :
+ *   - asText : chaine à traiter
+ *
+ *****************************************************************************}
+function AddFinalDirSeparator(asPath : String) : String ;
+var
+    { Longueur de la chaine à traiter }
+    liLength : Integer ;
+begin
+    Result := asPath ;
+
+    liLength := Length(asPath) ;
+
+    if liLength > 0
+    then begin
+        if (asPath[liLength] <> '\')
+        then begin
+            Result := Result + '\' ;
+        end ;
+    end
+    else begin
+        Result := '\' ;
+    end ;
+end ;
+
+{*****************************************************************************
+ * MyUsageMemory
+ * MARTINEAU Emeric
+ *
  * Retourne la taille en octet de la mémoire utilisée
- ******************************************************************************}
+ *
+ *****************************************************************************}
 function MyUsageMemory : Integer ;
 var
-    process_memory_counter : PROCESS_MEMORY_COUNTERS ;
-    size : Integer ;
+    lpProcessMemoryCounter : PROCESS_MEMORY_COUNTERS ;
+    liSize : Integer ;
 begin
     Result := 0 ;
 
-    size := SizeOf(_PROCESS_MEMORY_COUNTERS);
+    liSize := SizeOf(_PROCESS_MEMORY_COUNTERS);
 
-    process_memory_counter.cb := size;
+    lpProcessMemoryCounter.cb := liSize;
 
     {$IFDEF FPC}
-    if GetProcessMemoryInfo(GetCurrentProcess(), process_memory_counter, size)
+    if GetProcessMemoryInfo(GetCurrentProcess(), lpProcessMemoryCounter, liSize)
     {$ELSE}
-    if GetProcessMemoryInfo(GetCurrentProcess(), @process_memory_counter, size)
+    if GetProcessMemoryInfo(GetCurrentProcess(), @lpProcessMemoryCounter, liSize)
     {$ENDIF}
-    then
-        Result := process_memory_counter.WorkingSetSize ;
-
+    then begin
+        Result := lpProcessMemoryCounter.WorkingSetSize ;
+    end ;
 end ;
 
-{*******************************************************************************
+{*****************************************************************************
+ * MyEOL
+ * MARTINEAU Emeric
+ *
  * Retourne la fin de ligne propre à chaque plateforme
- ******************************************************************************}
+ *
+ *****************************************************************************}
 function MyEOL : String ;
 begin
     Result := #13 + #10 ;
 end ;
 
-{*******************************************************************************
+{*****************************************************************************
+ * MyGetTmpName
+ * MARTINEAU Emeric
+ *
  * Retourne un nom de fichier temporaire
- ******************************************************************************}
+ *
+ *****************************************************************************}
 function MyGetTmpName : String ;
 var Name : Array[0..MAX_PATH] Of Char ;
 begin
-     if (GetTempFileName(PChar(tmpDir), 'tmp', 0, @Name) = 0)
-     then
-         Result := ''
-     else
-         Result := String(Name) ;
+    if (GetTempFileName(PChar(gsTmpDir), 'tmp', 0, @Name) = 0)
+    then begin
+        Result := ''
+    end
+    else begin
+        Result := String(Name) ;
+    end ;
 end;
 
-{*******************************************************************************
+{*****************************************************************************
+ * MyIsRootDirectory
+ * MARTINEAU Emeric
+ *
  * Retourne true si le chemin représente la racine
- ******************************************************************************}
-function MyIsRootDirectory(Chemin : String) : boolean ;
+ *
+ * Paramètres d'entrée :
+ *   - asPath : chaine représentant un chemin
+ *
+ *****************************************************************************}
+function MyIsRootDirectory(asPath : String) : boolean ;
 begin
     Result := False ;
 
-    if Length(Chemin) > 1
+    if Length(asPath) > 1
     then begin
-        if Chemin[2] = ':'
-        then
+        if asPath[2] = ':'
+        then begin
             Result := True ;
+        end ;
     end ;
 end ;
 
-{*******************************************************************************
+{*****************************************************************************
+ * MyOsPathToSwsPath
+ * MARTINEAU Emeric
+ *
  * Convertit les chemin passer par l'os en chemin sws
- ******************************************************************************}
-function MyOsPathToSwsPath(path : string) : string ;
+ *
+ * Paramètres d'entrée :
+ *   - asPath : chaine représentant un chemin
+ *
+ *****************************************************************************}
+function MyOsPathToSwsPath(asPath : string) : string ;
 var i : Integer ;
 begin
     Result := '' ;
 
-    for i := 1 to Length(path) do
+    for i := 1 to Length(asPath) do
     begin
-        if path[i] = '\'
-        then
-            Result := Result + '/'
-        else
-            Result := Result + path[i] ;
+        if asPath[i] = '\'
+        then begin
+            Result := Result + '/' ;
+        end
+        else begin
+            Result := Result + asPath[i] ;
+        end ;
     end ;
 end ;
 
-{*******************************************************************************
+{*****************************************************************************
+ * MyRootDirectory
+ * MARTINEAU Emeric
+ *
  * Renvoie la racine. Si Unix renvoie /
- ******************************************************************************}
+ *
+ *****************************************************************************}
 function MyRootDirectory : string ;
 begin
     Result := '' ;
 end ;
 
-{*******************************************************************************
+{*****************************************************************************
+ * MyShellExec
+ * MARTINEAU Emeric
+ *
  * Execute une commande
- ******************************************************************************}
-function MyShellExec(cmd:String; Delay : Integer) : string ;
+ *
+ * Paramètres d'entrée :
+ *   - asCommand : commande à exécuter,
+ *   - aiDelay : temps maximal d'exécution
+ *
+ *****************************************************************************}
+function MyShellExec(asCommand : String; aiDelay : Integer) : string ;
 const
-     ReadBuffer = 512;
+    { Taille du buffer de lecture du périphérique standard de sortie }
+    ciReadBufferSize = 512 ;
 var
-    Security : TSecurityAttributes;
-    ReadPipe,WritePipe : THandle;
-    start : TStartUpInfo;
-    ProcessInfo : TProcessInformation;
-    Buffer : Pchar;
-    BytesRead : DWord;
-    i : Integer ;
+    { Paramètre les paramètre de sécurité du programme à exécuter }
+    lSecurity : TSecurityAttributes ;
+    { Handle de lecture }
+    lReadPipe : THandle ;
+    { Handle d'écriture }
+    lWritePipe : THandle ;
+    { Information de démarage du programme à exécuter  }
+    lStartUpInfo : TStartUpInfo ;
+    { Information sur le programme à exécuter }
+    lProcessInfo : TProcessInformation ;
+    { Buffer de lecture }
+    lpBuffer : Pchar ;
+    { Nombre d'octet lu dans le périphérique standard de sortie du programme à exécuter}
+    liBytesRead : DWord ;
+    { Compteur pour recopie du buffer }
+    liIndexBuffer : Integer ;
 begin
     Result := '' ;
 
-    Security.nlength := SizeOf(TSecurityAttributes) ;
-    Security.binherithandle := true;
-    Security.lpsecuritydescriptor := nil;
+    lSecurity.nlength := SizeOf(TSecurityAttributes) ;
+    lSecurity.binherithandle := true;
+    lSecurity.lpsecuritydescriptor := nil;
 
-    ReadPipe := 0 ;
-    WritePipe := 0 ;
+    lReadPipe := 0 ;
+    lWritePipe := 0 ;
 
-    if Createpipe(ReadPipe, WritePipe, @Security, 0)
+    if Createpipe(lReadPipe, lWritePipe, @lSecurity, 0)
     then begin
-        Buffer := AllocMem(ReadBuffer) ;
-        FillChar(Start, Sizeof(Start), #0) ;
-        FillChar(ProcessInfo, SizeOf(ProcessInfo), #0) ;
+        lpBuffer := AllocMem(ciReadBufferSize) ;
+        FillChar(lStartUpInfo, Sizeof(lStartUpInfo), #0) ;
+        FillChar(lProcessInfo, SizeOf(lProcessInfo), #0) ;
 
-        start.cb := SizeOf(start) ;
-        start.hStdOutput := WritePipe;
-        start.hStdInput := ReadPipe;
+        lStartUpInfo.cb := SizeOf(lStartUpInfo) ;
+        lStartUpInfo.hStdOutput := lWritePipe;
+        lStartUpInfo.hStdInput := lReadPipe;
         // Indique que les membres input et output sont renseigné et que
         // le paramètre showwindows aussi
-        start.dwFlags := STARTF_USESTDHANDLES or STARTF_USESHOWWINDOW;
-        start.wShowWindow := SW_HIDE;
+        lStartUpInfo.dwFlags := STARTF_USESTDHANDLES or STARTF_USESHOWWINDOW;
+        lStartUpInfo.wShowWindow := SW_HIDE;
 
         if CreateProcess(
            // Application premier élément de DosApp
            nil,
            // Ligne de commande de DosApp
-           PChar(cmd),
+           PChar(asCommand),
            // Attribut de sécurité du processus
-           @Security,
+           @lSecurity,
            // Attribut de sécurité des threads
-           @Security,
+           @lSecurity,
            // Hérite des handle
            true,
            // flag de création : Priorité
@@ -353,34 +479,34 @@ begin
            // Répertoire courant
            nil,
            // info de démarrage
-           start,
+           lStartUpInfo,
            // info du processus
-           ProcessInfo)
+           lProcessInfo)
         then begin
-            WaitForSingleObject(ProcessInfo.hProcess,Delay) ;
+            WaitForSingleObject(lProcessInfo.hProcess, aiDelay) ;
             
-            TerminateProcess(ProcessInfo.hProcess, 0) ;
+            TerminateProcess(lProcessInfo.hProcess, 0) ;
 
             Repeat
-                BytesRead := 0;
-                ReadFile(ReadPipe, Buffer[0], ReadBuffer, BytesRead, nil) ;
+                liBytesRead := 0;
+                ReadFile(lReadPipe, lpBuffer[0], ciReadBufferSize, liBytesRead, nil) ;
 
                 // ajouter un #0 à la fin pour que ça fonctionne
                 //OemToChar(Buffer, Buffer)
 
-                for i := 0 to BytesRead - 1 do
+                for liIndexBuffer := 0 to liBytesRead - 1 do
                 begin
-                    Result := Result + Buffer[i] ;
+                    Result := Result + lpBuffer[liIndexBuffer] ;
                 end ;
-            until (BytesRead < ReadBuffer) ;
+            until (liBytesRead < ciReadBufferSize) ;
         end;
 
-        FreeMem(Buffer) ;
+        FreeMem(lpBuffer) ;
 
-        CloseHandle(ProcessInfo.hProcess) ;
-        CloseHandle(ProcessInfo.hThread) ;
-        CloseHandle(ReadPipe) ;
-        CloseHandle(WritePipe) ;
+        CloseHandle(lProcessInfo.hProcess) ;
+        CloseHandle(lProcessInfo.hThread) ;
+        CloseHandle(lReadPipe) ;
+        CloseHandle(lWritePipe) ;
     end;
 end;
 end.

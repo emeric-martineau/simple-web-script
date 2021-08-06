@@ -25,144 +25,271 @@ interface
 
 {$I config.inc}
 
+{$IFDEF FPC}
+    {$mode objfpc}{$H+}
+{$ENDIF}
+
 uses Classes, SysUtils, Variable ;
 
 type
   TPointerOfTVariable = class
   private
-      VarName : TStringList ;
-      Line: array of TVariables ;
+      poPointerName : TStringList ;
+      poVarName : TStringList ;
+      paPointerOfTVariable : array of TVariables ;
   protected
   public
       constructor Create ;
       destructor Free ;
-      procedure Add(NameOfVar : string; ValueOfVar : TVariables) ;
-      function Give(NameOfVar : string) : TVariables;
-      function GiveVarNameByIndex(Index : Integer) : string ;
-      procedure Delete(NameOfVar : String) ;
+      procedure Add(asNameOfPointer : string; asNameOfVar : String ; aoPointer : TVariables) ;
+      function Give(asNameOfPointer : string) : TVariables;
+      function GivePointerByIndex(aiIndex : Integer) : string ;
+      function GivePointerByVarName(asNameOfVar : String) : String ;
+      procedure Delete(asNameOfPointer : String) ;
       function Count : integer ;
       procedure Clear ;
-      function isSet(NameOfVar : string) : boolean ;
+      function IsSet(asNameOfPointer : string) : boolean ;
+      function IsSetByVarName(asNameOfVar : string) : boolean ;
   end ;
 
-Var PointerOFVariables : TPointerOfTVariable ;
+Var goPointerOFVariables : TPointerOfTVariable ;
     
 implementation
 
-{******************************************************************************
+{*****************************************************************************
+ * Create
+ * MARTINEAU Emeric
+ *
  * Consructeur
- ******************************************************************************}
+ *****************************************************************************}
 constructor TPointerOfTVariable.Create ;
 begin
     inherited Create();
 
-    { Créer l'objet FileName }
-    VarName := TStringList.Create ;
+    poPointerName := TStringList.Create ;
+    poVarName := TStringList.Create ;
 end ;
 
-{******************************************************************************
+{*****************************************************************************
+ * Free
+ * MARTINEAU Emeric
+ *
  * Destructeur
- ******************************************************************************}
+ *****************************************************************************}
+
 destructor TPointerOfTVariable.Free ;
 begin
-    VarName.Free ;
-    SetLength(Line, 0) ;
+    poPointerName.Free ;
+    poVarName.Free ;
+    SetLength(paPointerOfTVariable, 0) ;
 end ;
 
-{******************************************************************************
- * Ajouter une variable
- ******************************************************************************}
-procedure TPointerOfTVariable.Add(NameOfVar : string; ValueOfVar : TVariables) ;
-var nb : Integer ;
+{*****************************************************************************
+ * Add
+ * MARTINEAU Emeric
+ *
+ * Ajoute un pointeur de variable
+ *
+ * Paramètres d'entrée :
+ *   - asNameOfPointer : nom du pointeur,
+ *   - aoPointeur ; pointeur de TVariable,
+ *
+ *****************************************************************************}
+procedure TPointerOfTVariable.Add(asNameOfPointer : string; asNameOfVar : String ; aoPointer : TVariables) ;
+var
+    { Taille du tableau de pointeur }
+    liLength : Integer ;
 begin
-    VarName.Add(LowerCase(NameOfVar)) ;
+    poPointerName.Add(LowerCase(asNameOfPointer)) ;
+    poVarName.Add(asNameOfVar) ;
 
-    nb := VarName.Count ;
+    liLength := poPointerName.Count ;
 
-    SetLength(Line, nb) ;
-    Line[nb - 1] := ValueOfVar ;
+    SetLength(paPointerOfTVariable, liLength) ;
+    paPointerOfTVariable[liLength - 1] := aoPointer ;
 end ;
 
-{******************************************************************************
- * Supprimer l'entrée correspondant dans le tableau.
- ******************************************************************************}
-procedure TPointerOfTVariable.Delete(NameOfVar : String) ;
-Var Index : Integer ;
-    i : Integer ;
+{*****************************************************************************
+ * Delete
+ * MARTINEAU Emeric
+ *
+ * Supprime un pointeur
+ *
+ * Paramètres d'entrée :
+ *   - asNameOfPointer : nom du pointeur,
+ *
+ *****************************************************************************}
+procedure TPointerOfTVariable.Delete(asNameOfPointer : String) ;
+Var
+    { Index du pointeur }
+    liIndex : Integer ;
+    { Compteur de boucle }
+    liCount : Integer ;
 begin
-    Index := VarName.IndexOf(NameOfVar) ;
+    liIndex := poPointerName.IndexOf(asNameOfPointer) ;
 
-    if (Index <> -1)
+    if (liIndex <> -1)
     then begin
-        VarName.Delete(Index) ;
+        poPointerName.Delete(liIndex) ;
+        poVarName.Delete(liIndex) ;
 
-        for i := Index to VarName.Count - 1 do
+        for liCount := liIndex to poPointerName.Count - 1 do
         begin
-            Line[i] := Line[i + 1] ;
+            paPointerOfTVariable[liCount] := paPointerOfTVariable[liCount + 1] ;
         end ;
 
-        SetLength(Line, VarName.Count) ;
+        SetLength(paPointerOfTVariable, poPointerName.Count) ;
     end ;
 end;
 
-{******************************************************************************
- * Donne le nombre de fichiers récents
- ******************************************************************************}
+{*****************************************************************************
+ * Count
+ * MARTINEAU Emeric
+ *
+ * Donne le nombre de pointeur enregistré
+ *****************************************************************************}
 function TPointerOfTVariable.Count : Integer ;
 begin
-    Result := VarName.Count ;
+    Result := poPointerName.Count ;
 end ;
 
-{******************************************************************************
- * Donne la fichier correspondant à l'index.
- ******************************************************************************}
-function TPointerOfTVariable.Give(NameOfVar : string) : TVariables ;
-Var Index : Integer ;
+{*****************************************************************************
+ * Give
+ * MARTINEAU Emeric
+ *
+ * Retourne un pointeur
+ *
+ * Paramètres d'entrée :
+ *   - asNameOfPointer : nom du pointeur,
+ *
+ *****************************************************************************}
+function TPointerOfTVariable.Give(asNameOfPointer : string) : TVariables ;
+Var
+    { Index du pointeur }
+    liIndex : Integer ;
 begin
-    Index := VarName.IndexOf(NameOfVar) ;
+    liIndex := poPointerName.IndexOf(asNameOfPointer) ;
 
-    if Index <> -1
-    then
-        Result := Line[Index]
-    else
+    if liIndex <> -1
+    then begin
+        Result := paPointerOfTVariable[liIndex] ;
+    end
+    else begin
         Result := nil ;
+    end ;
 end ;
 
-{******************************************************************************
- * Indique si la variable existe
- ******************************************************************************}
-function TPointerOfTVariable.isSet(NameOfVar : string) : boolean ;
-Var Index : Integer ;
+{*****************************************************************************
+ * IsSet
+ * MARTINEAU Emeric
+ *
+ * Indique si le pointeur existe
+ *
+ * Paramètres d'entrée :
+ *   - asNameOfPointer : nom du pointeur,
+ *
+ *****************************************************************************}
+function TPointerOfTVariable.IsSet(asNameOfPointer : string) : boolean ;
+Var
+    { Index du pointeur }
+    liIndex : Integer ;
 begin
-    Index := VarName.IndexOf(NameOfVar) ;
+    liIndex := poPointerName.IndexOf(asNameOfPointer) ;
 
-    if Index <> -1
-    then
-        Result := True
-    else
+    if liIndex <> -1
+    then begin
+        Result := True ;
+    end 
+    else begin
         Result := False ;
+    end ;
 end ;
 
+{*****************************************************************************
+ * Clear
+ * MARTINEAU Emeric
+ *
+ * Efface la liste de pointeur
+ *****************************************************************************}
 procedure TPointerOfTVariable.Clear ;
 begin
-    VarName.Clear ;
-    SetLength(Line, 0) ;
+    poPointerName.Clear ;
+    SetLength(paPointerOfTVariable, 0) ;
 end ;
 
-{*******************************************************************************
- * Retourne le nom de la variable par l'index
- ******************************************************************************}
-function TPointerOfTVariable.GiveVarNameByIndex(Index : Integer) : string ;
+{*****************************************************************************
+ * IsSet
+ * MARTINEAU Emeric
+ *
+ * Indique si le pointeur existe
+ *
+ * Paramètres d'entrée :
+ *   - asNameOfPointer : nom du pointeur,
+ *
+ *****************************************************************************}
+function TPointerOfTVariable.GivePointerByIndex(aiIndex : Integer) : string ;
 begin
     Result := '' ;
 
-    if Index <> -1
+    if aiIndex <> -1
     then begin
-        if Index < VarName.Count
+        if aiIndex < poPointerName.Count
         then begin
-            Result := VarName[Index] ;
+            Result := poPointerName[aiIndex] ;
         end
     end
+end ;
+
+{*****************************************************************************
+ * GivePointerByVarName
+ * MARTINEAU Emeric
+ *
+ * retourne le pointeur en fonction du nom de la variable
+ *
+ * Paramètres d'entrée :
+ *   - asNameOfVar : nom de la variable
+ *
+ *****************************************************************************}
+function TPointerOfTVariable.GivePointerByVarName(asNameOfVar : String) : String ;
+Var
+    { Index du pointeur }
+    liIndex : Integer ;
+begin
+    liIndex := poVarName.IndexOf(asNameOfVar) ;
+
+    if liIndex <> -1
+    then begin
+        Result := poPointerName[liIndex] ;
+    end
+    else begin
+        Result := '' ;
+    end ;
+end ;
+
+{*****************************************************************************
+ * IsSetByVarName
+ * MARTINEAU Emeric
+ *
+ * Indique si le pointeur existe
+ *
+ * Paramètres d'entrée :
+ *   - asNameOfVar : nom de la variable
+ *
+ *****************************************************************************}
+function TPointerOfTVariable.IsSetByVarName(asNameOfVar : string) : boolean ;
+Var
+    { Index du pointeur }
+    liIndex : Integer ;
+begin
+    liIndex := poVarName.IndexOf(asNameOfVar) ;
+
+    if liIndex <> -1
+    then begin
+        Result := True ;
+    end
+    else begin
+        Result := False ;
+    end ;
 end ;
 
 end.
