@@ -101,7 +101,7 @@ end ;
 destructor TExtension.Free ;
 begin
     Clear ;
-    poNameOfExtension.Free ;
+    FreeAndNil(poNameOfExtension) ;
 end ;
 
 {******************************************************************************

@@ -29,7 +29,7 @@ unit UnitMessages;
 interface
 
 Const
-csMissingLabelOrArguments : string = 'Missing label or too arguments on goto instruction' ;
+csMissingLabel : string = 'Missing label.' ;
 csNotAVariable : string = '"%s" is not a variable name' ;
 csMissingOperator : string = 'Missing operator' ;
 csVariableDoesntExist : string = 'Variable "%s" doesn''t exist' ;
@@ -92,16 +92,11 @@ csNotEqualAnd3Dot : String = 'You cannot have in function optional parameters an
 csCantFindFunctionToDelete : String = 'Can''t find function "%s" to deleted' ;
 csMissingCompInCase : String = 'Missing comparator on case' ;
 csMissingBreakInCase : String = 'Missing case in switch command' ;
-csLabelOutOfPrecedure : String = 'Label out of function. Use "goto" commande' ;
-//csCantAffectPredifinedVar : String = 'Can''t affect value to $true, $false, $_version, $_scriptname' ;
-//csCantDelredifinedVar : String = 'Can''t delete variable $true, $false, $_version, $_scriptname' ;
-//sNotCommentAfterSemiColumn : String = 'Error after ;. Only comment are authorized' ;
 csString : String = 'String' ;
 csInteger : String = 'Integer' ;
 csFloat : String = 'Float' ;
 csHexa : String = 'Hexadecimal' ;
 csArray : String = 'Array' ;
-//sFormatIndexNotInteger : String = 'In function, arguments %d is not integer' ;
 csNotAFloatValue : String = 'Not a float value' ;
 csNumberToBig : String = 'Number "%s" is to big' ;
 csGeneralError : string = 'General Error : ' ;
@@ -131,6 +126,9 @@ csCantFindEndOfComment : string = 'Can''t find end of comment on line' ;
 csMissingEndOfLine : string = 'Missing "%s" at end' ;
 csLineToLine : string = '%line1 to %line2' ;
 csConstanteDoesntExist : string = 'Constante "%s" doesn''t exist' ;
+// v0.1.2
+csNotVariableAfterAmp : String = 'Must be have variable name just after &' ;
+
 implementation
 
 end.

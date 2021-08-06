@@ -48,13 +48,13 @@ function htmlspecialchardecode(asText : String; asCharset : String; aiQuote : in
 function StripTags(asText : String; asAllowedTags : string) : String ;
 
 Const
-  csNoQuoteConvertion : Integer = 0 ;
-  csDoubleQuoteConversion : Integer = 1 ;
-  csAllQuoteConversion : Integer = 2 ;
+  ciNoQuoteConvertion : Integer = 0 ;
+  ciDoubleQuoteConversion : Integer = 1 ;
+  ciAllQuoteConversion : Integer = 2 ;
 
 implementation
 
-uses Code, SysUtils ;
+uses Code, SysUtils, Constantes ;
 
 {*
  * HTML entity resources:
@@ -338,11 +338,10 @@ const
                                    '#176', '#8729', '#183', '#8730', '#8470', '#164',  '#9632', 
                                    '#160');
 
-  EntryMap : array[0..37] of htmlEntityMap = (
+  EntryMap : array[0..33] of htmlEntityMap = (
                                             { 1252 }
                                             (charset : 'cp1252'; startBase : $80; endBase : $9F; tableCharset : @entryCp1252),
                                             (charset : 'windows-1252'; startBase : $80; endBase : $9F; tableCharset : @entryCp1252),
-                                            (charset : '1252'; startBase : $80; endBase : $9F; tableCharset : @entryCp1252),
 
                                             { ISO-8859-1 }
                                             (charset : 'iso-8859-1'; startBase : $A0; endBase : $FF; tableCharset : @entryIso8859_1),
@@ -370,7 +369,6 @@ const
                                             (charset : 'big5-hkscs'; startBase : $A0; endBase : $FF; tableCharset : @entryIso8859_1),
                                             (charset : 'shift_sjis'; startBase : $A0; endBase : $FF; tableCharset : @entryIso8859_1),
                                             (charset : 'sjis'; startBase : $A0; endBase : $FF; tableCharset : @entryIso8859_1),
-                                            (charset : '932'; startBase : $A0; endBase : $FF; tableCharset : @entryIso8859_1),
                                             (charset : 'euc-jp'; startBase : $A0; endBase : $FF; tableCharset : @entryIso8859_1),
                                             (charset : 'eucjp'; startBase : $A0; endBase : $FF; tableCharset : @entryIso8859_1),
 
@@ -383,14 +381,12 @@ const
                                             (charset : 'cp1251'; startBase : $80; endBase : $FF; tableCharset : @entryCp1251),
                                             (charset : 'windows-1251'; startBase : $80; endBase : $FF; tableCharset : @entryCp1251),
                                             (charset : 'wind-1251'; startBase : $80; endBase : $FF; tableCharset : @entryCp1251),
-                                            (charset : '1251'; startBase : $80; endBase : $FF; tableCharset : @entryCp1251),
 
                                             { ISO-8859-5 }
                                             (charset : 'iso8859-5'; startBase : $C0; endBase : $FF; tableCharset : @entryIso8859_5),
                                             (charset : 'iso-8859-5'; startBase : $C0; endBase : $FF; tableCharset : @entryIso8859_5),
 
                                             { 866 }
-                                            (charset : '886'; startBase : $C0; endBase : $FF; tableCharset : @entryCp866),
                                             (charset : 'cp886'; startBase : $C0; endBase : $FF; tableCharset : @entryCp866),
                                             (charset : 'ibm886'; startBase : $C0; endBase : $FF; tableCharset : @entryCp866),
 
@@ -441,7 +437,7 @@ begin
 
             OverTimeAndMemory ;
 
-            if gbError
+            if gbQuit
             then begin
                 break ;
             end ;
@@ -642,7 +638,6 @@ begin
     Result := '' ;
     liTextLength := Length(astext) + 1 ;
     liIndexOfTableOfCharset := 0 ;
-    asCharset := LowerCase(asCharset) ;
 
     { Fait pointer IndexOfTableOfCharset sur le bon charset }
     for liTextCount := Low(EntryMap) to High(EntryMap) do
@@ -674,11 +669,11 @@ begin
             end ;
         end ;
 
-        if (lsCharactere = '"') and (aiQuote > csNoQuoteConvertion)
+        if (lsCharactere = '"') and (aiQuote > ciNoQuoteConvertion)
         then begin
             lsCharactere := '&quot;' ;
         end
-        else if (lsCharactere = '''') and (aiQuote > csDoubleQuoteConversion)
+        else if (lsCharactere = '''') and (aiQuote > ciDoubleQuoteConversion)
         then begin
             lsCharactere := '&#039;' ;
         end
@@ -864,7 +859,6 @@ begin
     liTextLength := Length(asText) + 1 ;
     Result := '' ;
     liIndexOfTableOfCharset := 0 ;
-    asCharset := LowerCase(asCharset) ;
 
     { Fait pointer IndexOfTableOfCharset sur le bon charset }
     for liTextCount := Low(EntryMap) to High(EntryMap) do
@@ -941,11 +935,11 @@ begin
                                 end ;
                             end ;
 
-                            if (lsTmpValOfChar = 'quot') and (aiQuote > csNoQuoteConvertion)
+                            if (lsTmpValOfChar = 'quot') and (aiQuote > ciNoQuoteConvertion)
                             then begin
                                 lsCharactere := '"' ;
                             end
-                            else if (liHexaVal = 39) and (aiQuote > csDoubleQuoteConversion)
+                            else if (liHexaVal = 39) and (aiQuote > ciDoubleQuoteConversion)
                             then begin
                                 lsCharactere := '''' ;
                             end
@@ -1042,32 +1036,32 @@ begin
     then begin
         if (aoArguments.count > 1)
         then begin
-            lsCharset := LowerCase(aoArguments[1])
-        end
-        else begin
-            lsCharset := gsDefaultCharset ;
-        end ;
-
-        if (aoArguments.count > 2)
-        then begin
-            if UpperCase(aoArguments[2]) = 'ENT_NOQUOTES'
+            if aoArguments[1] = IntToStr(ciNoQuoteConvertion)
             then begin
-                liQuote := csNoQuoteConvertion ;
+                liQuote := ciNoQuoteConvertion ;
             end
-            else if UpperCase(aoArguments[2]) = 'ENT_COMPAT'
+            else if aoArguments[1] = IntToStr(ciDoubleQuoteConversion)
             then begin
-                liQuote := csDoubleQuoteConversion ;
+                liQuote := ciDoubleQuoteConversion ;
             end
-            else if UpperCase(aoArguments[2]) = 'ENT_QUOTES'
+            else if aoArguments[1] = IntToStr(ciAllQuoteConversion)
             then begin
-                liQuote := csAllQuoteConversion ;
+                liQuote := ciAllQuoteConversion ;
             end
             else begin
-                liQuote := csDoubleQuoteConversion ;
+                liQuote := ciDoubleQuoteConversion ;
             end ;
         end
         else begin
             liQuote := 1 ;
+        end ;
+
+        if (aoArguments.count > 2)
+        then begin
+            lsCharset := aoArguments[2]
+        end
+        else begin
+            lsCharset := gsDefaultCharset ;
         end ;
 
         if (aoArguments.count > 3)
@@ -1098,32 +1092,32 @@ begin
     then begin
         if (aoArguments.count > 1)
         then begin
-            lsCharset := LowerCase(aoArguments[1])
-        end
-        else begin
-            lsCharset := gsDefaultCharset ;
-        end ;
-
-        if (aoArguments.count > 2)
-        then begin
-            if UpperCase(aoArguments[2]) = 'ENT_NOQUOTES'
+            if aoArguments[1] = IntToStr(ciNoQuoteConvertion)
             then begin
-                liQuote := csNoQuoteConvertion ;
+                liQuote := ciNoQuoteConvertion ;
             end
-            else if UpperCase(aoArguments[2]) = 'ENT_COMPAT'
+            else if aoArguments[1] = IntToStr(ciDoubleQuoteConversion)
             then begin
-                liQuote := csDoubleQuoteConversion ;
+                liQuote := ciDoubleQuoteConversion ;
             end
-            else if UpperCase(aoArguments[2]) = 'ENT_QUOTES'
+            else if aoArguments[1] = IntToStr(ciAllQuoteConversion)
             then begin
-                liQuote := csAllQuoteConversion ;
+                liQuote := ciAllQuoteConversion ;
             end
             else begin
-                liQuote := csDoubleQuoteConversion ;
+                liQuote := ciDoubleQuoteConversion ;
             end ;
         end
         else begin
             liQuote := 1 ;
+        end ;
+
+        if (aoArguments.count > 2)
+        then begin
+            lsCharset := aoArguments[2]
+        end
+        else begin
+            lsCharset := gsDefaultCharset ;
         end ;
 
         gsResultFunction := htmlspecialchardecode(aoArguments[0], lsCharset, liQuote) ;
@@ -1325,10 +1319,37 @@ end  ;
 
 procedure HtmlFunctionsInit ;
 begin
-    goInternalFunction.Add('nltobr', @NlToBrCommande, true) ;
-    goInternalFunction.Add('htmlspecialcharsencode', @HtmlSpecialCharsEncodeCommande, true) ;
-    goInternalFunction.Add('htmlspecialcharsdecode', @HtmlSpecialCharsDecodeCommande, true) ;
-    goInternalFunction.Add('striptags', @StripTagsCommande, true) ;
+    goInternalFunction.Add('nlToBr', @NlToBrCommande, true) ;
+    goInternalFunction.Add('htmlSpecialCharsEncode', @HtmlSpecialCharsEncodeCommande, true) ;
+    goInternalFunction.Add('htmlSpecialCharsDecode', @HtmlSpecialCharsDecodeCommande, true) ;
+    goInternalFunction.Add('stripTags', @StripTagsCommande, true) ;
+
+    goConstantes.Add('#ENT_NOQUOTES', IntToStr(ciNoQuoteConvertion)) ;
+    goConstantes.Add('#ENT_COMPAT', IntToStr(ciDoubleQuoteConversion)) ;
+    goConstantes.Add('#ENT_QUOTES', IntToStr(ciAllQuoteConversion)) ;
+
+    goConstantes.Add('#ISO_8859_1', 'iso-8859-1') ;
+    goConstantes.Add('#ISO8859_1', 'iso8859-1') ;
+    goConstantes.Add('#ISO_8859_15', 'iso-8859-15') ;
+    goConstantes.Add('#ISO8859_15', 'iso8859-15') ;
+    goConstantes.Add('#UTF_8', 'utf8') ;
+    goConstantes.Add('#CP866', 'cp866') ;
+    goConstantes.Add('#IBM866', 'ibm866') ;
+    goConstantes.Add('#CP1251', 'cp1251') ;
+    goConstantes.Add('#WINDOWS_1251', 'windows-1251') ;
+    goConstantes.Add('#WIN_1251', 'win-1251') ;
+    goConstantes.Add('#CP1252', 'cp1252') ;
+    goConstantes.Add('#WINDOWS_1252', 'windows-1252') ;
+    goConstantes.Add('#KOI8_R', 'koi8-r') ;
+    goConstantes.Add('#KOI8_RU', 'koi8-ru') ;
+    goConstantes.Add('#KOI8R', 'koi8r') ;
+    goConstantes.Add('#BIG5', 'big5') ;
+    goConstantes.Add('#GB2312', 'gb2312') ;
+    goConstantes.Add('#BIG5_HKSCS', 'big5-hkscs') ;
+    goConstantes.Add('#SHIFT_JIS', 'shift_jis') ;
+    goConstantes.Add('#SJIS', 'sjis') ;
+    goConstantes.Add('#EUC_JP', 'euc-jp') ;
+    goConstantes.Add('#EUCJP', 'eucjp' ) ;
 end ;
 
 end.

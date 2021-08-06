@@ -73,12 +73,10 @@ begin
     end ;
 end ;
 
-
-
 procedure UrlFunctionsInit ;
 begin
-    goInternalFunction.Add('urldecode', @urlDecodeCommande, true) ;
-    goInternalFunction.Add('urlencode', @urlEncodeCommande, true) ;
+    goInternalFunction.Add('urlDecode', @urlDecodeCommande, true) ;
+    goInternalFunction.Add('urlEncode', @urlEncodeCommande, true) ;
 end ;
 
 end.

@@ -69,6 +69,7 @@ begin
     inherited Create();
 
     poFunctionName := TStringList.Create ;
+    poFunctionName.CaseSensitive := True ;
     poArguments := TStringList.Create ;
 end ;
 
@@ -80,8 +81,8 @@ end ;
  *****************************************************************************}
 destructor TUserFunction.Free ;
 begin
-    poFunctionName.Free ;
-    poArguments.Free ;
+    FreeAndNil(poFunctionName) ;
+    FreeAndNil(poArguments) ;
     SetLength(paLine, 0) ;
 end ;
 
@@ -101,7 +102,7 @@ end ;
 procedure TUserFunction.Add(asNameOfFunction : string; aiStartPos : integer; aiEndPos : Integer; aoArgumentsList : String) ;
 var nb : Integer ;
 begin
-    poFunctionName.Add(LowerCase(asNameOfFunction)) ;
+    poFunctionName.Add(asNameOfFunction) ;
     poArguments.Add(aoArgumentsList) ;
     
     nb := poFunctionName.Count ;
@@ -129,7 +130,7 @@ Var
     { Compteur de fonction }
     liIndex : Integer ;
 begin
-    liIndexFunction := poFunctionName.IndexOf(LowerCase(asNameOfFunction)) ;
+    liIndexFunction := poFunctionName.IndexOf(asNameOfFunction) ;
 
     if (liIndexFunction <> -1)
     then begin
@@ -170,7 +171,7 @@ end ;
 function TUserFunction.Give(asNameOfFunction : string) : integer ;
 Var Index : Integer ;
 begin
-    Index := poFunctionName.IndexOf(LowerCase(asNameOfFunction)) ;
+    Index := poFunctionName.IndexOf(asNameOfFunction) ;
 
     if Index <> -1
     then begin
@@ -194,7 +195,7 @@ end ;
 function TUserFunction.GiveEnd(asNameOfFunction : string) : integer ;
 Var Index : Integer ;
 begin
-    Index := poFunctionName.IndexOf(LowerCase(asNameOfFunction)) ;
+    Index := poFunctionName.IndexOf(asNameOfFunction) ;
 
     if Index <> -1
     then begin
@@ -219,7 +220,7 @@ end ;
 function TUserFunction.IsSet(asNameOfFunction : string) : boolean ;
 Var Index : Integer ;
 begin
-    Index := poFunctionName.IndexOf(LowerCase(asNameOfFunction)) ;
+    Index := poFunctionName.IndexOf(asNameOfFunction) ;
 
     if Index <> -1
     then begin
@@ -285,7 +286,7 @@ begin
 
     if Index <> -1
     then begin
-        poFunctionName[Index] := LowerCase(asNewName) ;
+        poFunctionName[Index] := asNewName ;
         Result := True ;
     end
     else begin
@@ -306,7 +307,7 @@ end ;
 function TUserFunction.GiveArguments(asNameOfFunction : string) : string ;
 Var Index : Integer ;
 begin
-    Index := poFunctionName.IndexOf(LowerCase(asNameOfFunction)) ;
+    Index := poFunctionName.IndexOf(asNameOfFunction) ;
 
     if Index <> -1
     then begin

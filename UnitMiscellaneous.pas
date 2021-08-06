@@ -147,7 +147,7 @@ begin
         then begin
             if goLineToFile.count > 0
             then begin
-                FileName := AddSlashes(goListOfFile[MyStrToInt(goLineToFile[giCurrentLineNumber])]) ;
+                FileName := AddSlashes(goListOfFile[goLineToFile[giCurrentLineNumber]]) ;
             end
             else begin
                 FileName := csGeneralError ;
@@ -561,7 +561,7 @@ begin
                 lsName := goVarGetPostCookieFileData.goFileData.GiveVarNameByIndex(liIndex) ;
                 lsValue := goVarGetPostCookieFileData.goFileData.Give(lsName) ;
                 lsValue := showData(lsValue, '', 0) ;
-                lsValue := htmlspecialcharencode(lsValue, gsDefaultCharset, csAllQuoteConversion, false) ;
+                lsValue := htmlspecialcharencode(lsValue, gsDefaultCharset, ciAllQuoteConversion, false) ;
                 
                 ReplaceOneOccurence('\n', lsValue, '<br />', true) ;
                 putCol(lsName, lsValue) ;
@@ -574,7 +574,7 @@ begin
         OutPutString('</body>', false) ;
         OutPutString('</html>', false) ;
 
-        loListe.Free ;
+        FreeAndNil(loListe) ;
     end
     else if aoArguments.count < 0
     then begin
@@ -766,7 +766,7 @@ begin
             gsDefaultCharset := LowerCase(aoArguments[1]) ;
         end ;
 
-        loListe.Free ;
+        FreeAndNil(loListe) ;
     end
     else if aoArguments.count < 2
     then begin
@@ -803,7 +803,7 @@ begin
         end ;
 
                 gsResultFunction := csTrueValue ;
-                ListArguments.Free ;
+                FreeAndNil(ListArguments) ;
             end ;
         end ;
     end
@@ -1205,33 +1205,33 @@ end  ;
 procedure MiscellaneousFunctionsInit ;
 begin
     goInternalFunction.Add('header', @headerCommande, true) ;
-    goInternalFunction.Add('getget', @getGetCommande, true) ;
-    goInternalFunction.Add('getcookie', @getCookieCommande, true) ;
-    goInternalFunction.Add('getgetnumber', @getGetNumberCommande, true) ;
-    goInternalFunction.Add('getcookienumber', @getCookieCommande, true) ;
-    goInternalFunction.Add('getenv', @getenvCommande, true) ;
-    goInternalFunction.Add('setcookie', @setCookieCommande, true) ;
-    goInternalFunction.Add('swsinfo', @swsinfoCommande, true) ;
-    goInternalFunction.Add('getpost', @getpostCommande, true) ;
-    goInternalFunction.Add('getpostnumber', @getPostNumberCommande, true) ;
-    goInternalFunction.Add('getcfgvars', @getCfgVarsCommande, true) ;
-    goInternalFunction.Add('getfile', @getFileCommande, true) ;
-    goInternalFunction.Add('setlocal', @setLocalCommande, true) ;
-    goInternalFunction.Add('outputbufferstart', @OutputBufferStartCommande, true) ;
-    goInternalFunction.Add('outputbufferwrite', @OutputBufferWriteCommande, true) ;
-    goInternalFunction.Add('outputbufferclear', @OutputBufferClearCommande, true) ;
-    goInternalFunction.Add('outputbufferstop', @OutputBufferStopCommande, true) ;
-    goInternalFunction.Add('outputbufferget', @OutputBufferGetCommande, true) ;
-    goInternalFunction.Add('shellexec', @ShellExecCommande, true) ;
+    goInternalFunction.Add('getGet', @getGetCommande, true) ;
+    goInternalFunction.Add('getCookie', @getCookieCommande, true) ;
+    goInternalFunction.Add('getGetNumber', @getGetNumberCommande, true) ;
+    goInternalFunction.Add('getCookieNumber', @getCookieCommande, true) ;
+    goInternalFunction.Add('getEnv', @getenvCommande, true) ;
+    goInternalFunction.Add('setCookie', @setCookieCommande, true) ;
+    goInternalFunction.Add('swsInfo', @swsinfoCommande, true) ;
+    goInternalFunction.Add('getPost', @getpostCommande, true) ;
+    goInternalFunction.Add('getPostNumber', @getPostNumberCommande, true) ;
+    goInternalFunction.Add('getCfgVars', @getCfgVarsCommande, true) ;
+    goInternalFunction.Add('getFile', @getFileCommande, true) ;
+    goInternalFunction.Add('setLocal', @setLocalCommande, true) ;
+    goInternalFunction.Add('outputBufferStart', @OutputBufferStartCommande, true) ;
+    goInternalFunction.Add('outputBufferWrite', @OutputBufferWriteCommande, true) ;
+    goInternalFunction.Add('outputBufferClear', @OutputBufferClearCommande, true) ;
+    goInternalFunction.Add('outputBufferStop', @OutputBufferStopCommande, true) ;
+    goInternalFunction.Add('outputBufferGet', @OutputBufferGetCommande, true) ;
+    goInternalFunction.Add('shellExec', @ShellExecCommande, true) ;
     goInternalFunction.Add('crc32', @Crc32Commande, true) ;
     goInternalFunction.Add('sleep', @SleepCommande, true) ;
     goInternalFunction.Add('rol', @RolCommande, true) ;
     goInternalFunction.Add('ror', @RorCommande, true) ;
     goInternalFunction.Add('md5', @Md5Commande, true) ;
-    goInternalFunction.Add('issetget', @IsSetGetCommande, true) ;
-    goInternalFunction.Add('issetpost', @IsSetPostCommande, true) ;
-    goInternalFunction.Add('issetcookie', @IsSetCookieCommande, true) ;
-    goInternalFunction.Add('issetfile', @IsSetFileCommande, true) ;
+    goInternalFunction.Add('isSetGet', @IsSetGetCommande, true) ;
+    goInternalFunction.Add('isSetPost', @IsSetPostCommande, true) ;
+    goInternalFunction.Add('isSetCookie', @IsSetCookieCommande, true) ;
+    goInternalFunction.Add('isSetFile', @IsSetFileCommande, true) ;
 end ;
 
 end.

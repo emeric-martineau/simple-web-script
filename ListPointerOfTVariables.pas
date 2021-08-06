@@ -79,8 +79,8 @@ end ;
 
 destructor TPointerOfTVariable.Free ;
 begin
-    poPointerName.Free ;
-    poVarName.Free ;
+    FreeAndNil(poPointerName) ;
+    FreeAndNil(poVarName) ;
     SetLength(paPointerOfTVariable, 0) ;
 end ;
 
@@ -100,7 +100,7 @@ var
     { Taille du tableau de pointeur }
     liLength : Integer ;
 begin
-    poPointerName.Add(LowerCase(asNameOfPointer)) ;
+    poPointerName.Add(asNameOfPointer) ;
     poVarName.Add(asNameOfVar) ;
 
     liLength := poPointerName.Count ;

@@ -20,23 +20,19 @@ Compile</a></li>
 <ol>
 <li><a href="langage.htm#variable">Variables</a></li>
 <li><a href="langage.htm#constante">Constantes</a></li>
-<li><a href="langage.htm#goto">Jump
-GOTO/LOCALGOTO</a></li>
 <li><a href="langage.htm#boucle">Boucle of
-control WHILE, REPEAT, FOR, BREAK</a></li>
-<li><a href="langage.htm#switch">SWITCH</a></li>
+control while, repeat, for, break</a></li>
+<li><a href="langage.htm#switch">switch</a></li>
 <li><a href="langage.htm#condition">Condition
-IF/ELSE</a></li>
+if/else</a></li>
 <li><a href="langage.htm#commentaire">Comments</a></li>
 <li><a href="langage.htm#inclusion">Include in
 xHTML page</a></li>
-<li><a href="langage.htm#exit">Stop program
-EXIT</a></li>
 <li><a href="langage.htm#operators">Operators</a>
 (*/-+&amp;|...)</li>
 <li><a href="langage.htm#pointer">Pointers</a></li>
 <li><a href="langage.htm#function">Function</a></li>
-<li><a href="langage.htm#exit">EXIT</a></li>
+<li><a href="langage.htm#exit">exit</a></li>
 <li><a href="langage.htm#array">Array</a></li>
 <li><a href="langage.htm#string">String</a></li>
 <li><a href="langage.htm#reservedword">Reserved
@@ -61,7 +57,7 @@ an extension</a></li>
 <li><a href="langage.htm#arraychunk">arrayChunk</a></li>
 <li><a href="langage.htm#arraypop">arrayExchange</a></li>
 <li><a href="langage.htm#arrayfill">arrayFill</a></li>
-<li><a href="langage.htm#iisarray">arrayInsert</a></li>
+<li><a href="langage.htm#arrayinsert">arrayInsert</a></li>
 <li><a href="langage.htm#arraymerge">arrayMerge</a></li>
 <li><a href="langage.htm#arraypop">arrayPop</a></li>
 <li><a href="langage.htm#arraypush">arrayPush</a></li>
@@ -91,6 +87,7 @@ an extension</a></li>
 <li><a href="langage.htm#isfloat">isFloat</a></li>
 <li><a href="langage.htm#ishexa">isHexa</a></li>
 <li><a href="langage.htm#isinteger">isInteger</a></li>
+<li><a href="langage.htm#isOctal">isOctal</a></li>
 <li><a href="langage.htm#isnumeric">isNumeric</a></li>
 <li><a href="langage.htm#isinteger">isString</a></li>
 <li><a href="langage.htm#lenght">length</a></li>
@@ -144,23 +141,51 @@ an extension</a></li>
 </li>
 <li><a href="math.htm">Math functions</a></li><li><a href="math.htm"></a>
 <ol>
-<li><a href="math.htm#abs">Abs</a></li><li><a href="math.htm#acos">ACos</a></li><li><a href="math.htm#acosh">ACosh</a></li><li><a href="math.htm#acot">ACot</a></li><li><a href="math.htm#asin">ASin</a></li><li><a href="math.htm#asinh">ASinh</a></li><li><a href="math.htm#atan">ATan</a></li><li><a href="math.htm#atan2">ATan2</a></li><li><a href="math.htm#atanh">ATanh</a></li><li><a href="math.htm#bintodec">BinToDec</a></li><li><a href="math.htm#ceil">Ceil</a></li><li><a href="math.htm#cos">Cos</a></li><li><a href="math.htm#cot">Cot</a></li><li><a href="math.htm#dectobin">DecToBin</a></li>
-<li><a href="math.htm#dectohex">DecToHex</a></li>
-<li><a href="math.htm#dectooct">DecToOct</a></li><li><a href="math.htm#ensurerange">EnsureRange</a></li><li><a href="math.htm#exp">Exp</a></li>
-<li><a href="math.htm#extractfloatpart">ExtractFloatPart</a></li>
-<li><a href="math.htm#extractintpart">ExtractIntPart</a></li><li><a href="math.htm#frac">Frac</a></li><li><a href="math.htm#frexp">Frexp</a></li><li><a href="math.htm#inrange">InRange</a></li><li><a href="math.htm#int">Int</a></li><li><a href="math.htm#ldexp">LdExp</a></li><li><a href="math.htm#ln">Ln</a></li><li><a href="math.htm#lnxp1">LnXP1</a></li><li><a href="math.htm#log2">Log2</a></li><li><a href="math.htm#log10">Log10</a></li><li><a href="math.htm#logn">Log10</a></li><li><a href="math.htm#max">Max</a></li><li><a href="math.htm#min">Min</a></li><li><a href="math.htm#odd">Odd</a></li>
-<li><a href="math.htm#pi">Pi</a></li>
-<li><a href="math.htm#poly">Poly</a></li>
-<li><a href="math.htm#rand">Rand</a></li>
-<li><a href="math.htm#round">Round</a></li>
-<li><a href="math.htm#roundto">RoundTo</a></li>
-<li><a href="math.htm#sin">Sin</a></li>
-<li><a href="math.htm#samevalue">SameValue</a></li>
-<li><a href="math.htm#sqr">Sqr</a></li>
-<li><a href="math.htm#sqrt">Sqrt</a></li>
-<li><a href="math.htm#tan">Tan</a></li>
-<li><a href="math.htm#trunc">Trunc</a></li>
-<li><a href="math.htm#uniqid">UniqID</a></li>
+<li><a href="math.htm#abs">abs</a></li>
+<li><a href="math.htm#acos">aCos</a></li>
+<li><a href="math.htm#acosh">aCosh</a></li>
+<li><a href="math.htm#acot">aCot</a></li>
+<li><a href="math.htm#asin">aSin</a></li>
+<li><a href="math.htm#asinh">aSinh</a></li>
+<li><a href="math.htm#atan">aTan</a></li>
+<li><a href="math.htm#atan2">aTan2</a></li>
+<li><a href="math.htm#atanh">aTanh</a></li>
+<li><a href="math.htm#bintodec">binToDec</a></li>
+<li><a href="math.htm#ceil">ceil</a></li>
+<li><a href="math.htm#cos">cos</a></li>
+<li><a href="math.htm#cot">cot</a></li>
+<li><a href="math.htm#dectobin">decToBin</a></li>
+<li><a href="math.htm#dectohex">decToHex</a></li>
+<li><a href="math.htm#dectooct">decToOct</a></li>
+<li><a href="math.htm#ensurerange">ensureRange</a></li>
+<li><a href="math.htm#exp">exp</a></li>
+<li><a href="math.htm#extractfloatpart">extractFloatPart</a></li>
+<li><a href="math.htm#extractintpart">extractIntPart</a></li>
+<li><a href="math.htm#frac">frac</a></li>
+<li><a href="math.htm#frexp">frExp</a></li>
+<li><a href="math.htm#inrange">inRange</a></li>
+<li><a href="math.htm#int">int</a></li>
+<li><a href="math.htm#ldexp">ldExp</a></li>
+<li><a href="math.htm#ln">ln</a></li>
+<li><a href="math.htm#lnxp1">lnxp1</a></li>
+<li><a href="math.htm#log2">log2</a></li>
+<li><a href="math.htm#log10">log10</a></li>
+<li><a href="math.htm#logn">logn</a></li>
+<li><a href="math.htm#max">max</a></li>
+<li><a href="math.htm#min">min</a></li>
+<li><a href="math.htm#odd">odd</a></li>
+<li><a href="math.htm#pi">pi</a></li>
+<li><a href="math.htm#poly">poly</a></li>
+<li><a href="math.htm#rand">rand</a></li>
+<li><a href="math.htm#round">round</a></li>
+<li><a href="math.htm#roundto">roundTo</a></li>
+<li><a href="math.htm#sin">sin</a></li>
+<li><a href="math.htm#samevalue">sameValue</a></li>
+<li><a href="math.htm#sqr">sqr</a></li>
+<li><a href="math.htm#sqrt">sqrt</a></li>
+<li><a href="math.htm#tan">tan</a></li>
+<li><a href="math.htm#trunc">trunc</a></li>
+<li><a href="math.htm#uniqid">uniqID</a></li>
 </ol>
 </li>
 <li><a href="miscellaneous.htm">Miscellaneous
@@ -195,8 +220,17 @@ functions</a>
 <br><ol>
 <li><a href="html.htm#htmlspecialcharsencode">htmlspecialcharsencode</a></li><li><a href="html.htm#htmlspecialcharsdecode">htmlspecialcharsdecode</a></li><li><a href="html.htm#nltobr">nltobr</a></li><li><a href="html.htm#striptags">StripTags</a></li>
 </ol>
+
+<li><a href="miscellaneous.htm">URL
+functions</a>
+<ol>
+<li><a href="url.htm#urldecode">urlDecode</a></li>
+<li><a href="url.htm#urlencode">urlEncode</a></li>
+</ol>
+
 </li>
 </ol>
 </li>
 </ol>
+
 </body></html>

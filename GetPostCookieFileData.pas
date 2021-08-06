@@ -43,7 +43,7 @@ type
       { Valeur du boundary pour les données post }
       psBoundary : String ;
       { Taille du content soit des données reçu en post }
-      piContentLength : Integer ;
+      piContentLength : Int64 ;
       { Taille maximum du post }
       piMaxPostSize : Integer ;
       { Taille maximum des fichiers envoyé en post }
@@ -142,17 +142,17 @@ end ;
 destructor TGetPostCookieFileData.Free ;
 var i : Integer ;
 begin
-    goGetData.Free ;
-    goPostData.Free ;
-    goCookieData.Free ;
-    goFileData.Free ;
+    FreeAndNil(goGetData) ;
+    FreeAndNil(goPostData) ;
+    FreeAndNil(goCookieData) ;
+    FreeAndNil(goFileData) ;
 
     for i := 0 to poTmpFilesName.Count - 1 do
     begin
         DeleteFile(poTmpFilesName[i]) ;
     end ;
 
-    poTmpFilesName.Free ;
+    FreeAndNil(poTmpFilesName) ;
 end ;
 
 {*****************************************************************************
@@ -326,7 +326,7 @@ begin
             then begin
                 { 9 = 'boundary=' }
                 psBoundary := '--' + Copy(tmp, i + 9, length(tmp) - i - 9 + 1) ;
-                piContentLength := MyStrToInt(GetEnvironmentVariable('CONTENT_LENGTH')) ;
+                piContentLength := MyStrToInt64(GetEnvironmentVariable('CONTENT_LENGTH')) ;
 
                 GetMultipartFormData ;
             end ;
@@ -385,8 +385,8 @@ begin
            end ;
        end ;
 
-       loListe.Free ;
-       loElement.Free ;
+       FreeAndNil(loListe) ;
+       FreeAndNil(loElement) ;
    end ;
 end ;
 
@@ -497,8 +497,8 @@ begin
 
         asValeur := loLocalVariable.Give(asNom) ;
 
-        loTableau.Free ;
-        loLocalVariable.Free ;
+        FreeAndNil(loTableau) ;
+        FreeAndNil(loLocalVariable) ;
     end
     else begin
        asValeur := AddSlashes(asValeur) ;
@@ -852,8 +852,8 @@ begin
        on EInOutError do ;
     end ;
 
-    loLignes.Free ;
-    loLocalVariable.Free ;
+    FreeAndNil(loLignes) ;
+    FreeAndNil(loLocalVariable) ;
 end ;
 
 {*****************************************************************************

@@ -4,24 +4,33 @@
 <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1"></head>
 <body style="color: rgb(0, 0, 0); background-color: rgb(255, 255, 255);">
 <h1>Miscellaneous functions</h1>
-<h2>bintohex<a name="bintohex"></a></h2>
-<p>string bintohex(binary_string) : return binary string in hexa format (withou 0x at begin).</p><h2>crc32<a name="crc32"></a></h2>
+
+<h2>binToHex<a name="bintohex"></a></h2>
+<p>string binToHex(binary_string) : return binary string in hexa format (withou 0x at begin).</p>
+
+<h2>crc32<a name="crc32"></a></h2>
 <p>int crc32(string) : return crc32 value of string.</p>
+
 <h2>getCookie<a name="getcookie"></a></h2>
 <p>string getCookie('cookiename') : return value of cookie with
 name. Return empty string if not set. Data return with escape (\)
 charactere.</p>
+
 <h2>getCookieNumber<a name="getcookienumber"></a></h2>
 <p>string getCookieNumber : return number cookie send by browser.</p>
+
 <h2>getEnv<a name="getenv"></a></h2>
 <p>string getEnv('envname') : return value of get environement.
 Return empty string if not set. Data return with escape (\) charactere.</p>
+
 <h2>getGet<a name="getget"></a></h2>
 <p>string getGet('getname') : return value of get parameter with
 name. Return empty string if not set. Data return with escape (\)
 charactere.</p>
+
 <h2>getGetNumber<a name="getcookienumber"></a></h2>
 <p>string getGetNumber : return number cookie send by browser.</p>
+
 <h2>getCfgVars<a name="getcfgvars"></a></h2>
 <p>string getCfgVars : return configuration of Simple Web Script.</p>
 <ul>
@@ -30,38 +39,43 @@ be executed,</li>
 <li>memory_limit : maximum of memory can be allowed to a script,</li>
 <li>disabled_function : list fonction disabled.</li>
 </ul>
+
 <h2>getFile<a name="getfile"></a></h2>
 <p>string getFile('postname') : return array of file. 1 : tempory
 file name, 2 : content/type : 3, filename, 4 : size.</p>
+
 <h2>getPost<a name="getpost"></a></h2>
 <p>string getPost(postname') : return value of post form with
 name. Return empty string if not set. Data return with escape (\)
 charactere.</p>
+
 <h2>getPostNumber<a name="getcookienumber"></a></h2>
 <p>int getPostNumber : return number element send by browser by
 post form.</p>
+
 <h2>header<a name="header"></a></h2>
 <p>bool header(string) : send header to browser. Return true if
 succes, false else. </p>
 
-<h2>IsSetGet<a name="issetget"></a></h2>
-<p>bool IsSetGet(string) : return true if name of Get data exist.</p>
+<h2>isSetGet<a name="issetget"></a></h2>
+<p>bool isSetGet(string) : return true if name of Get data exist.</p>
 
-<h2>IsSetPost<a name="issetpost"></a></h2>
-<p>bool IsSetPost(string) : return true if name of Post data exist.</p>
+<h2>isSetPost<a name="issetpost"></a></h2>
+<p>bool isSetPost(string) : return true if name of Post data exist.</p>
 
-<h2>IsSetCookie<a name="issetcookie"></a></h2>
-<p>bool IsSetCookie(string) : return true if name of Cookie data exist.</p>
+<h2>isSetCookie<a name="issetcookie"></a></h2>
+<p>bool isSetCookie(string) : return true if name of Cookie data exist.</p>
 
-<h2>IsSetFile<a name="issetget"></a></h2>
-<p>bool IsSetFile(string) : return true if name of File data exist.</p>
+<h2>isSetFile<a name="issetget"></a></h2>
+<p>bool isSetFile(string) : return true if name of File data exist.</p>
 
-
-<h2>OutputBufferClear<a name="outputbufferclear"></a></h2>
+<h2>outputBufferClear<a name="outputbufferclear"></a></h2>
 <p>void outPutBufferStart() : clear current output buffer</p>
-<h2>OutputBufferGet<a name="outputbufferget"></a></h2>
+
+<h2>outputBufferGet<a name="outputbufferget"></a></h2>
 <p>string outPutBufferGet() : return current output buffer</p>
-<h2>OutputBufferStart<a name="outputbufferstart"></a></h2>
+
+<h2>outputBufferStart<a name="outputbufferstart"></a></h2>
 <p>bool outPutBufferStart(["name of script function"]) : After
 call, no output is done. When a value is output, function passed by
 parameter was call. Result function is new value for output. Return
@@ -71,29 +85,36 @@ function essai($buffer)<br>
 &nbsp; &nbsp; $result = strlowercase($buffer)<br>
 endfunc<br>
 <br>
-OutPutBufferStart("essai")</p>
-<h2>OutputBufferStop<a name="outputbufferstop"></a></h2>
+outPutBufferStart("essai")</p>
+
+<h2>outputBufferStop<a name="outputbufferstop"></a></h2>
 <p>void outPutBufferStop) : stop buffering output. Not send
 buffer. You must use <a href="#outputbufferwrite">OutPutBufferWrite</a>.</p>
-<h2>OutputBufferWrite<a name="outputbufferwrite"></a></h2>
+
+<h2>outputBufferWrite<a name="outputbufferwrite"></a></h2>
 <p>void outPutBufferStart() :&nbsp;write current output
 buffer and empty this</p>
-<h2>Rol<a name="rol"></a></h2>
-<p>void Rol(byte value, [int decalage]) : rotate bit at left (127 (10000000) &gt; 1)</p><h2>Ror<a name="ror"></a></h2>
-<p>void Ror(byte value, [int decalage]) : rotate bit at right (1 &gt; 127 (10000000)</p><h2>setCookie<a name="setcookie"></a></h2>
+
+<h2>rol<a name="rol"></a></h2>
+<p>void rol(byte value, [int32 decalage]) : rotate bit at left (127 (10000000) &gt; 1)</p>
+
+<h2>ror<a name="ror"></a></h2>
+<p>void ror(byte value, [int32 decalage]) : rotate bit at right (1 &gt; 127 (10000000)</p>
+
+<h2>setCookie<a name="setcookie"></a></h2>
 <div class="refsect1 description"> Description <br>
 <br>
-<div> <span><b><b>setcookie</b></b></span>
+<div> <span><b><b>setCookie</b></b></span>
 ( <span><span class="type">string</span>
 <tt>$name</tt></span> [, <span><span class="type">string</span>
-<tt>$value</tt></span> [, <span><span class="type">int</span>
+<tt>$value</tt></span> [, <span><span class="type">int32</span>
 <tt>$expire</tt></span> [, <span><span class="type">string</span>
 <tt>$path</tt></span> [, <span><span class="type">string</span>
 <tt>$domain</tt></span> [, <span><span class="type">bool</span>
 <tt>$secure</tt></span> [, <span><span class="type">bool</span>
 <tt>$httponly</tt></span>
 ]]]]]] )</div>
-<p> <b>setcookie()</b> defines a
+<p> <b>setCookie()</b> defines a
 cookie to be sent along with the rest of the HTTP headers. Like other
 headers, cookies must be sent <em>before</em>
 any output from your script (this is a protocol restriction). This
@@ -185,9 +206,9 @@ for details. </em></em></p>
 <dd>
 <p>Indicates that the cookie should only
 be transmitted over a secure HTTPS connection from the client. When set
-to <strong><tt>$TRUE</tt></strong>, the cookie
+to <strong><tt>true</tt></strong>, the cookie
 will only
-be set if a secure connection exists. The default is <strong><tt>$FALSE</tt></strong>.
+be set if a secure connection exists. The default is <strong><tt>false</tt></strong>.
 On the server-side, it's on the programmer to send this kind of cookie
 only on secure connection.</p>
 </dd>
@@ -195,12 +216,12 @@ only on secure connection.</p>
 <span><em><em><tt>httponly</tt></em>
 </em></span></dt>
 <dd>
-<p>When <strong><tt>$TRUE</tt></strong>
+<p>When <strong><tt>true</tt></strong>
 the cookie will be made accessible only through the HTTP protocol. This
 means that the cookie won't be accessible by scripting languages, such
 as JavaScript. This setting can effectly help to reduce identity theft
-through XSS attacks (although it is not supported by all browsers). <b><tt>$TRUE</tt>
-or <strong><tt>$FALSE</tt> </strong></b></p>
+through XSS attacks (although it is not supported by all browsers). <b><tt>true</tt>
+or <strong><tt>false</tt> </strong></b></p>
 </dd>
 </dl>
 </div>
@@ -215,7 +236,7 @@ setlocal(parameter, value) : setup local parameter.<br>
 'millierseparator' : setup milliers separator (use by <a href="string.htm#strnumberformat">strNumberFormat</a>).<br>'charset' : setup default charset (use by <a href="#swsinfo">swsinfo</a>, <a href="html.htm#htmlspecialcharsencode">htmlspecialcharsencode</a>, <a href="html.htm#htmlspecialcharsdecode">htmlspecialcharsdecode</a>)</p>
 <h2>swsInfo<a name="swsinfo"></a></h2>
 <p>void
-sleep(delay) : wait delay milliseconds.</p>
+sleep(int32 delay) : wait delay milliseconds.</p>
 <h2>swsInfo<a name="swsinfo"></a></h2>
 <p>void
 swsinfo() : show information about Simple Web Script.

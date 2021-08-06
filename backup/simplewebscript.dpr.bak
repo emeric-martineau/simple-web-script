@@ -70,8 +70,7 @@ uses
   UnitOS,
   IniFiles,
   UnitHtml,
-  Constantes,
-  IntegerList ;
+  Constantes;
 
 {$I config.inc}
 
@@ -236,10 +235,6 @@ begin
             then begin
                 lsFileName := ParamStr(liIndex + 1) ;
                 Inc(liIndex) ;
-            end
-            else if ParamStr(liIndex) = '-tagsupport'
-            then begin
-                gbTagSupport := True ;
             end ;
 
             Inc(liIndex) ;
@@ -269,8 +264,6 @@ begin
         {$ELSE}
         OutPutString(csNoFileInput, false) ;
         {$ENDIF}
-
-        gbError := True ;
     end
     else begin
         OsInstallTrapOfCtrlC ;
@@ -279,7 +272,7 @@ begin
 
         goListOfFile := TStringList.Create ;
         goLineToFileLine := TStringList.Create ;
-        goLineToFile := TIntegerList.Create ;
+        goLineToFile := TStringList.Create ;
         goInternalFunction := TInternalFunction.Create ;
         goPointerOfVariables := TPointerOfTVariable.Create ;
         goListOfExtension := TExtension.Create ;
@@ -301,6 +294,10 @@ begin
         MathFunctionsInit ;
         MiscellaneousFunctionsInit ;
         HtmlFunctionsInit ;
+
+        gbReturn := False ;
+        gbContinue := False ;
+        gbReturn := False ;
 
         if gsDisabledFunctions <> ''
         then begin

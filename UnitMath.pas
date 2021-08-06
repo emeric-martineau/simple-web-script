@@ -133,13 +133,13 @@ begin
 end ;
 
 procedure DecToHexCommande(aoArguments : TStringList) ;
-var valeur : Integer ;
+var valeur : Int64 ;
 begin
     if aoArguments.count = 1
     then begin
         if isFloat(aoArguments[0])
         then begin
-            valeur := MyStrToInt(ExtractIntPart(aoArguments[0])) ;
+            valeur := MyStrToInt64(ExtractIntPart(aoArguments[0])) ;
             gsResultFunction := DecToHex(valeur) ;
         end
         else begin
@@ -157,13 +157,13 @@ begin
 end ;
 
 procedure DecToOctCommande(aoArguments : TStringList) ;
-var valeur : Integer ;
+var valeur : Int64 ;
 begin
     if aoArguments.count = 1
     then begin
         if isFloat(aoArguments[0])
         then begin
-            valeur := MyStrToInt(ExtractIntPart(aoArguments[0])) ;
+            valeur := MyStrToInt64(ExtractIntPart(aoArguments[0])) ;
             gsResultFunction := DecToOct(valeur) ;
         end
         else begin
@@ -181,13 +181,13 @@ begin
 end ;
 
 procedure DecToBinCommande(aoArguments : TStringList) ;
-var valeur : Integer ;
+var valeur : Int64 ;
 begin
     if aoArguments.count = 1
     then begin
         if isFloat(aoArguments[0])
         then begin
-            valeur := MyStrToInt(ExtractIntPart(aoArguments[0])) ;
+            valeur := MyStrToInt64(ExtractIntPart(aoArguments[0])) ;
             gsResultFunction := DecToBin(valeur) ;
         end
         else begin
@@ -238,21 +238,21 @@ end ;
 
 procedure MaxCommande(aoArguments : TStringList) ;
 var i : Integer ;
-    MaxValue : Integer ;
-    CurrentValue : Integer ;
+    MaxValue : Int64 ;
+    CurrentValue : Int64 ;
 begin
     if aoArguments.count > 0
     then begin
         if isFloat(aoArguments[0])
         then begin
-            MaxValue := MyStrToInt(aoArguments[0]) ;
+            MaxValue := MyStrToInt64(aoArguments[0]) ;
             gsResultFunction := aoArguments[0] ;
 
             for i := 1 to aoArguments.Count - 1 do
             begin
                 if isFloat(aoArguments[i])
                 then begin
-                    CurrentValue := MyStrToInt(aoArguments[i]) ;
+                    CurrentValue := MyStrToInt64(aoArguments[i]) ;
 
                     if CurrentValue > MaxValue
                     then begin
@@ -278,21 +278,21 @@ end ;
 
 procedure MinCommande(aoArguments : TStringList) ;
 var i : Integer ;
-    MinValue : Integer ;
-    CurrentValue : Integer ;
+    MinValue : Int64 ;
+    CurrentValue : Int64 ;
 begin
     if aoArguments.count > 0
     then begin
         if isFloat(aoArguments[0])
         then begin
-            MinValue := MyStrToInt(aoArguments[0]) ;
+            MinValue := MyStrToInt64(aoArguments[0]) ;
             gsResultFunction := aoArguments[0] ;
 
             for i := 1 to aoArguments.Count - 1 do
             begin
                 if isFloat(aoArguments[i])
                 then begin
-                    CurrentValue := MyStrToInt(aoArguments[i]) ;
+                    CurrentValue := MyStrToInt64(aoArguments[i]) ;
 
                     if CurrentValue < MinValue
                     then begin
@@ -400,7 +400,7 @@ begin
     then begin
         if isInteger(aoArguments[0])
         then begin
-            if Odd(MyStrToInt(aoArguments[0]))
+            if Odd(MyStrToInt64(aoArguments[0]))
             then begin
                 gsResultFunction := csTrueValue ;
             end
@@ -841,7 +841,8 @@ begin
 end ;
 
 procedure randCommande(aoArguments : TStringList) ;
-var aMax, aMin : Integer ;
+var aMax : Int64 ;
+    aMin : Int64 ;
 begin
     if (aoArguments.count = 1) or (aoArguments.count = 2)
     then begin
@@ -851,14 +852,14 @@ begin
 
             if (aoArguments.count = 1)
             then begin
-                gsResultFunction := MyFloatToStr(Random(MyStrToInt(aoArguments[0]))) ;
+                gsResultFunction := MyFloatToStr(Random(MyStrToInt64(aoArguments[0]))) ;
             end
             else begin
                 if isInteger(aoArguments[1])
                 then begin
-                    aMin := MyStrToInt(aoArguments[0]) ;
-                    aMax := MyStrToInt(aoArguments[1]) ;
-                    gsResultFunction := MyFloatToStr(Random(aMax-aMin) + aMin) ;
+                    aMin := MyStrToInt64(aoArguments[0]) ;
+                    aMax := MyStrToInt64(aoArguments[1]) ;
+                    gsResultFunction := MyFloatToStr(Random(aMax - aMin) + aMin) ;
                 end
                 else
                     ErrorMsg(csMustBeInteger) ;
@@ -1142,7 +1143,7 @@ begin
 
             goVariables.explode(Liste, aoArguments[1]) ;
 
-            if not gbError
+            if not gbQuit
             then begin
                 X := MyStrToFloat(aoArguments[0]) ;
 
@@ -1152,7 +1153,7 @@ begin
                 begin
                     Resultat := Resultat + MyStrToFloat(Liste[i]) * Power(X, i) ;
 
-                    if gbError
+                    if gbQuit
                     then begin
                         break ;
                     end ;
@@ -1162,7 +1163,7 @@ begin
 
             end ;
 
-            Liste.Free ;
+            FreeAndNil(Liste) ;
         end
         else begin
             ErrorMsg(csNotAFloatValue) ;
@@ -1238,33 +1239,33 @@ end ;
 
 procedure MathFunctionsInit ;
 begin
-    goInternalFunction.Add('extractintpart', @ExtractIntPartCommande, true) ;
-    goInternalFunction.Add('extractfloatpart', @ExtractFloatPartCommande, true) ;
-    goInternalFunction.Add('dectohex', @DecToHexCommande, true) ;
-    goInternalFunction.Add('dectooct', @DecToOctCommande, true) ;
-    goInternalFunction.Add('dectobin', @DecToBinCommande, true) ;
+    goInternalFunction.Add('extractIntPart', @ExtractIntPartCommande, true) ;
+    goInternalFunction.Add('extractFloatPart', @ExtractFloatPartCommande, true) ;
+    goInternalFunction.Add('decToHex', @DecToHexCommande, true) ;
+    goInternalFunction.Add('decToOct', @DecToOctCommande, true) ;
+    goInternalFunction.Add('decToBin', @DecToBinCommande, true) ;
     goInternalFunction.Add('pi', @PiCommande, true) ;
-    goInternalFunction.Add('uniqid', @uniqIdCommande, true) ;
+    goInternalFunction.Add('uniqID', @uniqIdCommande, true) ;
     goInternalFunction.Add('max', @MaxCommande, true) ;
     goInternalFunction.Add('min', @MinCommande, true) ;
-    goInternalFunction.Add('bintodec', @BinToDecCommande, true) ;
+    goInternalFunction.Add('binToDec', @BinToDecCommande, true) ;
     goInternalFunction.Add('exp', @ExpCommande, true) ;
     goInternalFunction.Add('ln', @LnCommande, true) ;
     goInternalFunction.Add('odd', @oddCommande, true) ;
     goInternalFunction.Add('cos', @cosCommande, true) ;
-    goInternalFunction.Add('acos', @acosCommande, true) ;
-    goInternalFunction.Add('acosh', @acoshCommande, true) ;
+    goInternalFunction.Add('aCos', @acosCommande, true) ;
+    goInternalFunction.Add('aCosh', @acoshCommande, true) ;
     goInternalFunction.Add('sin', @sinCommande, true) ;
-    goInternalFunction.Add('asin', @asinCommande, true) ;
-    goInternalFunction.Add('asinh', @asinhCommande, true) ;
+    goInternalFunction.Add('aSin', @asinCommande, true) ;
+    goInternalFunction.Add('aSinh', @asinhCommande, true) ;
     goInternalFunction.Add('tan', @tanCommande, true) ;
-    goInternalFunction.Add('atan', @atanCommande, true) ;
-    goInternalFunction.Add('atanh', @atanhCommande, true) ;
-    goInternalFunction.Add('atan2', @atan2Commande, true) ;
+    goInternalFunction.Add('aTan', @atanCommande, true) ;
+    goInternalFunction.Add('aTanh', @atanhCommande, true) ;
+    goInternalFunction.Add('aTan2', @atan2Commande, true) ;
     goInternalFunction.Add('abs', @absCommande, true) ;
     goInternalFunction.Add('frac', @absCommande, true) ;
     goInternalFunction.Add('cot', @cotCommande, true) ;
-    goInternalFunction.Add('acot', @acotCommande, true) ;
+    goInternalFunction.Add('aCot', @acotCommande, true) ;
     goInternalFunction.Add('int', @intCommande, true) ;
     goInternalFunction.Add('round', @roundCommande, true) ;
     goInternalFunction.Add('sqrt', @sqrtCommande, true) ;
@@ -1272,18 +1273,18 @@ begin
     goInternalFunction.Add('trunc', @truncCommande, true) ;
     goInternalFunction.Add('rand', @randCommande, true) ;
     goInternalFunction.Add('ceil', @ceilCommande, true) ;
-    goInternalFunction.Add('ensurerange', @EnsureRangeCommande, true) ;
+    goInternalFunction.Add('ensureRange', @EnsureRangeCommande, true) ;
     goInternalFunction.Add('floor', @FloorCommande, true) ;
     goInternalFunction.Add('frexp', @FrexpCommande, false) ;
-    goInternalFunction.Add('inrange', @InRangeCommande, true) ;
+    goInternalFunction.Add('inRange', @InRangeCommande, true) ;
     goInternalFunction.Add('ldexp', @LdExpCommande, true) ;
     goInternalFunction.Add('lnxp1', @LnXP1Commande, true) ;
     goInternalFunction.Add('log10', @Log10Commande, true) ;
     goInternalFunction.Add('log2', @Log2Commande, true) ;
     goInternalFunction.Add('logn', @LogNCommande, true) ;
     goInternalFunction.Add('poly', @PolyCommande, true) ;
-    goInternalFunction.Add('samevalue', @SameValueCommande, true) ;
-    goInternalFunction.Add('roundto', @RoundToCommande, true) ;
+    goInternalFunction.Add('sameValue', @SameValueCommande, true) ;
+    goInternalFunction.Add('roundTo', @RoundToCommande, true) ;
 end ;
 
 end.

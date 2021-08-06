@@ -54,8 +54,7 @@ uses SysUtils, UnitCore, Variable, classes,
      UserFunction,
      UnitMessages,
      Constantes,
-     UnitOS,
-     IntegerList ;
+     UnitOS ;
 
 Const
       csTrueValue : string = '1' ;
@@ -87,7 +86,7 @@ Var { Contient le code à exécuter }
     { Fait la corespondance entre ligne et n° de ligne dans le fichier }
     goLineToFileLine : TStringList ;
     { Fait la correspondance entre la ligne et le fichier }
-    goLineToFile : TIntegerList ;
+    goLineToFile : TStringList ;
     { Resultat des fonctions }
     gsResultFunction : string ;
     { Pointeur sur la premier variable de type TVariables }
@@ -157,15 +156,11 @@ Var { Contient le code à exécuter }
     { Indique si c'est un return de fonction }
     gbReturn : Boolean = False ;
     { Label courant }
-    gsCurrentLabel : String = '' ;
+    gsCurrentLabel : String ;
     { Indique si c'est un break de boucle }
-    gbBreak : Boolean = False ;
+    gbBreak : Boolean ;
     { Indique si c'est un continue de boucle }
-    gbContinue : Boolean = False ;
-    {$IFDEF COMMANDLINE}
-    { Désactive le support de tag pour la ligne de commande }
-    gbTagSupport : Boolean = False ;
-    {$ENDIF}
+    gbContinue : Boolean ;
 
 function ReadCode(aiStart : integer; aoEndCondition : TStringList; aoCode : TStringList) : integer ;
 
@@ -256,53 +251,46 @@ begin
             break ;
         end ;
 
-        {$IFDEF COMMANDLINE}
-        if gbTagSupport = True
-        then begin
-        {$ENDIF}
-            repeat
-                lbCheckIfCodeExecutable := True ;
+        repeat
+            lbCheckIfCodeExecutable := True ;
 
-                if not gbIsExecutableCode
-                then begin
-                    { Cherche un début de code }
-                    while (liLine < aoCode.Count) do
-                    begin
-                        if (aoCode[liLine] = csStartSwsTag)
-                        then begin
-                            break ;
-                        end ;
-
-                        { Affiche la ligne HTML }
-                        OutPutString(aoCode[liLine] + OsEOL() , false) ;
-
-                        Inc(liLine) ;
+            if not gbIsExecutableCode
+            then begin
+                { Cherche un début de code }
+                while (liLine < aoCode.Count) do
+                begin
+                    if (aoCode[liLine] = csStartSwsTag)
+                    then begin
+                        break ;
                     end ;
+
+                    { Affiche la ligne HTML }
+                    OutPutString(aoCode[liLine] + OsEOL() , false) ;
 
                     Inc(liLine) ;
+                end ;
 
-                    gbIsExecutableCode := not gbIsExecutableCode ;
+                Inc(liLine) ;
 
-                    lbCheckIfCodeExecutable := False ;
-                end
-                else begin
-                    { Cherche une fin de code }
-                    if liLine < aoCode.Count
+                gbIsExecutableCode := not gbIsExecutableCode ;
+
+                lbCheckIfCodeExecutable := False ;
+            end
+            else begin
+                { Cherche une fin de code }
+                if liLine < aoCode.Count
+                then begin
+                    if aoCode[liLine] = csEndSwsTag
                     then begin
-                        if aoCode[liLine] = csEndSwsTag
-                        then begin
-                            Inc(liLine) ;
+                        Inc(liLine) ;
 
-                            gbIsExecutableCode := not gbIsExecutableCode ;
+                        gbIsExecutableCode := not gbIsExecutableCode ;
 
-                            lbCheckIfCodeExecutable := False ;
-                        end ;
+                        lbCheckIfCodeExecutable := False ;
                     end ;
                 end ;
-            until (lbCheckIfCodeExecutable = True) ;
-        {$IFDEF COMMANDLINE}
-        end ;
-        {$ENDIF}
+            end ;
+        until (lbCheckIfCodeExecutable = True) ;
 
         { Avec le code ci dessus liLine peut être supérieur à VarCode.Count }
         if liLine > aoCode.Count
@@ -318,7 +306,7 @@ begin
         then begin
             { Indique numéro de ligne }
             goConstantes.Add('#_line', IntToStr(giCurrentLineNumber + 1));
-            goConstantes.Add('#_scriptname', goListOfFile[goLineToFile[giCurrentLineNumber]]) ;
+            goConstantes.Add('#_scriptname', goListOfFile[StrToInt(goLineToFile[giCurrentLineNumber])]) ;
 
             {$IFDEF COMMANDLINE}
             { Debuggage }
@@ -326,7 +314,7 @@ begin
             then begin
                 repeat
                     writeln('') ;
-                    writeln('in ' + goListOfFile[goLineToFile[giCurrentLineNumber]]) ;
+                    writeln('in ' + goListOfFile[StrToInt(goLineToFile[giCurrentLineNumber])]) ;
                     writeln(Format('[%s] %s', [goLineToFileLine[giCurrentLineNumber], lsTmp])) ;
                     write('> ') ;
                     readln(lsDebugCommand) ;

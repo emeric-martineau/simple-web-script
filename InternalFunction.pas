@@ -71,6 +71,7 @@ begin
 
     { Créer l'objet FileName }
     poFunctionName := TStringList.Create ;
+    poFunctionName.CaseSensitive := True ;
 end ;
 
 {******************************************************************************
@@ -81,7 +82,7 @@ end ;
  ******************************************************************************}
 destructor TInternalFunction.Free ;
 begin
-    poFunctionName.Free ;
+    FreeAndNil(poFunctionName) ;
     SetLength(paFunction, 0) ;
 end ;
 
@@ -102,7 +103,7 @@ var
     { Taille du tableau contenant les pointeurs de fonction }
     liLength : Integer ;
 begin
-    poFunctionName.Add(LowerCase(asFunctionName)) ;
+    poFunctionName.Add(asFunctionName) ;
 
     liLength := poFunctionName.Count ;
 
@@ -131,7 +132,7 @@ Var
     { Compteur de boucle }
     liCountFunction : Integer ;
 begin
-    liIndexFunction := poFunctionName.IndexOf(LowerCase(asFunctionName)) ;
+    liIndexFunction := poFunctionName.IndexOf(asFunctionName) ;
 
     if (liIndexFunction <> -1)
     then begin
@@ -177,7 +178,7 @@ Var
     { Pointe sur la fonction passée en paramètre }
     liIndex : Integer ;
 begin
-    liIndex := poFunctionName.IndexOf(LowerCase(asFunctionName)) ;
+    liIndex := poFunctionName.IndexOf(asFunctionName) ;
 
     if liIndex <> -1
     then begin
@@ -204,7 +205,7 @@ Var
     { Pointe sur la fonction en paramètre }
     liIndex : Integer ;
 begin
-    liIndex := poFunctionName.IndexOf(LowerCase(asFunctionName)) ;
+    liIndex := poFunctionName.IndexOf(asFunctionName) ;
 
     if liIndex <> -1
     then begin
@@ -265,7 +266,7 @@ var
     { Pointe sur la fonction passé en paramètre }
     liIndex : Integer ;
 begin
-    liIndex := poFunctionName.IndexOf(LowerCase(asFunctionName)) ;
+    liIndex := poFunctionName.IndexOf(asFunctionName) ;
 
     if liIndex <> -1
     then begin
@@ -293,11 +294,11 @@ var
     { Pointe sur la fonction passé en paramètre }
     liIndex : Integer ;
 begin
-    liIndex := poFunctionName.IndexOf(LowerCase(asOldName)) ;
+    liIndex := poFunctionName.IndexOf(asOldName) ;
 
     if liIndex <> -1
     then begin
-        poFunctionName[liIndex] := LowerCase(asNewName) ;
+        poFunctionName[liIndex] := asNewName ;
         Result := True ;
     end
     else begin
@@ -321,7 +322,7 @@ var
     { Pointe sur la fonction passé en paramètre }
     liIndex : Integer ;
 begin
-    liIndex := poFunctionName.IndexOf(LowerCase(asFunctionName)) ;
+    liIndex := poFunctionName.IndexOf(asFunctionName) ;
 
     if liIndex <> -1
     then begin

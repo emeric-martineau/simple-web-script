@@ -70,7 +70,7 @@ function ConProc(CtrlType : DWord) : Bool; stdcall;
 function ConProc(CtrlType : DWord) : Bool; stdcall; far;
 {$ENDIF}
 begin
-    gbError := True ;
+    gbQuit := True ;
 
     Result := False;
 end;

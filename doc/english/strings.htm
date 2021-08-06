@@ -4,31 +4,40 @@
 <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1"></head>
 <body style="color: rgb(0, 0, 0); background-color: rgb(255, 255, 255);">
 <h1>String functions</h1>
+
 <h2>die<a name="die"></a></h2>
 <p>die(string) : print string and exit script</p>
+
 <h2>echo<a name="echo"></a></h2>
 <p>echo string : print string</p>
+
 <h2>printf<a name="print"></a></h2>
 <p>void printf(...)<br />
 print formated string. See <a href="#strprintf">strPrintf</a></p>
+
 <h2>strAddSlashes<a name="straddslashes"></a></h2>
 <p>string strAddSlashes(value) : add slash (\) before ", ' and \</p>
+
 <h2>strBase64Encode<a name="strbase64encode"></a></h2>
 <p>string strBase64Encode(string) : return a string in base64
 code.</p>
-<h2>strcspn</h2>
-int strcspn(string str1,
+
+<h2>strcSpn</h2>
+int strcSpn(string str1,
 string/array str2 [, int start [,
 int length]] ) : Returns the length of the initial segment of str1 which does not
 contain any of the characters in str2 . <br>
+
 <h2>strCopy<a name="strcopy"></a></h2>
-<p>string strCopy(string value, int start [, int length]) : return a sub string.<br />
+<p>string strCopy(string value, int32 start [, int32 length]) : return a sub string.<br />
 If length is not specified, length of value is used.
 </p>
+
 <h2>strDelete<a name="strdelete"></a></h2>
-<p>string strDelete(string value, int start [, int length]) : return a string who
+<p>string strDelete(string value, int32 start [, int32 length]) : return a string who
 have delete at start, length<br />
 If length is not specified, length of value is used.</p>
+
 <h2>strDeleteSlashes<a name="strdeleteslashes"></a></h2>
 <p>string strDeleteSlashes(string) : return a string who have
 delete all escape slash.</p>
@@ -42,34 +51,42 @@ delete all escape slash.</p>
 <h2>strExplode<a name="strexplode"></a></h2>
 <p>array strExplode(separator, string) : explode a string who are
 delimited by separator in array.</p>
+
 <h2>strImplode<a name="strimplode"></a></h2>
 <p>string strImplode(separator, array) : implode array in string
 separated by separator.</p>
+
 <h2>strInsert<a name="strdelete"></a></h2>
-<p>string strInsert(source, string, int index) : return a string who
+<p>string strInsert(source, string, int32 index) : return a string who
 have add source in string at position index.</p>
+
 <h2>striPos<a name="stripos"></a></h2>
 <p>same as strpos but insensitive case</p>
+
 <h2>striReplace<a name="strdelete"></a></h2>
 <p>Same as strReplace but insensitive case.</p>
 
 <h2>strLeft<a name="strleft"></a></h2>
-<p>string strLeft(string, integer) : copy X number of char to left string.</p>
+<p>string strLeft(string, int32 integer) : copy X number of char to left string.</p>
 
 <h2>strLoadFromFile<a name="strloadfromfile"></a></h2>
 <p>array stLoadFromFile(filename) : load text file in array.</p>
+
 <h2>strLowerCase<a name="strlowercase"></a></h2>
 <p>string strLowerCase(value) : return string in lower case</p>
+
 <h2>strNumberFloat<a name="strnumberfloat"></a></h2>
 <p>int strNumberFloat(float, [string floatseparator, string
 millierseparator]) : display a float or integer in human format. If
-floatseparator or millierseparator not specified, function use&nbsp;floatseparator or millierseparator defined in <a href="miscellaneous.htm#setlocal">setlocal</a> function.</p><h2>strPos<a name="strpos"></a></h2>
-<p>int strPos(substring, string [, int start index]) : search a
+floatseparator or millierseparator not specified, function use&nbsp;floatseparator or millierseparator defined in <a href="miscellaneous.htm#setlocal">setlocal</a> function.</p>
+
+<h2>strPos<a name="strpos"></a></h2>
+<p>int strPos(substring, string [, int32 start index]) : search a
 substring in string</p>
+
 <h2>strPrintf<a name="strprintf"></a></h2>
 <p>string strPrintf(format, variables, variables2...) : print
 variablse with type.</p>
-<p> format</p>
 <p> The format string is composed of zero or more directives:
 ordinary characters (excluding %) that are copied directly to the
 result, and conversion specifications, each of which results in
@@ -118,32 +135,41 @@ hexadecimal number (with lowercase letters).<br>
 hexadecimal number (with uppercase letters).</p>
 <p>sprintf('%6.2f', 145.23) is equivalent to sprintf('%*.*f', 6,
 2, 145.23)</p>
+
 <h2>strPrintR<a name="strprintr"></a></h2>
 <p>void strPrintr(variable) : print variable with type.</p>
+
 <h2>strRepeatString<a name="strrepeatstring"></a></h2>
-<p>string strRepeatString(texttorepeat, int count) : repeat a string</p>
+<p>string strRepeatString(texttorepeat, int32 count) : repeat a string</p>
+
 <h2>strReplace<a name="strreplace"></a></h2>
 <p>string strReplace(substr, str, replacetext [, int count]) :
 search substr in str and replace by replacetext. If $count is
 specified, retourn number of occurence was found. substr can be an
 array.</p>
-<h2>strReplaceAccent</h2>
+
+<h2>strReplaceAccent<a name="strreplaceaccent"></a></h2>
 string strReplaceAccent(string) : replace all caractere with accent by equivalence witout accent<br>
+
 <h2>strRev<a name="strrev"></a></h2>
 <p>string strRev(string) : return string in reverse order</p>
+
 <h2>strrPos<a name="strpos"></a></h2>
 <p>string strPos(substring, string [, int start index]) : search a
 substring in string begin at end of string</p>
+
 <h2>strriPos<a name="strpos"></a></h2>
 <p>Same as strrPos but insensitive case.</p>
+
 <h2>strSaveToFile<a name="strsavetofile"></a></h2>
 <p>bool strSaveToFile(array, filename) : write an arry in text
 file. Return false if failed.</p>
+
 <h2>strSoundEx<a name="strsavetofile"></a></h2>
 <p>string strSoundEx(string) : return soundex equivalent of
 passed string.</p>
 
-<h2>strspn<a name="strsnp"></a></h2>
+<h2>strSpn<a name="strsnp"></a></h2>
 <p>same as strcspn but return length of containt char.</p>
 
 <h2>strStartWith<a name="strstartwith"></a></h2>
@@ -156,20 +182,25 @@ or string</p>
 <p>Exemple : echo strTr('abababa', 'ab', 'ba') =&gt; bababa</p>
 
 <h2>strRight<a name="strrigth"></a></h2>
-<p>string strRight(string, integer) : copy X number of char to right string.</p>
+<p>string strRight(string, int32 integer) : copy X number of char to right string.</p>
 
 <h2>strTrim<a name="strtrim"></a></h2>
 <p>string strTrim(value) : delete space at begin and end of string</p>
+
 <h2>strTrimLeft<a name="strtrimleft"></a></h2>
 <p>string strTrimLeft(value) : delete space at end of string</p>
+
 <h2>strTrimRight<a name="strtrimright"></a></h2>
 <p>string strTrimRight(value) : delete space at begin of string</p>
+
 <h2>strUcFirst<a name="strucfirst"></a></h2>
 <p>string strUcFirst(value) : return string with fist caractere
 in uppercase</p>
+
 <h2>strUcWords<a name="strucfirst"></a></h2>
 <p>string strUcWords(value) : return string with all fist
 caractere in uppercase</p>
+
 <h2>strUpperCase<a name="struppercase"></a></h2>
 <p>string strUpperCase(value) : return string in upper case</p>
 </body></html>

@@ -4,11 +4,11 @@
 <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1"></head>
 <body style="color: rgb(0, 0, 0); background-color: rgb(255, 255, 255);">
 <h1>HTML functions</h1>
-<h2>HtmlSpecialCharsDecode<a name="htmlsepcialcharsdecode"></a></h2>
-<p>string htmlspecialcharsdecode( string $string&nbsp; [, string
+<h2>htmlSpecialCharsDecode<a name="htmlsepcialcharsdecode"></a></h2>
+<p>string htmlSpecialCharsDecode( string $string&nbsp; [, string
 $quote_style, string $charset]) : convert html string to string.</p>
-<h2>HtmlSpecialCharsEncode<a name="htmlspecialcharsencode"></a></h2>
-string htmlspecialcharsencode( string $string&nbsp; [, string
+<h2>htmlSpecialCharsEncode<a name="htmlspecialcharsencode"></a></h2>
+string htmlSpecialCharsEncode( string $string&nbsp; [, string
 $quote_style, string $charset, bool
 $double_encode] )<br>
 <br>
@@ -25,15 +25,15 @@ quote_style</em> : <br>
 <td><strong>Description</strong></td>
 </tr>
 <tr>
-<td>ENT_COMPAT</td>
+<td>#ENT_COMPAT</td>
 <td>convert double-quote (by default)</td>
 </tr>
 <tr>
-<td>ENT_QUOTES</td>
+<td>#ENT_QUOTES</td>
 <td>convert double-quote and single-quote</td>
 </tr>
 <tr>
-<td>ENT_NOQUOTES</td>
+<td>#ENT_NOQUOTES</td>
 <td>don't convert quote</td>
 </tr>
 </tbody>
@@ -48,65 +48,64 @@ quote_style</em> : <br>
 <td>Description</td>
 </tr>
 <tr>
-<td>ISO-8859-1</td>
-<td>ISO8859-1</td>
+<td>#ISO_8859_1</td>
+<td>#ISO8859_1</td>
 <td>Western European, Latin-1</td>
 </tr>
 <tr>
-<td>ISO-8859-15</td>
-<td>ISO8859-15</td>
+<td>#ISO_8859_15</td>
+<td>#ISO8859_15</td>
 <td>Western European, Latin-9. Adds the Euro sign, French
 and Finnish letters missing in Latin-1(ISO-8859-1).</td>
 </tr>
 <tr>
-<td>UTF-8</td>
+<td>#UTF_8</td>
 <td>&nbsp;</td>
 <td>ASCII compatible multi-byte 8-bit Unicode.</td>
 </tr>
 <tr>
-<td>cp866</td>
-<td>ibm866, 866</td>
+<td>#CP866</td>
+<td>#IBM866</td>
 <td>DOS-specific Cyrillic charset.</td>
 </tr>
 <tr>
-<td>cp1251</td>
-<td>Windows-1251, win-1251, 1251</td>
+<td>#CP1251</td>
+<td>#WINDOWS_1251, #WIN_1251</td>
 <td>Windows-specific Cyrillic charset.</td>
 </tr>
 <tr>
-<td>cp1252</td>
-<td>Windows-1252, 1252</td>
+<td>#CP1252</td>
+<td>#WINDOWS_1252</td>
 <td>Windows specific charset for Western European.</td>
 </tr>
 <tr>
-<td>KOI8-R </td>
-<td>koi8-ru, koi8r </td>
+<td>#KOI8_R</td>
+<td>#KOI8_RU, #KOI8R</td>
 <td>Russian</td>
 </tr>
 <tr>
-<td>BIG5</td>
+<td>#BIG5</td>
 <td>&nbsp;</td>
 <td>Traditional Chinese, mainly used in Taiwan.</td>
 </tr>
 <tr>
-<td>GB2312</td>
+<td>#GB2312</td>
 <td>&nbsp;</td>
 <td>Simplified Chinese, national standard character set.</td>
 </tr>
 <tr>
-<td>BIG5-HKSCS</td>
+<td>#BIG5_HKSCS</td>
 <td>&nbsp;</td>
 <td>Big5 with Hong Kong extensions, Traditional Chinese.</td>
 </tr>
 <tr>
-<td>Shift_JIS</td>
-<td>SJIS</td>
+<td>#SHIFT_JIS</td>
+<td>#SJIS</td>
 <td>Japanese</td>
 </tr>
 <tr>
-<td>EUC-JP &nbsp;&nbsp;&nbsp;&nbsp;
-&nbsp;&nbsp;&nbsp;&nbsp;</td>
-<td>EUCJP</td>
+<td>#EUC_JP</td>
+<td>#EUCJP</td>
 <td>Japanese</td>
 </tr>
 </tbody>
@@ -115,10 +114,10 @@ and Finnish letters missing in Latin-1(ISO-8859-1).</td>
 <em>double_encode</em> : set true if in parsed string we have html encode
 charactere.<br>
 <br />
-Exemple : echo htmlspecialcharsencode("àéè", "ENT_QUOTES", "ISO-8859-1",  $true)
+Exemple : echo htmlspecialcharsencode("àéè", #ENT_QUOTES, #ISO_8859_1,  true)
 
-<h2>NlToBr<a name="nltobr"></a></h2>
-<p>string NlToBr(string) : convert all \n or \r or \n\r to
+<h2>nlToBr<a name="nltobr"></a></h2>
+<p>string nlToBr(string) : convert all \n or \r or \n\r to
 &lt;br /&gt;</p><h2>Striptags<a name="striptags"></a></h2>
 <p>string StripTags(string, [string allowed_tags]) : delete all SGML
 balise (like &lt;b&gt;). You can specify allowed tag in string

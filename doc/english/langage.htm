@@ -9,13 +9,14 @@
 <p>Variables start by $ (like PHP).<br>
   If you put another $ ($$var) behin variable, you take variable designed by value 
   of $var. $var can containt name with or without $. $var=myvar lik $var="$myvar".<br>
-  All variables are strings, integer (to &#8211;2147483648..2147483647 (on 32 architecture)) 
+  All variables are strings, integer (int) 64 bits (de -9223372036854775808..9223372036854775807) or 32 bits (int32) (to &#8211;2147483648..2147483647) 
   or float (3.6 x 10^&#8211;4951 .. 1.1 x 10^4932) convert in string in internal).</p>
-<p>To set a variable, use SET (SET $mavar mavaleur + 1)<br>
-  To delete a variable use UNSET (UNSET $mavariable, $var2...)<br>
-  To know if variable existe use ISSET (ISSET $monresultat $mavariable)</p>
+<p>To set a variable, use set (set $mavar, mavaleur + 1) or $titi = 0<br>
+  To delete a variable use unSet (unSet $mavariable, $var2...)<br>
+  To know if variable existe use isSet (isSet $monresultat $mavariable)</p>
 <p>You can use * operator in front of variable name (see Pointer for more information)<br>
-  You can use hexadecimal notation 0x1234.</p>
+  You can use hexadecimal notation 0x1234.<br>
+  You can use octal notation 01234.</p>
 <p>Variables are not interpreted in string. "$truc" give "$truc" and not value 
   of $truc</p>
 <p>String support \n (line feed) \r (carriage return) \0 (nul value) \t (tabulation)</p>
@@ -32,56 +33,67 @@ To define a constantes use define(). To know is constante is set use defined().<
 <br />
 true et false is constante without #.</p>
 
-<h2>Jump GOTO/LOCALGOTO<a name="goto"></a></h2>
-<p>If you want jump in program use GOTO. Example :<br>
-  Label:<br>
-  Instruction1<br>
-  Instruction2<br>
-  GOTO Label<br>
-  <br>
-  This command jump to label with exit function/while/for/repeat/switch.<br>
-  <br>
-  If you want jump into function, use LOCALGOTO.<br>
-  <br>
-  WARNING : Label can't start by number and end by :.</p>
-<h2>Boucle de contrôle WHILE, REPEAT, FOR, BREAK<a name="boucle"></a></h2>
-<h3>WHILE</h3>
-<p>WHILE execute when condition are true DO<br>
-  WHILE $a = $true DO<br>
+<h2>Loope while, repeat, for, break, continue<a name="boucle"></a></h2>
+<h3>while</h3>
+<p>while execute when condition are true do<br>
+  while $a = true do<br>
   Instruction<br>
-  ENDWHILE ;</p>
+  endwhile ;</p>
 
-  <h3>REPEAT</h3>
+  <h3>repeat</h3>
 
-<p> REPEAT execute when condition are false<br>
-  REPEAT<br>
+<p>repeat execute when condition are false<br>
+  repeat<br>
   Instruction<br>
-  UNTIL false ;</p>
-<h3>FOR</h3>
-<p>FOR $var = startvalue TO endvalue STEP incrementvalue DO<br>
+  until false ;</p>
+<h3>for</h3>
+<p>for $var = startvalue to endvalue step incrementvalue do<br>
   Instruction<br>
-  ENDFOR ;</p>
-<h3>BREAK</h3>
-<p>Exit FOR, REPEAT, WHILE</p>
+  endfor ;</p>
+<h3>break</h3>
 
-<h2>SWITCH<a name="switch"></a></h2>
+<p>Exit for, repeat, while</p>
+<p>You can add a label befor loop to break specifically a loop :<br />
+<pre>
+label1 : for $i = 0 to 1 do
+             while true do
+                 break label1 ;
+             endwhile ;
+         endfor ;
+</pre>
+</p>
+
+<h3>continue</h3>
+<p>Continue for, repeat, while</p>
+<p>You can add a label befor loop to continue specifically a loop :<br />
+<pre>
+label1 : for $i = 0 to 1 do
+             while true do
+                 continue label1 ;
+             endwhile ;
+         endfor ;
+</pre>
+</p>
+
+
+<h2>switch<a name="switch"></a></h2>
 <p>You can use switch commande :</p>
-<p>SWITCH $var DO<br>
-  CASE "value1", "value2" :<br>
+<p>switch $var do<br>
+  case "value1", "value2" :<br>
   Instruction1<br>
   break<br>
-  DEFAULT :<br>
+  default :<br>
   Default instruction<br>
-  ENDSWITCH ; </p>
-<h2>Condition IF/ELSEIF/ELSE<a name="condition"></a></h2>
+  endswitch ; </p>
+<h2>Condition if/elseif/else<a name="condition"></a></h2>
 <p>If are very simple. </p>
-<p>IF $a = 'c' and $a&lt;&gt;'g' or $a&gt;'t' xor $a&lt;='g' THEN<br>
+<p>if $a = 'c' and $a&lt;&gt;'g' or $a&gt;'t' xor $a&lt;='g' then<br>
   Instruction<br>
-  ELSEIF $a = 'ccc' THEN<br>
+  elseif $a = 'ccc' then<br>
   Instruction <br>
-  ELSE<br>
+  else<br>
   Instruction<br>
-  ENDIF ;</p>
+  endif ;</p>
 <h2> Comments<a name="commentaire"></a></h2>
 <p>Comment start by // and can be in line with instruction. Use /* */ for 
   multiline comments and can be in line with instruction.</p>
@@ -92,9 +104,9 @@ true et false is constante without #.</p>
   &lt;@ echo 'hello world!' @&gt;<br>
   &lt;/body&gt;<br>
   &lt;/html&gt;</p>
-<h2>Stop program EXIT or DIE<a name="exit"></a></h2>
-<p>To stop program or function use EXIT.<br />
-   You can use DIE to exit a script. You can past a string to be show.</p>
+<h2>Stop program exit or die<a name="exit"></a></h2>
+<p>To stop program or function use exit. You can past a int32 value to operating system.<br />
+   You can use die to exit a script. You can past a string to be show.</p>
 <h2>Operators<a name="operators"></a></h2>
 <p>Bellow list of operator, order by priority. Don"t forget, line code read
   left to right.</p>
@@ -138,15 +150,15 @@ true et false is constante without #.</p>
     <td>shift bit right</td>
   </tr>
   <tr>
-    <td>&amp;</td>
+    <td>bitand</td>
     <td>bit and</td>
   </tr>
   <tr>
-    <td>&amp;|</td>
+    <td>bitxor</td>
     <td>bit xor</td>
   </tr>
   <tr>
-    <td>|</td>
+    <td>bitor</td>
     <td>bit or</td>
   </tr>
   <tr>
@@ -163,8 +175,8 @@ true et false is constante without #.</p>
   </tr>
   <tr>
     <td>not</td>
-    <td>inverse condition. If value tested is not equal $false, there is considered
-      like $true</td>
+    <td>inverse condition. If value tested is not equal false, there is considered
+      like true</td>
   </tr>
   <tr>
     <td>.</td>
@@ -184,10 +196,8 @@ true et false is constante without #.</p>
 <p>maprocedure &amp;$mavariable<br>
   <br>
   WARNING : you can't have &amp;$$var or *$$var<br>
-  <br>
-  You can modify value of $true, $false, $version, $coreversion with pointer.</p>
 <h2>Function<a name="function"></a></h2>
-<p>If you want create procedure, use FUNCTION key word. Example :</p>
+<p>If you want create procedure, use function key word. Example :</p>
 <p><b>function MyFunction</b><br>
   commande<br>
   <b>endfunc</b> </p>
@@ -198,7 +208,7 @@ true et false is constante without #.</p>
 <p>You can have optional parameters :</p>
 <p><b>function MyFunction($arg1=1)</b><br>
   or<br>
-  <b>function MyFunction($arg1=$true)</b><br>
+  <b>function MyFunction($arg1=true)</b><br>
   or<br>
   <b>function MyFunction($fixed_parameter, $arg1=1) </b></p>
 <p>You can have unlimited parameter :</p>
@@ -207,11 +217,8 @@ true et false is constante without #.</p>
   <b>function MyFunction($arg1, ...)</b></p>
 <p>Argument of procedure is in array <b>$args</b>. To know how many arguments 
   use <b>$argcount</b>.</p>
-<p>To stop procedure, use <b>exit</b> keyword.</p>
-<p>If you want return a value, une <b>$result</b>.</p>
+<p>To stop procedure, use <b>return</b> keyword with return value.</p>
 <p>All function (user or buitin) can call with or without parenthese.</p>
-<h2>EXIT<a name="exit"></a></h2>
-<p>To exit procedure or stop program, uset EXIT keyword.</p>
 <h2>Array<a name="array"></a></h2>
 <p>You can use array (and mutlidimensionable array).<br>
   To initialize an array juste use $myarray[0] = "first value" or $myarray 
@@ -220,20 +227,20 @@ true et false is constante without #.</p>
 <h2>String<a name="string"></a></h2>
 <p>To set string use " or ' delimiter</p>
 <h2>Reserved words<a name="reservedword"></a></h2>
-<p>in, or, xor, and, not, to, step is reserved words.</p>
+<p>in, or, xor, and, not, to, step, do, bitor, bitxor, bitand is reserved words.</p>
 <h2> @ opérateur<a name="arobase"></a></h2>
 <p>Use @ before command to don't to warning message</p>
 <h1>Base functions</h1>
 <h2>array<a name="array"></a></h2>
 <p>array&nbsp;array("item1", "item2"...) : create an array</p>
 <h2>arrayChunk<a name="arraychunk"></a></h2>
-<p>array arrayChunk($array, size). Split array to x array with size</p>
+<p>array arrayChunk($array, int32 size). Split array to x array with size</p>
 <h2>arrayExchange<a name="arrayexchange"></a></h2>
-<p>arrayExchange($array, index1, index2). Exchange item of array.</p>
+<p>arrayExchange($array, int32 index1, int32 index2). Exchange item of array.</p>
 <h2>arrayFill<a name="arrayexfill"></a></h2>
 <p>array arrayFill($array, value2). Fill an array</p>
 <h2>arrayInsert<a name="arrayinsert"></a></h2>
-<p>array arrayInsert($array, Index, "value") insert a value in array. </p>
+<p>array arrayInsert($array, int32 Index, "value") insert a value in array. </p>
 <h2>arrayMerge<a name="arraymerge"></a></h2>
 <p>array arrayMerge($array, $array1, $array2, ...) Concat array </p>
 <h2>arrayPop<a name="arraypop"></a></h2>
@@ -248,7 +255,7 @@ true et false is constante without #.</p>
 <h2>arrayShift<a name="arraysort"></a></h2>
 <p>string arraySearch($array) Return first item of array and delete this item of array.</p><h2>arrayShuffle<a name="arrayshuffle"></a></h2>
 <p>string arrayShuffle($array) Return array order by random.</p><h2>arraySlice<a name="arrayslice"></a></h2>
-<p>array arraySlice(array, int offset, [int length]) Returns the sequence of elements from the array array<br>If offest is non-negative value, start à begin of array, else at end.<br>If length not specified, return array until the end.<br></p><h2>arraySort<a name="arraysort"></a></h2>
+<p>array arraySlice(array, int32 offset, [int32 length]) Returns the sequence of elements from the array array<br>If offest is non-negative value, start à begin of array, else at end.<br>If length not specified, return array until the end.<br></p><h2>arraySort<a name="arraysort"></a></h2>
 <p>array arraySort($array) Return sort array.</p>
 <h2>arraySplice<a name="arrayslice"></a></h2>
 <p>array arraySplice(array, int offset, [int length, array replacement]) Returns the sequence of elements from the array array<br>
@@ -296,7 +303,7 @@ If replacement is not array, each item replace by replacement.</p>
 <h2>global<a name="global"></a></h2>
 <p>global $var1, $var2... In function, paste global variable in function and at 
   end, paste variable in global variable.</p>
-<h2>include/includeonce<a name="isnumeric"></a></h2>
+<h2>include/includeOnce<a name="isnumeric"></a></h2>
 To include a file, use include function (warning, use / to separate directory 
 even under windows).<br>
 If you want include only once the file, use includeonce. <br>
@@ -309,16 +316,19 @@ loaded.
 <h2>isFloat<a name="isfloat"></a></h2>
 <p>bool isfloat(<i>variable ou valeur</i>). return true if is float (flase else)</p>
 <h2>isHexa<a name="ishexa"></a></h2>
-<p>bool ishexa(<i>variable ou valeur)</i>.Return true if string in hexa-number.</p>
+<p>bool ishexa(<i>variable ou valeur</i>).Return true if string in hexa-number.</p>
 
 <h2>isInteger<a name="isinteger"></a></h2>
-<p>bool isinteger(<i>variable ou valeur)</i>. return true if is integer (flase 
+<p>bool isinteger(<i>variable ou valeur</i>). return true if is integer (flase 
   else)</p>
 <h2>isNumeric<a name="isnumeric"></a></h2>
-<p>bool isnumeric(<i>variable ou valeur)</i>. return true if is numeric (flase 
+<p>bool isnumeric(<i>variable ou valeur</i>). return true if is numeric (flase 
   else) </p>
+<h2>isOctal<a name="isoctal"></a></h2>
+<p>bool isOctal(<i>variable ou valeur</i>). return true if is octal (flase 
+  else) </p>  
 <h2>isString<a name="isstring"></a></h2>
-<p>bool isstring(<i>variable ou valeur)</i>. return true if is string (flase else).</p>
+<p>bool isString(<i>variable ou valeur</i>). return true if is string (flase else).</p>
 <h2>length<a name="lenght"></a></h2>
 <p>bool LENGHT($variable/string of char) : return lenght of string or variable</p>
 <h2>ord<a name="ord"></a></h2>

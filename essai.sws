@@ -1,5 +1,3 @@
 <@
-echo "truc2" = "truc" ? "yes" : "no" ;
-
-echo "fin" ;
+echo htmlSpecialCharsEncode('e"ee\'eee', #ENT_QUOTES, "cocuouc", true) ;
 @>

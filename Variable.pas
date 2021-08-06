@@ -92,6 +92,7 @@ begin
     inherited Create();
 
     poVarName := TStringList.Create ;
+    poVarName.CaseSensitive := True ;
     poVarValue := TStringList.Create ;
 end ;
 
@@ -103,8 +104,8 @@ end ;
  *****************************************************************************}
 destructor TVariables.Free ;
 begin
-    poVarName.Free ;
-    poVarValue.Free ;
+    FreeAndNil(poVarName) ;
+    FreeAndNil(poVarValue) ;
 end ;
 
 {*****************************************************************************
@@ -227,11 +228,11 @@ begin
                 loTableau[liIndexTab] := InternalGive(asNameOfVar) ;
             end ;
 
-            loTableau.Free ;
+            FreeAndNil(loTableau) ;
         end ;
     end ;
 
-    loTabIndex.Free ;
+    FreeAndNil(loTabIndex) ;
 end ;
 
 {*****************************************************************************
@@ -346,7 +347,7 @@ begin
             loListeTableau[liIndexListeTableau] := InternalGive(asNameOfVar) ;
         end ;
 
-        loListeTableau.Free ;
+        FreeAndNil(loListeTableau) ;
     end ;
 end;
 
@@ -459,7 +460,7 @@ begin
         Result := lsTmp ;
     end ;
 
-    loTab.Free ;
+    FreeAndNil(loTab) ;
 end ;
 
 {*****************************************************************************
@@ -496,7 +497,7 @@ begin
 
     if liPosTabStart = 0
     then begin
-        liIndexOfVar := poVarName.IndexOf(LowerCase(asNameOfVar)) ;
+        liIndexOfVar := poVarName.IndexOf(asNameOfVar) ;
             
         if liIndexOfVar <> -1
         then begin
@@ -553,9 +554,9 @@ begin
             lsTmp := lsTmp + '[' + loListIndexOfArray[liIndexListIndexOfArray] + ']' ;
         end ;
 
-        loListIndexOfArray.Free ;
+        FreeAndNil(loListIndexOfArray) ;
 
-        loItemOfArray.Free ;
+        FreeAndNil(loItemOfArray) ;
     end ;
 
 end ;
@@ -800,7 +801,7 @@ begin
         InternalAdd(asNameOfVar, lsNewArray) ;
     end ;
 
-    loListOfArray.Free ;
+    FreeAndNil(loListOfArray) ;
 end ;
 
 (*****************************************************************************
@@ -832,7 +833,7 @@ begin
         Result := loListe[aiIndex] ;
     end ;
 
-    loListe.Free ;
+    FreeAndNil(loListe) ;
 end ;
 
 (*****************************************************************************
@@ -918,7 +919,7 @@ var
     { Position de la variable dans la liste des variables }
     liIndex : Integer ;
 begin
-    liIndex := poVarName.IndexOf(LowerCase(asNameOfVar)) ;
+    liIndex := poVarName.IndexOf(asNameOfVar) ;
 
     if liIndex <> -1
     then begin
@@ -943,7 +944,7 @@ var
     { Position de la variable dans la liste des variables }
     liIndex : Integer ;
 begin
-    asNameOfVar := LowerCase(asNameOfVar) ;
+    asNameOfVar := asNameOfVar ;
     
     liIndex := poVarName.IndexOf(asNameOfVar) ;
 
@@ -1076,7 +1077,7 @@ begin
 
         InternalAdd(asNameOfVar, lsTmp) ;
 
-        liTableau.Free ;
+        FreeAndNil(liTableau) ;
 
         Result := True ;
     end ;
@@ -1151,7 +1152,7 @@ begin
 
                 InternalAdd(asNameOfVar, lsTmp) ;
                 
-                loTableau.Free ;
+                FreeAndNil(loTableau) ;
             end ;
         end ;
     end ;
@@ -1196,7 +1197,7 @@ begin
                 Result := True ;
             end ;
             
-            loTableau.Free ;
+            FreeAndNil(loTableau) ;
         end ;
     end ;
 end ;
@@ -1258,8 +1259,8 @@ begin
                 end ;
             end ;
 
-            loTableauATraiter.Free ;
-            loNouveauTableau.Free ;
+            FreeAndNil(loTableauATraiter) ;
+            FreeAndNil(loNouveauTableau) ;
 
             Result := True ;
         end ;
@@ -1307,8 +1308,8 @@ begin
 
     Result := InternalCreateArray(loNouveauTableau) ;
 
-    loNouveauTableau.Free ;
-    loTableauEnCours.Free ;
+    FreeAndNil(loNouveauTableau) ;
+    FreeAndNil(loTableauEnCours) ;
 end ;
 
 (*****************************************************************************
@@ -1456,7 +1457,7 @@ begin
 
         asTableau := InternalCreateArray(aoListOfArray) ;
 
-        aoListOfArray.Free ;
+        FreeAndNil(aoListOfArray) ;
 
         Result := True ;
     end
@@ -1495,7 +1496,7 @@ begin
 
         explode(loListOfArray, asTableau) ;
 
-        if abCaseSensitive = True
+        if abCaseSensitive = False
         then begin
             asChaineARechercher := LowerCase(asChaineARechercher) ;
         end ;
@@ -1517,7 +1518,7 @@ begin
             end ;
         end ;
 
-        loListOfArray.Free ;
+        FreeAndNil(loListOfArray) ;
     end ;
 end ;
 
@@ -1616,7 +1617,7 @@ begin
 
         asTableau := InternalCreateArray(loListOfArray) ;
 
-        loListOfArray.Free ;
+        FreeAndNil(loListOfArray) ;
 
         Result := True ;
     end

@@ -127,7 +127,7 @@ var
 
     function Block64Encode(asString : string) : string ;
     var liLength : SmallInt ;
-        liIndex : Integer ;
+        liIndex : Cardinal ;
     begin
         { Par défaut si on n'a rien, on retourne des = }
         Result := '====' ;
@@ -448,8 +448,8 @@ end ;
  * Retour : chaine dont les accents sont convertit
  *****************************************************************************}
 function ReplaceAccent(asStr : string) : string ;
-const csAccent : string = 'ÀÁÂÃÄÅÆÇÈÉÊËÌÍÎÏÐÑÒÓÔÕÖØÙÚÛÜÝÞßàáâãäåæçèéêëìíîïðñòóôõöøùúûýýþÿ' ;
-      csNoAccent : string = 'AAAAAAACEEEEIIIIDNOOOOOOUUUUYbsaaaaaaaceeeeiiiidnoooooouuuyyby' ;
+const csAccent : String = 'ÀÁÂÃÄÅÆÇÈÉÊËÌÍÎÏÐÑÒÓÔÕÖØÙÚÛÜÝÞßàáâãäåæçèéêëìíîïðñòóôõöøùúûýýþÿ' ;
+      csNoAccent : String = 'AAAAAAACEEEEIIIIDNOOOOOOUUUUYbsaaaaaaaceeeeiiiidnoooooouuuyyby' ;
 var
     { Compteur de boucle }
     liIndex : Integer ;
@@ -458,9 +458,9 @@ var
 begin
     Result := '' ;
 
-    for liIndex := 0 to length(asStr) do
+    for liIndex := 1 to length(asStr) do
     begin
-        liPosition := pos(asStr[liIndex], csAccent) ;
+        liPosition := Pos(asStr[liIndex], csAccent);
 
         if liPosition = 0
         then begin
@@ -525,7 +525,7 @@ var
     { Position de départ }
     liStartPos : Integer ;
     { Longueur à copier }
-    liLength : integer ;
+    liLength : Integer ;
 begin
     if (aoArguments.count = 2) or (aoArguments.count = 3)
     then begin
@@ -781,7 +781,7 @@ begin
                     end ;
                 end ;
 
-                loListeAREmplacer.Free ;
+                FreeAndNil(loListeAREmplacer) ;
             end
             else begin
                lcCount := lcCount + ReplaceOneOccurence(lsSubstr, lsStr, lsReplaceStr, lbCaseSensitive) ;
@@ -804,7 +804,7 @@ end ;
 procedure strInsertCommande(aoArguments : TStringList) ;
 var
     { Postion où insérer le text }
-    liStartPos : integer ;
+    liStartPos : Integer ;
     { Variable temporaire de résultat }
     lsTmp : string ;
 begin
@@ -837,7 +837,7 @@ var
     { Position de départ }
     liStart : Integer ;
     { Longueur à supprimer }
-    liLength : integer ;
+    liLength : Integer ;
     { Variable temporaire pour supprimer les caractère }
     lsTmp : string ;
 begin
@@ -891,7 +891,7 @@ begin
 
         gsResultFunction := goVariables.CreateArray(loTableau) ;
 
-        loTableau.Free ;
+        FreeAndNil(loTableau) ;
     end
     else if aoArguments.count < 2
     then begin
@@ -928,7 +928,7 @@ begin
             end ;
         end ;
 
-        loTableau.Free ;
+        FreeAndNil(loTableau) ;
     end
     else if aoArguments.count < 2
     then begin
@@ -970,7 +970,7 @@ begin
 
             gsResultFunction := goVariables.CreateArray(loTableau) ;
 
-            loTableau.Free ;
+            FreeAndNil(loTableau) ;
         end ;
     end
     else if aoArguments.count < 1
@@ -1021,7 +1021,7 @@ begin
                 gsResultFunction := csTrueValue ;
             end ;
                 
-            loTableau.Free ;
+            FreeAndNil(loTableau) ;
         end ;
     end
     else if aoArguments.count < 2
@@ -1113,8 +1113,8 @@ end ;
 procedure strPrintFCommande(aoArguments : TStringList) ;
 var
     { Chiffre debut et fin f8.2d }
-    liLongueurDebut : Integer ;
-    liLongueurFin : Integer ;
+    liLongueurDebut : Int64 ;
+    liLongueurFin : Int64 ;
     { Contient le caractère d'espacement peut être 0 ou espace }
     lsEspacement : String ;
     { Contient le caractère de remplissage peut être 0 ou espace }
@@ -1154,7 +1154,7 @@ var
     liTmpInt : Integer ;
     
     { Retoure le chiffre sous aiCurrentIndex }
-    function GetNumberOfElement(asText : String; var aiCurrentIndex : Integer) : Integer ;
+    function GetNumberOfElement(asText : String; var aiCurrentIndex : Integer) : Int64 ;
     var
         { Taille de la chaine passée en paramètre }
         liTextLength : Integer ;
@@ -1173,7 +1173,7 @@ var
         begin
             OverTimeAndMemory ;
             
-            if gbError
+            if gbQuit
             then begin
                 break ;
             end ;
@@ -1267,9 +1267,11 @@ begin
         while liIndexChaineATraiter <= liLengthChaineATraiter do
         begin
             OverTimeAndMemory ;
-            if gbError
-            then
+
+            if gbQuit
+            then begin
                 break ;
+            end ;
 
             { Si on a un % c'est qu'on doit convertir une données }
             if lsTextTemplate[liIndexChaineATraiter] = '%'
@@ -1474,7 +1476,7 @@ begin
                                             end ;
                                         end ;
 
-                                        lsTmp := lsTmp + lsTmp2 + RepeterCaractere(lsRemplissage, liLongueurDebut - (length(lsTmp) + length(lsTmp2)))
+                                        lsTmp := lsTmp + lsTmp2 + RepeterCaractere(lsRemplissage, liLongueurDebut - Int64((length(lsTmp)) + Int64(length(lsTmp2))))
                                     end
                                     else begin
                                         lbIsNeg := False ;
@@ -1592,7 +1594,8 @@ begin
                                             while lfTmpFloat < 1 do
                                             begin
                                                 OverTimeAndMemory ;
-                                                if gbError
+
+                                                if gbQuit
                                                 then begin
                                                     break ;
                                                 end ;
@@ -1665,7 +1668,7 @@ begin
                                             end ;
                                         end ;
 
-                                        lsTmp := lsTmp + '.' + lsTmp2 + lsTmp3 + RepeterCaractere(lsRemplissage, liLongueurDebut - (length(lsTmp) + length(lsTmp2) + 1 + Length(lsTmp3)))
+                                        lsTmp := lsTmp + '.' + lsTmp2 + lsTmp3 + RepeterCaractere(lsRemplissage, liLongueurDebut - Int64((length(lsTmp)) + Int64(length(lsTmp2)) + 1 + Int64(Length(lsTmp3))))
                                     end
                                     else begin
                                         lbIsNeg := False ;
@@ -1898,8 +1901,8 @@ begin
 
         gsResultFunction := lsStr ;
 
-        loListeCaractereARemplacer.Free ;
-        loListeCaractereRemplacement.Free ;
+        FreeAndNil(loListeCaractereARemplacer) ;
+        FreeAndNil(loListeCaractereRemplacement) ;
     end
     else if aoArguments.count < 3
     then begin
@@ -2028,7 +2031,7 @@ begin
 
         gsResultFunction := IntToStr(liMaxLongueur) ;
 
-        loSearch.Free ;
+        FreeAndNil(loSearch) ;
     end
     else if aoArguments.count < 2
     then begin
@@ -2083,7 +2086,7 @@ begin
 
         gsResultFunction := IntToStr(liMaxLongueur) ;
 
-        loSearch.Free ;
+        FreeAndNil(loSearch) ;
     end
     else if aoArguments.count < 2
     then begin
@@ -2238,7 +2241,7 @@ begin
             liLength := MyStrToInt(aoArguments[1]) ;
         end ;
         
-        if not gbError
+        if not gbQuit
         then begin
             if (liLength > 0)
             then begin
@@ -2275,7 +2278,7 @@ begin
             liLength := MyStrToInt(aoArguments[1]) ;
         end ;
 
-        if not gbError
+        if not gbQuit
         then begin
             if (liLength > 0)
             then begin
@@ -2362,50 +2365,50 @@ procedure StrFunctionsInit ;
 begin
     goInternalFunction.Add('echo', @echoCommande, true) ;
     goInternalFunction.Add('die', @dieCommande, true) ;
-    goInternalFunction.Add('struppercase', @struppercaseCommande, true) ;
-    goInternalFunction.Add('strlowercase', @strlowercaseCommande, true) ;
-    goInternalFunction.Add('strcopy', @strcopyCommande, true) ;
-    goInternalFunction.Add('strpos', @strposCommande, true) ;
-    goInternalFunction.Add('stripos', @striposCommande, true) ;
-    goInternalFunction.Add('strrpos', @strrposCommande, true) ;
-    goInternalFunction.Add('strripos', @strriposCommande, true) ;
-    goInternalFunction.Add('strtrim', @strtrimCommande, true) ;
-    goInternalFunction.Add('strtrimleft', @strtrimleftCommande, true) ;
-    goInternalFunction.Add('strtrimright', @strtrimrightCommande, true) ;
+    goInternalFunction.Add('strUpperCase', @struppercaseCommande, true) ;
+    goInternalFunction.Add('strLowerCase', @strlowercaseCommande, true) ;
+    goInternalFunction.Add('strCopy', @strcopyCommande, true) ;
+    goInternalFunction.Add('strPos', @strposCommande, true) ;
+    goInternalFunction.Add('striPos', @striposCommande, true) ;
+    goInternalFunction.Add('strrPos', @strrposCommande, true) ;
+    goInternalFunction.Add('strriPos', @strriposCommande, true) ;
+    goInternalFunction.Add('strTrim', @strtrimCommande, true) ;
+    goInternalFunction.Add('strTrimLeft', @strtrimleftCommande, true) ;
+    goInternalFunction.Add('strTrimRight', @strtrimrightCommande, true) ;
 
-    goInternalFunction.Add('strreplace', @strreplaceCommande, false) ;
-    goInternalFunction.Add('strireplace', @strreplaceCommande, false) ;
+    goInternalFunction.Add('strReplace', @strreplaceCommande, false) ;
+    goInternalFunction.Add('striReplace', @strreplaceCommande, false) ;
 
-    goInternalFunction.Add('strinsert', @strinsertCommande, true) ;
-    goInternalFunction.Add('strdelete', @strdeleteCommande, true) ;
-    goInternalFunction.Add('strexplode', @strexplodeCommande, true) ;
-    goInternalFunction.Add('strimplode', @strimplodeCommande, true) ;
-    goInternalFunction.Add('strloadfromfile', @strLoadFromFileCommande, true) ;
-    goInternalFunction.Add('strsavetofile', @strSaveToFileCommande, true) ;
-    goInternalFunction.Add('straddslashes', @strAddSlashesCommande, true) ;
-    goInternalFunction.Add('strdeleteslashes', @strDeleteSlashesCommande, true) ;
+    goInternalFunction.Add('strInsert', @strinsertCommande, true) ;
+    goInternalFunction.Add('strDelete', @strdeleteCommande, true) ;
+    goInternalFunction.Add('strExplode', @strexplodeCommande, true) ;
+    goInternalFunction.Add('strImplode', @strimplodeCommande, true) ;
+    goInternalFunction.Add('strLoadFromFile', @strLoadFromFileCommande, true) ;
+    goInternalFunction.Add('strSaveToFile', @strSaveToFileCommande, true) ;
+    goInternalFunction.Add('strAddSlashes', @strAddSlashesCommande, true) ;
+    goInternalFunction.Add('strDeleteSlashes', @strDeleteSlashesCommande, true) ;
 
-    goInternalFunction.Add('strprintr', @strPrintRCommande, false) ;
+    goInternalFunction.Add('strPrintr', @strPrintRCommande, false) ;
 
-    goInternalFunction.Add('strprintf', @strPrintFCommande, true) ;
-    goInternalFunction.Add('strrepeatstring', @strRepeatStringCommande, true) ;
-    goInternalFunction.Add('strbase64encode', @strBase64EncodeCommande, true) ;
-    goInternalFunction.Add('strbase64decode', @strBase64DecodeCommande, true) ;
-    goInternalFunction.Add('strsoundex', @strSoundExCommande, true) ;
-    goInternalFunction.Add('strucfirst', @strUcFirstCommande, true) ;
-    goInternalFunction.Add('strucwords', @strUcWordsCommande, true) ;
-    goInternalFunction.Add('strtr', @strtrCommande, true) ;
-    goInternalFunction.Add('strrev', @strrevCommande, true) ;
-    goInternalFunction.Add('strcspn', @strcspnCommande, true) ;
-    goInternalFunction.Add('strspn', @strspnCommande, true) ;
-    goInternalFunction.Add('strreplaceaccent', @strReplaceAccentCommande, true) ;
-    goInternalFunction.Add('strnumberfloat', @strNumberFormatCommande, true) ;
+    goInternalFunction.Add('strPrintf', @strPrintFCommande, true) ;
+    goInternalFunction.Add('strRepeatString', @strRepeatStringCommande, true) ;
+    goInternalFunction.Add('strBase64Encode', @strBase64EncodeCommande, true) ;
+    goInternalFunction.Add('strBase64Decode', @strBase64DecodeCommande, true) ;
+    goInternalFunction.Add('strSoundex', @strSoundExCommande, true) ;
+    goInternalFunction.Add('strUcFirst', @strUcFirstCommande, true) ;
+    goInternalFunction.Add('strucWords', @strUcWordsCommande, true) ;
+    goInternalFunction.Add('strTr', @strtrCommande, true) ;
+    goInternalFunction.Add('strRev', @strrevCommande, true) ;
+    goInternalFunction.Add('strcSpn', @strcspnCommande, true) ;
+    goInternalFunction.Add('strSpn', @strspnCommande, true) ;
+    goInternalFunction.Add('strReplaceAccent', @strReplaceAccentCommande, true) ;
+    goInternalFunction.Add('strNumberFloat', @strNumberFormatCommande, true) ;
     goInternalFunction.Add('printf', @PrintFCommande, true) ;
-    goInternalFunction.Add('strempty', @strEmptyCommande, true) ;
-    goInternalFunction.Add('strleft', @strLeftCommande, true) ;
-    goInternalFunction.Add('strright', @strRightCommande, true) ;
-    goInternalFunction.Add('strstartwith', @strStartWithCommande, true) ;
-    goInternalFunction.Add('strendwith', @strEndWithCommande, true) ;
+    goInternalFunction.Add('strEmpty', @strEmptyCommande, true) ;
+    goInternalFunction.Add('strLeft', @strLeftCommande, true) ;
+    goInternalFunction.Add('strRight', @strRightCommande, true) ;
+    goInternalFunction.Add('strStartWith', @strStartWithCommande, true) ;
+    goInternalFunction.Add('strEndWith', @strEndWithCommande, true) ;
 end ;
 
 end.

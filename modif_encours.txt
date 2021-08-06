@@ -1,0 +1,42 @@
+C:\lazarus_project\SimpleWebScript-0.1.2\unitmath.pas (13 hits)
+	Line 142:             valeur := MyStrToInt(ExtractIntPart(aoArguments[0])) ;
+	Line 166:             valeur := MyStrToInt(ExtractIntPart(aoArguments[0])) ;
+	Line 190:             valeur := MyStrToInt(ExtractIntPart(aoArguments[0])) ;
+	Line 248:             MaxValue := MyStrToInt(aoArguments[0]) ;
+	Line 255:                     CurrentValue := MyStrToInt(aoArguments[i]) ;
+	Line 288:             MinValue := MyStrToInt(aoArguments[0]) ;
+	Line 295:                     CurrentValue := MyStrToInt(aoArguments[i]) ;
+	Line 403:             if Odd(MyStrToInt(aoArguments[0]))
+	Line 854:                 gsResultFunction := MyFloatToStr(Random(MyStrToInt(aoArguments[0]))) ;
+	Line 859:                     aMin := MyStrToInt(aoArguments[0]) ;
+	Line 860:                     aMax := MyStrToInt(aoArguments[1]) ;
+	Line 1025:                 gsResultFunction := MyFloatToStr(LdExp(MyStrToFloat(aoArguments[0]), MyStrToInt(aoArguments[1])))
+	Line 1218:                 F := IntPower(10, MyStrToInt(aoArguments[1])) ;
+  C:\lazarus_project\SimpleWebScript-0.1.2\unitmiscellaneous.pas (7 hits)
+	Line 150:                 FileName := AddSlashes(goListOfFile[MyStrToInt(goLineToFile[giCurrentLineNumber])]) ;
+	Line 341:             liExpireTime := MyStrToInt(aoArguments[2]) ;
+	Line 913:         liDelay := MyStrToInt(aoArguments[0]) ;
+	Line 1018:             liOctet := MyStrToInt(aoArguments[0]) ;
+	Line 1025:                     liDecalage := MyStrToInt(aoArguments[1]) ;
+	Line 1065:             liOctet := MyStrToInt(aoArguments[0]) ;
+	Line 1072:                     liDecalage := MyStrToInt(aoArguments[1]) ;
+  C:\lazarus_project\SimpleWebScript-0.1.2\unitstr.pas (19 hits)
+	Line 532:         liStartPos := MyStrToInt(aoArguments[1]) + 1 ;
+	Line 536:             liLength := MyStrToInt(aoArguments[2]) ;
+	Line 608:                 liIndex := MyStrToInt(aoArguments[2]) + 1 ;
+	Line 813:         liStartPos := MyStrToInt(aoArguments[2]) + 1 ;
+	Line 846:         liStart := MyStrToInt(aoArguments[1]) + 1 ;
+	Line 847:         liLength := MyStrToInt(aoArguments[2]) ;
+	Line 851:             liLength := MyStrToInt(aoArguments[2]) ;
+	Line 1097:             gsResultFunction := RepeterCaractere(aoArguments[0], MyStrToInt(aoArguments[1]))
+	Line 1192:             Result := MyStrToInt(Copy(asText, liDebut, liFin - liDebut)) ;
+	Line 1348:                                 liLongueurDebut := MyStrToInt(aoArguments[liIndexArgument]) ;
+	Line 1370:                                     liLongueurFin := MyStrToInt(aoArguments[liIndexArgument]) ;
+	Line 1403:                                     gsResultFunction := gsResultFunction + Chr(MyStrToInt(aoArguments[liIndexArgument])) ;
+	Line 1523:                                     lsTmp := DecToHex(MyStrToInt(lsTmp)) ;
+	Line 1554:                                         lsTmp := DecToOct(MyStrToInt(lsTmp)) ;
+	Line 1562:                                         lsTmp := DecToBin(MyStrToInt(lsTmp)) ;
+	Line 1962:         aiStart := Integer(MyStrToInt(aoArguments[2])) ;
+	Line 1970:         aiLength := Integer(MyStrToInt(aoArguments[3])) ;
+	Line 2238:             liLength := MyStrToInt(aoArguments[1]) ;
+	Line 2275:             liLength := MyStrToInt(aoArguments[1]) ;

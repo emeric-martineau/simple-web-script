@@ -39,7 +39,7 @@ unit DoubleStrings;
  *
  *           ZZZZ : name of variable
  *******************************************************************************
- * Class to manage label. It's just 2 TStringList management.
+ * Class to manage String with other string. It's just 2 TStringList management.
  ******************************************************************************}
 {$I config.inc}
 
@@ -90,8 +90,8 @@ end ;
  ******************************************************************************}
 destructor TDoubleStrings.Free ;
 begin
-    poVarName.Free ;
-    poVarValue.Free ;
+    FreeAndNil(poVarName) ;
+    FreeAndNil(poVarValue) ;
 end ;
 
 {******************************************************************************
@@ -109,7 +109,7 @@ var
     { Index du nom de la variable }
     liIndex : Integer ;
 begin
-    asNameOfVar := LowerCase(asNameOfVar) ;
+    asNameOfVar := asNameOfVar ;
 
     liIndex := poVarName.IndexOf(asNameOfVar) ;
 

@@ -13,15 +13,16 @@
   contenu dans $var qui sera affect&eacute;e. Le nom de la variable peut &ecirc;tre 
   ou nom pr&eacute;c&eacute;d&eacute; du $, c'est &agrave; dire que $var=mavariable 
   &eacute;quivaut &agrave; $var=&quot;$mavariable&quot;.<br>
-  Les variables sont de type chaines, de type entier (de &#150;2147483648..2147483647, 
-  sur architecture 32 bits, convertie en interne en chaines) ou flottant (3.6 
+  Les variables sont de type chaines, de type entier (int) 64 bits (de -9223372036854775808..9223372036854775807) ou 32 bits (int32) (de &#150;2147483648..2147483647, 
+  convertie en interne en chaines) ou flottant (3.6 
   x 10^&#150;4951 .. 1.1 x 10^4932).</p>
-<p>Pour d&eacute;finire une variable, utilisez SET (SET $mavar mavaleur + 1)<br>
-  Pour supprimer une variable, utilisez UNSET (UNSET $mavariable, $var2...)<br>
-  Pour savoir si une variable existe utilisez ISSET (ISSET $monresultat $mavariable)</p>
+<p>Pour d&eacute;finire une variable, utilisez set (set $mavar, mavaleur + 1) ou $titi = 0<br>
+  Pour supprimer une variable, utilisez unSet (unSet $mavariable, $var2...)<br>
+  Pour savoir si une variable existe utilisez isSet (isSet $monresultat $mavariable)</p>
 <p>Vous pouvez utiliser l'op&eacute;rateur * devant le nom de la variabel. Reportez 
   vous au chapitre Pointeur pour plus d'information.<br>
-  Vous pouvez notez les chiffres en hexad&eacute;cimal comme ceci 0x1234.</p>
+  Vous pouvez notez les chiffres en hexad&eacute;cimal comme ceci 0x1234.<br/>
+  Vous pouvez notez les chiffres en octal comme ceci 01234.</p>
 <p>Les variables ne sont pas interpr&eacute;t&eacute;e dans les chaines de caract&egrave;res. 
   Ainsi, "$truc" donne "$truc" et non pas la valeur de la variable $truc</p>
 <p>Les chaine supportent \n (retour &agrave; la ligne) \r (retour debut ligne) 
@@ -40,58 +41,76 @@ Pour définir une constante utiliser define(). Pour savoir si on constante est dé
 <br />
 true et false sont des constantes ne nécessitant un dièse (#) devant.</p>
   
-<h2>Saut GOTO<a name="goto"></a></h2>
+<h2>Saut goto<a name="goto"></a></h2>
 <p>On peut si on le souhaite sauter un endroit du programme avec l'instruction 
-  GOTO (ou goto). Exemple :<br>
+  goto (ou goto). Exemple :<br>
   Label:<br>
   Instruction1<br>
   Instruction2<br>
-  GOTO Label<br>
+  goto Label<br>
   <br>
-  L'instruction GOTO sort des fonctions ou des boucles.<br>
-  Si vous souhaitez sauter dans une fonction, utiliser LOCALGOTO.</p>
-<p>ATTENTION : Les labels ne peuvent pas commencer par un chiffre et se termine 
-  obligatoirement par les deux points (:).</p>
-<h2>Boucle de contr&ocirc;le WHILE, REPEAT, FOR, BREAK<a name="boucle"></a></h2>
-OpenAutoKey est dot&eacute; de boucle de contr&ocirc;le.
-<h3>WHILE</h3>
+  L'instruction goto sort des fonctions ou des boucles.<br>
+<h2>Boucle de contr&ocirc;le while, repeat, for, break, continue<a name="boucle"></a></h2>
+Simple Web Script est dot&eacute; de boucle de contr&ocirc;le.
+<h3>while</h3>
 <p>C'est instruction ce lit TANT QUE vrai FAIRE<br>
-  La fin du WHILE est marqu&eacute; par ENDWHILE.<br />
-  WHILE $a = $true DO<br>
+  La fin du while est marqu&eacute; par endwhile.<br />
+  while $a = $true do<br>
   Instruction<br>
-  ENDWHILE ;</p>
+  endwhile ;</p>
 
-  <h3>REPEAT</h3>
+  <h3>repeat</h3>
 
-<p>Le REPEAT se traduit par faire jusqu'&agrave;<br>
-  REPEAT<br>
+<p>Le repeat se traduit par faire jusqu'&agrave;<br>
+  repeat<br>
   Instruction<br>
-  UNTIL vrai ;</p>
-<h3>FOR</h3>
-<p>FOR $var = startvalue TO endvalue STEP incrementvalue DO<br>
+  until vrai ;</p>
+<h3>for</h3>
+<p>for $var = startvalue TO endvalue STEP incrementvalue DO<br>
   Instruction<br>
-  ENDFOR ;</p>
-<h3>BREAK</h3>
-<p>Quitte un boucle FOR, REPEAT, WHILE</p>
+  endfor ;</p>
+<h3>break</h3>
+<p>Quitte une boucle for, repeat, while</p>
+<p>Vous pouvez ajouter un label devant un boucle pour quitter une boucle sp&eacute;cifiquement :<br />
+<pre>
+label1 : for $i = 0 to 1 do
+             while true do
+                 break label1 ;
+             endwhile ;
+         endfor ;
+</pre>
+</p>
 
-<h2>SWITCH<a name="switch"></a></h2>
+<h3>continue</h3>
+<p>Continue une boucle for, repeat, while</p>
+<p>Vous pouvez ajouter un label devant un boucle pour continuer une boucle sp&eacute;cifiquement :<br />
+<pre>
+label1 : for $i = 0 to 1 do
+             while true do
+                 continue label1 ;
+             endwhile ;
+         endfor ;
+</pre>
+</p>
+
+<h2>switch<a name="switch"></a></h2>
 <p>Vous pouvez utiliser les switchs de la mani&egrave;re suivante :</p>
-<p>SWITCH $var DO<br>
-  CASE &quot;value1&quot;, &quot;value2&quot; :<br>
+<p>switch $var do<br>
+  case &quot;value1&quot;, &quot;value2&quot; :<br>
   Instruction1<br>
   break<br>
-  DEFAULT :<br>
+  default :<br>
   Default instruction<br>
-  ENDSWITCH ;</p>
-<h2>Condition IF/ELSE<a name="condition"></a></h2>
-<p>Le IF est tr&egrave;s simple.</p>
-<p>IF $a = 'c' and $a&lt;&gt;'g' or $a&gt;'t' xor $a&lt;='g' THEN<br>
+  endswitch ;</p>
+<h2>Condition if/else<a name="condition"></a></h2>
+<p>Le if est tr&egrave;s simple.</p>
+<p>if $a = 'c' and $a&lt;&gt;'g' or $a&gt;'t' xor $a&lt;='g' then<br>
   Instruction<br>
-  ELSEIF $a = 'ccc' THEN<br>
+  elseif $a = 'ccc' then<br>
   Instruction <br>
-  ELSE<br>
+  else<br>
   Instruction<br>
-  ENDIF ;</p>
+  endif ;</p>
 <h2> Commentaires<a name="commentaire"></a></h2>
 <p>Les commentaires d&eacute;butent par //, ils peuvent &ecirc;tre sur la m&ecirc;me ligne qu'une instruction.<br>
   Vous pouvez utiliser les /* */ pour un commentaire multi-ligne, ils peuvent &ecirc;tre sur la m&ecirc;me ligne qu'une instruction.</p>
@@ -103,9 +122,9 @@ OpenAutoKey est dot&eacute; de boucle de contr&ocirc;le.
   &lt;@ echo 'hello world!' @&gt;<br>
   &lt;/body&gt;<br>
   &lt;/html&gt; </p>
-<h2>Arr&ecirc;ter le programme avec EXIT ou DIE<a name="exit"></a></h2>
-<p>Pour terminer le programme ou une fonction utiliser l'instruction EXIT.<br />
-   Vous utiliser aussi utiliser la commande DIE pour arrêter le script, en passant en paramètre le message à afficher.</p>
+<h2>Arr&ecirc;ter le programme avec exit ou die<a name="exit"></a></h2>
+<p>Pour terminer le programme ou une fonction utiliser l'instruction exit. Vous pouvez transmettre une valeur enti&egrave;re (int32) qui sera transmise au syst&egrave;me d'exploitation.<br />
+   Vous utiliser aussi utiliser la commande die pour arrêter le script, en passant en paramètre le message à afficher.</p>
 <h2>Op&eacute;rateurs<a name="operators"></a></h2>
 <p>Voici la liste des op&eacute;rateurs class&eacute;s par ordre de priorit&eacute;.
   N'oubliez pas que les chaines lignes de code sont lu de gauche &agrave; droite.</p>
@@ -149,15 +168,15 @@ OpenAutoKey est dot&eacute; de boucle de contr&ocirc;le.
     <td>shift bit right</td>
   </tr>
   <tr> 
-    <td>&amp;</td>
+    <td>bitand</td>
     <td>bit and</td>
   </tr>
   <tr> 
-    <td>&amp;|</td>
+    <td>bitxor</td>
     <td>bit xor</td>
   </tr>
   <tr> 
-    <td>|</td>
+    <td>bitor</td>
     <td>bit or</td>
   </tr>
   <tr> 
@@ -199,9 +218,7 @@ OpenAutoKey est dot&eacute; de boucle de contr&ocirc;le.
   maprocedure &amp;$mavariable<br>
   <br>
   ATTENTION : vous ne pouvez pas avoir &amp;$$var ou *$$var.<br>
-  <br>
-  Vous pouvez, &agrave; travers les pointeurs modifier les valeurs de $true, $false, 
-  $version, $coreversion</p>
+</p>
 <h2>Fonction<a name="function"></a></h2>
 <p>Si vous souhaitez cr&eacute;er un fonction, utiliser le mot clef FUNCTION. 
   Example :</p>
@@ -224,8 +241,7 @@ OpenAutoKey est dot&eacute; de boucle de contr&ocirc;le.
   <b>function MyFunction($arg1, ...)</b></p>
 <p>Les arguments seront dans le tableau <b>$args</b>. Pour connaitre le nomrbe 
   d'argument utiliser <b>$argcount</b>.</p>
-<p>Pour quitter une proc&eacute;dure utilisez <b>exit</b>.</p>
-<p>Pour retourner une valeur utilisez la variable <b>$result</b>.</p>
+<p>Pour quitter une proc&eacute;dure utilisez <b>return</b> avec la valeur de r&eacute;sultat.</p>
 <p>Les fonctions usilisateurs ou internes peuvent &ecirc;tre appel&eacute;e avec 
   ou sans parenth&egrave;ses.</p>
 <h2>EXIT<a name="exit"></a></h2>
@@ -239,7 +255,7 @@ OpenAutoKey est dot&eacute; de boucle de contr&ocirc;le.
 <p>Pour utiliser les chaines, d&eacute;limitez les avec &quot; ou '.</p>
 <h2>Mots r&eacute;serv&eacute;s<a name="reservedword"></a></h2>
 <p>Les mots suivant sont r&eacute;serv&eacute;s et ne peuvent nommer une fonction 
-  : in, or, xor, and, not, to, step.</p>
+  : in, or, xor, and, not, to, step, do, bitor, bitxor, bitand.</p>
 <h2>Op&eacute;rateur @<a name="arobase"></a></h2>
 <p>L'arobase (@) devant une commande d&eacute;sactive les warning.</p>
 <h1>Fonctions de base</h1>
@@ -313,27 +329,31 @@ OpenAutoKey est dot&eacute; de boucle de contr&ocirc;le.
 <h2>global<a name="global"></a></h2>
 <p>global $var1, $var2... Dans une fonction, passe une variable globale dans la 
   fonction et &agrave; la fin de la fonction fait l'inverse.</p>
-<h2>include/includeonce<a name="isnumeric"></a></h2>
+<h2>include/includeOnce<a name="isnumeric"></a></h2>
 Pour inclure un fichier, utilisez la commande include suivi du nom du fichier 
 (attention, utilisez le slash / pour s&eacute;parer les r&eacute;pertoires m&ecirc;me 
 sous windows). <br>
 Si vous souhaitez n'inclure qu'une fois le fichier, utiliser includeonce 
 <h2>isArray<a name="isarray"></a></h2>
-$var=isarray(<i>variable)</i>.Indique si la variable est un tableau. 
+$var=isArray(<i>variable)</i>.Indique si la variable est un tableau. 
 <h2>isExtensionLoaded<a name="isextensionloaded"></a></h2>
 $returnvalue=isextensionloaded(<i>'extension')</i>.Indique si une extension est 
 charg&eacute;e. 
 <h2>isFloat<a name="isfloat"></a></h2>
-<p>$var=isfloat($var <i>variable ou valeur)</i>.Indique si c'est un nombre &agrave; 
+<p>$var=isFloat($var <i>variable ou valeur)</i>.Indique si c'est un nombre &agrave; 
   virgule floattant.</p>
 <h2>isHexa<a name="ishexa"></a></h2>
-<p>$var=ishexa(<i>variable ou valeur)</i>.Indique si c'est une chaine repr&eacute;sentant 
+<p>$var=isHexa(<i>variable ou valeur)</i>.Indique si c'est une chaine repr&eacute;sentant 
   un nombre hexa d&eacute;cimal.</p>
 <h2>isInteger<a name="isinteger"></a></h2>
 <p>$var=isinteger(<i>variable ou valeur)</i>.Indique si c'est un nombre entier.</p>
 <h2>isNumeric<a name="isnumeric"></a></h2>
-<p>$var=isnumeric(<i>variable ou valeur)</i>.Indique si c'est un nombre (entier 
+<p>$var=isNumeric(<i>variable ou valeur)</i>.Indique si c'est un nombre (entier 
   ou flottant)</p>
+  
+<h2>isOctal<a name="isoctal"></a></h2>
+<p>$var=isOctal(<i>variable ou valeur</i>).Indique si c'est un nombre octal</p>
+  
 <h2>isString<a name="isstring"></a></h2>
 <p>$var=isstring(<i>variable ou valeur</i>).Indique si c'est une chaine</p>
 <h2>length<a name="lenght"></a></h2>

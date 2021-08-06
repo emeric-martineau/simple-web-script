@@ -122,8 +122,7 @@ function getElseIfElseEndIf(aoCode : TStringList; aiPosition : Integer) : Intege
 
 implementation
 
-uses Variable, Functions, Code, UserFunction, IntegerList ;
-
+uses Variable, Functions, Code, UserFunction ;
 {*****************************************************************************
  * ListShuffle
  * MARTINEAU Emeric
@@ -764,35 +763,36 @@ begin
               label qui correspond à notre for ou si pas de label }
             if ((lsWhileLabel = gsCurrentLabel) or (gsCurrentLabel = ''))
             then begin
-                if (gbBreak = True) or (gbContinue = True)
+                if (gbBreak = True)
                 then begin
                     gbQuit := False ;
+                end
+                else if (gbContinue = True)
+                then begin
+                    gbContinue := False ;
+                    gbQuit := False ;
+
+                    continue ;
                 end ;
             end ;
 
-            if (gbQuit = True)
+            if (liIndex = -1) or (gbQuit = True)
             then begin
                 break ;
             end ;
 
-            if (gbContinue = False)
+            if (gbBreak = True)
             then begin
-                if (gbBreak = True)
-                then begin
-                    gbBreak := False ;
+                gbBreak := False ;
 
-                    break ;
-                end
-                else if liPositionEndLoop = -1
-                then begin
-                    { Mémorise la position de fin de boucle si ce n'est pas
-                      déjà fait
-                      -1 car ReadCode renvoie la ligne d'après  }
-                    liPositionEndLoop := liIndex - 1 ;
-                end ;
+                break ;
             end
-            else begin
-                gbContinue := False ;
+            else if liPositionEndLoop = -1
+            then begin
+                { Mémorise la position de fin de boucle si ce n'est pas
+                  déjà fait
+                  -1 car ReadCode renvoie la ligne d'après  }
+                liPositionEndLoop := liIndex - 1 ;
             end ;
 
             aoArguments.Text := loCondition.Text ;
@@ -872,7 +872,7 @@ begin
                     { Dans notre cas, on ne passe pas dans ReadCode donc il faut
                       incrémenter.
                       +1 car fait pointer sur la ligne avant }
-                    liPositionEndLoop := FindEndBoucle(goCodeList, liConditionLine + 1) ;
+                    liPositionEndLoop := FindEndBoucle(goCodeList, liConditionLine + 1) + 1 ;
                 end ;
 
                 { On doit initialiser pour tester, de plus liIndex est
@@ -881,7 +881,7 @@ begin
             end ;
         end ;
 
-        if (gbQuit = True)
+        if (liIndex = -1) or (gbQuit = True)
         then begin
             break ;
         end ;
@@ -1061,7 +1061,6 @@ begin
                 while MyStrToInt64(getVar(lsVariable)) <= liEndValue do
                 begin
                     OverTimeAndMemory ;
-
                     if gbQuit
                     then begin
                         break ;
@@ -1073,36 +1072,37 @@ begin
                       label qui correspond à notre for ou si pas de label }
                     if ((lsForLabel = gsCurrentLabel) or (gsCurrentLabel = ''))
                     then begin
-                        if (gbBreak = True) or (gbContinue = True)
+                        if (gbBreak = True)
                         then begin
                             gbQuit := False ;
+                        end
+                        else if (gbContinue = True)
+                        then begin
+                            gbContinue := False ;
+                            gbQuit := False ;
+
+                            continue ;
                         end ;
                     end ;
 
-                    if (gbQuit = True)
+                    if (liIndex = -1) or (gbQuit = True)
                     then begin
                         break ;
                     end ;
 
-                    if (gbContinue = False)
+                    if (gbBreak = True)
                     then begin
-                        if (gbBreak = True)
-                        then begin
-                            { On ne propage pas le break puisqu'il nous concerne }
-                            gbBreak := False ;
+                        { On ne propage pas le break puisqu'il nous concerne }
+                        gbBreak := False ;
 
-                            break ;
-                        end
-                        else if liPositionEndLoop = -1
-                        then begin
-                            { Mémorise la position de fin de boucle si ce n'est pas
-                              déjà fait
-                              -1 car ReadCode renvoie la ligne d'après }
-                            liPositionEndLoop := liIndex - 1 ;
-                        end ;
+                        break ;
                     end
-                    else begin
-                        gbContinue := False ;
+                    else if liPositionEndLoop = -1
+                    then begin
+                        { Mémorise la position de fin de boucle si ce n'est pas
+                          déjà fait
+                          -1 car ReadCode renvoie la ligne d'après }
+                        liPositionEndLoop := liIndex - 1 ;
                     end ;
                     
                     SetVar(lsVariable, IntToStr(MyStrToInt64(getVar(lsVariable)) + liIncrement)) ;
@@ -2161,7 +2161,7 @@ var
     { Fait la correspondance entre ligne et n° de ligne dans le fichier }
     loOldLineToFileLine : TStringList ;
     { Fait la correspondance entre la ligne et le fichier }
-    loOldLineToFile : TIntegerList ;
+    loOldLineToFile : TStringList ;
     { Liste des commandes mettant fin au code eval exécuté }
     loEndCondition : TStringList ;
     { Compteur de boucle pour initialiser les numéro de ligne et les fichiers
@@ -2192,14 +2192,14 @@ begin
 
         goListOfFile := TStringList.Create ;
         goLineToFileLine := TStringList.Create ;
-        goLineToFile := TIntegerList.Create ;
+        goLineToFile := TStringList.Create ;
 
         goListOfFile.Add('eval command') ;
 
         for liIndex := 0 to loListOfCode.Count - 1 do
         begin
             goLineToFileLine.Add(IntToStr(liIndex + 1)) ;
-            goLineToFile.Add(0) ;
+            goLineToFile.Add('0') ;
         end ;
 
         gbError := False ;
@@ -2271,7 +2271,7 @@ begin
         
         { goLineToFile contient la correspondance entre le numéro de ligne et le numéro
           du fichier en cours d'exécution }
-        gsDocRoot := goCurrentRootOfFile[goLineToFile[giCurrentLineNumber]] ;
+        gsDocRoot := goCurrentRootOfFile[StrToInt(goLineToFile[giCurrentLineNumber])] ;
 
         // ajouter @>
         goCodeList.Insert(giCurrentLineNumber, csEndSwsTag) ;
@@ -2322,7 +2322,7 @@ begin
         
         { goLineToFile contient la correspondance entre le numéro de ligne et le numéro
           du fichier en cours d'exécution }
-        gsDocRoot := goCurrentRootOfFile[goLineToFile[giCurrentLineNumber]] ;
+        gsDocRoot := goCurrentRootOfFile[StrToInt(goLineToFile[giCurrentLineNumber])] ;
 
         if goListOfFile.IndexOf(Realpath(aoArguments[0])) = -1
         then begin

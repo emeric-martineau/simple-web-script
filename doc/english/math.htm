@@ -5,61 +5,145 @@
 <body bgcolor="#ffffff" text="#000000">
 
 <h1>Math functions</h1>
-<h2>Abs<a name="abs"></a></h2>
-<p>float abs(float) : absolute value.</p><h2>ACos<a name="acos"></a></h2>
-<p>float acos(float) : get the arc-cosinus.</p><h2>ACosh<a name="acosh"></a></h2>
-<p>float acosh(float) : get the arc-cosinus hyperbolic.</p><h2>ACot<a name="acot"></a></h2>
-<p>float acot(float) : arc-cotangente of angle.</p><h2>ASin<a name="asos"></a></h2>
-<p>float asin(float) : get the arc-sinus.</p><h2>ASinh<a name="asinh"></a></h2>
-<p>float asinh(float) : get the arc-sinus hyperbolic.</p><h2>ATan<a name="atan"></a></h2>
-<p>float atan(float) : get the arc-tangent.</p><h2>ATan2<a name="atan2"></a></h2>
-<p>float atan(float X, Y) : get angles in all four quadrants.</p><h2>ATanh<a name="atanh"></a></h2>
-<p>float atanh(float) : get the arc-tangent hyperbolic.</p><h2>BinToDec<a name="bintodec"></a></h2>
-<p>int BinToDec(string) : convert binary representation to integer.</p><h2>Ceil<a name="ceil"></a></h2>
-<p>float ceil(float) : Round fractions up.</p><h2>Cos<a name="cos"></a></h2>
-<p>float cos(float) : cotangente of angle.</p><h2>Cot<a name="cot"></a></h2>
-<p>float cos(float) : cotangente of angle.</p><h2>DecToBin<a name="dectobin"></a></h2>
-<p>string DecToBin(16) : get binary representation of number.</p>
-<h2>DecToHex<a name="dectohex"></a></h2>
-<p>string DecToHex(16) : get hexadecimal representation of number.</p>
-<h2>DecToOct<a name="dectooct"></a></h2>
-<p>string DecToOct(16) : get octal representation of number.</p>
 
-<h2>EnsureRange<a name="ensurerange"></a></h2>
-<p>float EnsureRange(float value, float min, float max) : Returns the closest value to a specified value within a specified range<br><br>EnsureRange returns Value if Min &lt;= Value &lt;= Max.<br>EnsureRange returns Min if Min &gt;&nbsp;Value.<br>EnsureRange returns MAx if Max &lt;&nbsp;Value.</p><h2>Exp<a name="exp"></a></h2>
-<p>float exp(float) : Get the exponent of this value - reverses the Ln operation.</p><h2>ExtractFloatPart<a name="extractfloatpart"></a></h2>
-<p>float ExtractFloatPart(16.23) : extract the float part of a real number.</p>
-<h2>ExtractIntPart<a name="extractfloatpart"></a></h2>
-<p>int ExtractIntPart(16.23) : extract the integer part of a real number.</p>
-<h2>Floor<a name="floor"></a></h2>
-<p>float floor(float) : Round fractions down.</p><h2>Frac<a name="frac"></a></h2>
-<p>float frac(float) : The fractional part of a floating point number.</p><h2>Frexp<a name="frexp"></a></h2>
-<p>void frac(float value, var_mantissa, var_exponent) : break mantissa and exponent of value.</p><h2>InRange<a name="inrange"></a></h2>
-<p>bool inrange(float value, flaot min, float max) : return true if value between min and max.</p><h2>Int<a name="int"></a></h2>
-<p>float int(float) : The integer part of a floating point number as a float.</p><h2>LdExp<a name="ldexp"></a></h2>
-<p>float ldexp(float X, int P) :&nbsp;Calculate X * (2 ^ P).</p><h2>LnXP1<a name="ln"></a></h2>
-<p>float lnxp1(float X) : return natural logarithme of X.</p><h2>Ln<a name="ln"></a></h2>
-<p>float ln(float) : Get the natural logarithm.</p><h2>Log2<a name="log2"></a></h2>
-<p>float log2(float) : calculate logarithme base 2.</p><h2>Log10<a name="log10"></a></h2>
-<p>float log10(float) : calculate logarithme base 10.</p><h2>LogN<a name="logn"></a></h2>
-<p>float logN(float base, float X) : calculate X logarithme base base.</p><h2>Max<a name="max"></a></h2>
-<p>int max(number1, number2...) : return greater number.</p><h2>Min<a name="max"></a></h2>
-<p>int min(number1, number2...) : return lesser number.</p><h2>Odd<a name="odd"></a></h2>
-<p>bool odd(int) : return true if number is odd.</p><h2>Pi<a name="pi"></a></h2>
+<h2>abs<a name="abs"></a></h2>
+<p>float abs(float) : absolute value.</p>
+
+<h2>aCos<a name="acos"></a></h2>
+<p>float aCos(float) : get the arc-cosinus.</p>
+
+<h2>aCosh<a name="acosh"></a></h2>
+<p>float aCosh(float) : get the arc-cosinus hyperbolic.</p>
+
+<h2>aCot<a name="acot"></a></h2>
+<p>float aCot(float) : arc-cotangente of angle.</p>
+
+<h2>aSin<a name="asos"></a></h2>
+<p>float aSin(float) : get the arc-sinus.</p>
+
+<h2>aSinh<a name="asinh"></a></h2>
+<p>float aSinh(float) : get the arc-sinus hyperbolic.</p>
+
+<h2>atan<a name="atan"></a></h2>
+<p>float aTan(float) : get the arc-tangent.</p>
+
+<h2>aTan2<a name="atan2"></a></h2>
+<p>float aTan2(float X, Y) : get angles in all four quadrants.</p>
+
+<h2>aTanh<a name="atanh"></a></h2>
+<p>float aTanh(float) : get the arc-tangent hyperbolic.</p>
+
+<h2>binToDec<a name="bintodec"></a></h2>
+<p>int binToDec(string) : convert binary representation to integer.</p>
+
+<h2>ceil<a name="ceil"></a></h2>
+<p>float ceil(float) : Round fractions up.</p>
+
+<h2>cos<a name="cos"></a></h2>
+<p>float cos(float) : cotangente of angle.</p>
+
+<h2>cot<a name="cot"></a></h2>
+<p>float cos(float) : cotangente of angle.</p>
+
+<h2>decToBin<a name="dectobin"></a></h2>
+<p>string decToBin(16) : get binary representation of number.</p>
+
+<h2>decToHex<a name="dectohex"></a></h2>
+<p>string decToHex(16) : get hexadecimal representation of number.</p>
+
+<h2>decToOct<a name="dectooct"></a></h2>
+<p>string decToOct(16) : get octal representation of number.</p>
+
+<h2>ensureRange<a name="ensurerange"></a></h2>
+<p>float ensureRange(float value, float min, float max) : Returns the closest value to a specified value within a specified range<br><br>EnsureRange returns Value if Min &lt;= Value &lt;= Max.<br>EnsureRange returns Min if Min &gt;&nbsp;Value.<br>EnsureRange returns MAx if Max &lt;&nbsp;Value.</p>
+
+<h2>Exp<a name="exp"></a></h2>
+<p>float exp(float) : Get the exponent of this value - reverses the Ln operation.</p>
+
+<h2>extractFloatPart<a name="extractfloatpart"></a></h2>
+<p>float extractFloatPart(16.23) : extract the float part of a real number.</p>
+
+<h2>extractIntPart<a name="extractfloatpart"></a></h2>
+<p>int extractIntPart(16.23) : extract the integer part of a real number.</p>
+
+<h2>floor<a name="floor"></a></h2>
+<p>float floor(float) : Round fractions down.</p>
+
+<h2>frac<a name="frac"></a></h2>
+<p>float frac(float) : The fractional part of a floating point number.</p>
+
+<h2>frexp<a name="frexp"></a></h2>
+<p>void frexp(float value, var_mantissa, var_exponent) : break mantissa and exponent of value.</p>
+
+<h2>inRange<a name="inrange"></a></h2>
+<p>bool inRange(float value, flaot min, float max) : return true if value between min and max.</p>
+
+<h2>int<a name="int"></a></h2>
+<p>float int(float) : The integer part of a floating point number as a float.</p>
+
+<h2>ldExp<a name="ldexp"></a></h2>
+<p>float ldExp(float X, int32 P) :&nbsp;Calculate X * (2 ^ P).</p>
+
+<h2>lnxp1<a name="ln"></a></h2>
+<p>float lnxp1(float X) : return natural logarithme of X.</p>
+
+<h2>ln<a name="ln"></a></h2>
+<p>float ln(float) : Get the natural logarithm.</p>
+
+<h2>log2<a name="log2"></a></h2>
+<p>float log2(float) : calculate logarithme base 2.</p>
+
+<h2>log10<a name="log10"></a></h2>
+<p>float log10(float) : calculate logarithme base 10.</p>
+
+<h2>logn<a name="logn"></a></h2>
+<p>float logn(float base, float X) : calculate X logarithme base base.</p>
+
+<h2>max<a name="max"></a></h2>
+<p>int max(number1, number2...) : return greater number.</p>
+
+<h2>min<a name="max"></a></h2>
+<p>int min(number1, number2...) : return lesser number.</p>
+
+<h2>odd<a name="odd"></a></h2>
+<p>bool odd(int) : return true if number is odd.</p>
+
+<h2>pi<a name="pi"></a></h2>
 <p>float Pi() : return 3.1415926535897932385.</p>
-<h2>Poly<a name="poly"></a></h2>
-<p>float Poly(float X, array of float coefficents) : Coefficients[0] + Coefficients[1]*X + ... + Coefficients[N]*(X**N).</p><h2>Rand<a name="rand"></a></h2>
-<p>int rand([int mini], int max) : Generate random numbers in a range.</p><h2>Round<a name="round"></a></h2>
-<p>int round(float) : Rounds a floating point number to an integer.</p><h2>Round<a name="round"></a></h2>
-<p>int roundto(float value, int RoundRange) : Rounds a floating point number to a float with RoundRange precision.</p><h2>SameValue<a name="samevalue"></a></h2>
+
+<h2>poly<a name="poly"></a></h2>
+<p>float poly(float X, array of float coefficents) : Coefficients[0] + Coefficients[1]*X + ... + Coefficients[N]*(X**N).</p>
+
+<h2>rand<a name="rand"></a></h2>
+<p>int rand([int mini], int max) : Generate random numbers in a range.</p>
+
+<h2>round<a name="round"></a></h2>
+<p>int round(float) : Rounds a floating point number to an integer.</p>
+
+<h2>roundTo<a name="round"></a></h2>
+<p>int roundTo(float value, int32 RoundRange) : Rounds a floating point number to a float with RoundRange precision.</p>
+
+<h2>sameValue<a name="samevalue"></a></h2>
 <p>float samevalue(float A, float B, float Epsilon) : SameValue returns
 True if the floating-point values A and B are the same, ie whether the
-absolute value of their their difference is smaller than Epsilon.</p><h2>Sin<a name="sin"></a></h2>
-<p>float sin(float) : get the sinus.</p><h2>Sqr<a name="sqr"></a></h2>
-<p>float sqrt(float) : Gives the square of a number.</p><h2>Sqrt<a name="sqrt"></a></h2>
-<p>float sqrt(float) : Gives the square root of a number.</p><h2>Tan<a name="tan"></a></h2>
-<p>float tan(float) : get the tangent.</p><h2>Trunc<a name="trunc"></a></h2>
-<p>int trunc(float) : The integer part of a floating point number.</p><h2>UniqID<a name="uniqid"></a></h2>
+absolute value of their their difference is smaller than Epsilon.</p>
+
+<h2>sin<a name="sin"></a></h2>
+<p>float sin(float) : get the sinus.</p>
+
+<h2>sqr<a name="sqr"></a></h2>
+<p>float sqrt(float) : Gives the square of a number.</p>
+
+<h2>sqrt<a name="sqrt"></a></h2>
+<p>float sqrt(float) : Gives the square root of a number.</p>
+
+<h2>tan<a name="tan"></a></h2>
+<p>float tan(float) : get the tangent.</p>
+
+<h2>trunc<a name="trunc"></a></h2>
+<p>int trunc(float) : The integer part of a floating point number.</p>
+
+<h2>uniqID<a name="uniqid"></a></h2>
 <p>string uniqid : return a unique id, it's composed to year, month, day, hour, 
   minute, second, millisecond.</p>
 <p>&nbsp;</p>

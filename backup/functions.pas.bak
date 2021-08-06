@@ -595,7 +595,7 @@ begin
         if goLineToFile.count > 0
         then begin
             //OutPutString(sErrorIn + ListOfFile[MyStrToInt(LineToFile[CurrentLineNumber])], false)
-            WriteLn(csErrorIn + goListOfFile[goLineToFile[giCurrentLineNumber]]) ;
+            WriteLn(csErrorIn + goListOfFile[StrToInt(goLineToFile[giCurrentLineNumber])]) ;
         end
         else begin
             //OutPutString(sGeneralError + text, false) ;
@@ -633,7 +633,7 @@ begin
     if gbWarning
     then begin
         //OutPutString(sWarningIn + ListOfFile[MyStrToInt(LineToFile[CurrentLineNumber])], false) ;
-        WriteLn(csWarningIn + goListOfFile[goLineToFile[giCurrentLineNumber]]) ;
+        WriteLn(csWarningIn + goListOfFile[StrToInt(goLineToFile[giCurrentLineNumber])]) ;
 
         //OutPutString(Format(' [%s:%s] %s', [CurrentFunctionName[CurrentFunctionName.Count - 1],LineToFileLine[CurrentLineNumber], text]) + '\n', true) ;
         WriteLn(Format(' [%s:%s] %s', [goCurrentFunctionName[goCurrentFunctionName.Count - 1], goLineToFileLine[giCurrentLineNumber], asText])) ;
@@ -1032,7 +1032,7 @@ begin
 
         for liIndex := aiStart to liLength do
         begin
-            if not ((LowerCase(asVarName[liIndex]) in ['a'..'z']) or (asVarName[liIndex] in ['0'..'9']) or (asVarName[liIndex] = '_'))
+            if not ((LowerCase(asVarName[liIndex]) in ['a'..'z']) or (asVarName[liIndex] in ['0'..'9']) or (asVarName[aiStart] = '_'))
             then begin
                 Result := False ;
                 break ;                
@@ -1230,7 +1230,6 @@ begin
 
         Inc(liCompteur) ;
     end ;
-
     liCompteur := 0 ;
 
     {ETAPE 1 : convertire les variables et fonctions }
@@ -4052,7 +4051,7 @@ Var
         if (asText <> '') or (lbInHTML)
         then begin
             goCodeList.Insert(aiStartLine + liIncOfOffset, asText) ;
-            goLineToFile.Insert(aiStartLine + liIncOfOffset, liNumFile) ;
+            goLineToFile.Insert(aiStartLine + liIncOfOffset, IntToStr(liNumFile)) ;
             
             if (liStartLineNumber = -1)
             then begin
@@ -4421,7 +4420,7 @@ begin
                 if goLineToFileLine.Count = 0
                 then begin
                     goLineToFileLine.Add('1') ;
-                    goLineToFile.Add(0) ;
+                    goLineToFile.Add('0') ;
                 end ;
 
                 ErrorMsg(Format(csFileNotFound, [asFileName])) ;
@@ -4703,7 +4702,7 @@ begin
         { Créer les variables locales }
         goVariables := TVariables.Create ;
 
-        goConstantes.Add('#_scriptname', goListOfFile[goLineToFile[giCurrentLineNumber]]) ;
+        goConstantes.Add('#_scriptname', goListOfFile[StrToInt(goLineToFile[giCurrentLineNumber])]) ;
 
         loListArguments := TStringList.Create ;
 
@@ -5014,7 +5013,7 @@ var
     { Longueur du texte }
     liLengthOfString : Integer ;
 begin
-    //asText := Trim(asText) ;
+    asText := Trim(asText) ;
     Result := '' ;
 
     liLengthOfString := Length(asText) + 1 ;

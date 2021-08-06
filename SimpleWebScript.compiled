@@ -1,5 +1,5 @@
 <?xml version="1.0"?>
 <CONFIG>
-  <Compiler Value="c:\lazarus\fpc\2.2.0\bin\i386-win32\fpc.exe" Date="930002333"/>
-  <Params Value=" -S2cgi -OG1 -gl -vewnhi -l -Fu. -osimplewebscript.exe simplewebscript.dpr"/>
+  <Compiler Value="C:\lazarus\fpc\2.2.2\bin\i386-win32\fpc.exe" Date="980250209"/>
+  <Params Value=" -MObjFPC -Scgi -O1 -gl -vewnhi -l -FuC:\lazarus_project\SimpleWebScript-0.1.2\ -Fu. -oC:\lazarus_project\SimpleWebScript-0.1.2\simplewebscript.exe simplewebscript.dpr"/>
 </CONFIG>
