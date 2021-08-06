@@ -1,0 +1,547 @@
+[Closed Files]
+File_0=SourceModule,'C:\Program Files\Borland\Delphi6\Projects\SimpleWebScript\UnitMiscellaneous.pas',0,1,929,1,929,0,0
+File_1=SourceModule,'C:\Program Files\Borland\Delphi6\Source\Rtl\Common\Math.pas',0,1,1009,23,1034,0,0
+File_2=SourceModule,'C:\Program Files\Borland\Delphi6\Projects\SimpleWebScript\InternalFunction.pas',0,1,100,5,54,0,0
+File_3=SourceModule,'C:\Program Files\Borland\Delphi6\Projects\SimpleWebScript\UnitStr.pas',0,1,1450,9,1484,0,0
+File_4=SourceModule,'C:\Program Files\Borland\Delphi6\Projects\SimpleWebScript\MD5Core.pas',0,1,78,3,92,0,0
+File_5=SourceModule,'C:\Program Files\Borland\Delphi6\Projects\SimpleWebScript\UnitHtml.pas',0,1,1000,38,1015,0,0
+File_6=SourceModule,'C:\Program Files\Borland\Delphi6\Projects\SimpleWebScript\MD5Api.pas',0,1,1,13,21,0,0
+
+[Modules]
+Module0=C:\Program Files\Borland\Delphi6\Projects\SimpleWebScript\Functions.pas
+Module1=C:\Program Files\Borland\Delphi6\Projects\SimpleWebScript\CoreFunctions.pas
+Module2=C:\Program Files\Borland\Delphi6\Projects\SimpleWebScript\UnitWindows.pas
+Module3=C:\Program Files\Borland\Delphi6\Projects\SimpleWebScript\Extension.pas
+Module4=C:\Program Files\Borland\Delphi6\Projects\SimpleWebScript\Code.pas
+Module5=C:\Program Files\Borland\Delphi6\Projects\SimpleWebScript\Variable.pas
+Module6=C:\Program Files\Borland\Delphi6\Projects\SimpleWebScript\path_ini.inc
+Module7=C:\Program Files\Borland\Delphi6\Projects\SimpleWebScript\GetPostCookieFileData.pas
+Module8=C:\Program Files\Borland\Delphi6\Projects\SimpleWebScript\config.inc
+Module9=C:\Program Files\Borland\Delphi6\Projects\SimpleWebScript\UnitMessages.pas
+Module10=C:\Program Files\Borland\Delphi6\Projects\SimpleWebScript\UnitOS.pas
+Module11=C:\Program Files\Borland\Delphi6\Projects\SimpleWebScript\UnitMath.pas
+Module12=C:\Program Files\Borland\Delphi6\Projects\SimpleWebScript\DoubleStrings.pas
+Module13=C:\Program Files\Borland\Delphi6\Projects\SimpleWebScript\SimpleWebScript.dpr
+Count=14
+EditWindowCount=1
+
+[C:\Program Files\Borland\Delphi6\Projects\SimpleWebScript\Functions.pas]
+ModuleType=SourceModule
+FormState=0
+FormOnTop=0
+
+[C:\Program Files\Borland\Delphi6\Projects\SimpleWebScript\CoreFunctions.pas]
+ModuleType=SourceModule
+FormState=0
+FormOnTop=0
+
+[C:\Program Files\Borland\Delphi6\Projects\SimpleWebScript\UnitWindows.pas]
+ModuleType=SourceModule
+FormState=0
+FormOnTop=0
+
+[C:\Program Files\Borland\Delphi6\Projects\SimpleWebScript\Extension.pas]
+ModuleType=SourceModule
+FormState=0
+FormOnTop=0
+
+[C:\Program Files\Borland\Delphi6\Projects\SimpleWebScript\Code.pas]
+ModuleType=SourceModule
+FormState=0
+FormOnTop=0
+
+[C:\Program Files\Borland\Delphi6\Projects\SimpleWebScript\Variable.pas]
+ModuleType=SourceModule
+FormState=0
+FormOnTop=0
+
+[C:\Program Files\Borland\Delphi6\Projects\SimpleWebScript\path_ini.inc]
+ModuleType=SourceModule
+FormState=0
+FormOnTop=0
+
+[C:\Program Files\Borland\Delphi6\Projects\SimpleWebScript\GetPostCookieFileData.pas]
+ModuleType=SourceModule
+FormState=0
+FormOnTop=0
+
+[C:\Program Files\Borland\Delphi6\Projects\SimpleWebScript\config.inc]
+ModuleType=SourceModule
+FormState=0
+FormOnTop=0
+
+[C:\Program Files\Borland\Delphi6\Projects\SimpleWebScript\UnitMessages.pas]
+ModuleType=SourceModule
+FormState=0
+FormOnTop=0
+
+[C:\Program Files\Borland\Delphi6\Projects\SimpleWebScript\UnitOS.pas]
+ModuleType=SourceModule
+FormState=0
+FormOnTop=0
+
+[C:\Program Files\Borland\Delphi6\Projects\SimpleWebScript\UnitMath.pas]
+ModuleType=SourceModule
+FormState=0
+FormOnTop=0
+
+[C:\Program Files\Borland\Delphi6\Projects\SimpleWebScript\DoubleStrings.pas]
+ModuleType=SourceModule
+FormState=0
+FormOnTop=0
+
+[C:\Program Files\Borland\Delphi6\Projects\SimpleWebScript\SimpleWebScript.dpr]
+ModuleType=SourceModule
+FormState=0
+FormOnTop=0
+
+[C:\Program Files\Borland\Delphi6\Projects\ProjectGroup1.bpg]
+FormState=0
+FormOnTop=0
+
+[EditWindow0]
+ViewCount=14
+CurrentView=3
+View0=0
+View1=1
+View2=2
+View3=3
+View4=4
+View5=5
+View6=6
+View7=7
+View8=8
+View9=9
+View10=10
+View11=11
+View12=12
+View13=13
+CodeExplorer=CodeExplorer@EditWindow0
+MessageView=MessageView@EditWindow0
+Create=1
+Visible=1
+State=2
+Left=206
+Top=140
+Width=1074
+Height=642
+MaxLeft=-4
+MaxTop=104
+MaxWidth=1288
+MaxHeight=894
+ClientWidth=1280
+ClientHeight=860
+LeftPanelSize=140
+LeftPanelClients=CodeExplorer@EditWindow0
+LeftPanelData=000004000000000000000000000000000000000000000000000100000000000000000C000000436F64654578706C6F726572FFFFFFFF
+RightPanelSize=0
+BottomPanelSize=0
+BottomPanelClients=MessageView@EditWindow0
+BottomPanelData=00000400010000000B0000004D6573736167655669657700050000000000000234000000000000000100000000000000000000000001000000000005000000000000FFFFFFFF
+
+[View0]
+Module=C:\Program Files\Borland\Delphi6\Projects\SimpleWebScript\SimpleWebScript.dpr
+CursorX=25
+CursorY=310
+TopLine=288
+LeftCol=1
+
+[View1]
+Module=C:\Program Files\Borland\Delphi6\Projects\SimpleWebScript\DoubleStrings.pas
+CursorX=60
+CursorY=68
+TopLine=64
+LeftCol=1
+
+[View2]
+Module=C:\Program Files\Borland\Delphi6\Projects\SimpleWebScript\UnitMath.pas
+CursorX=14
+CursorY=54
+TopLine=31
+LeftCol=1
+
+[View3]
+Module=C:\Program Files\Borland\Delphi6\Projects\SimpleWebScript\Functions.pas
+CursorX=52
+CursorY=4465
+TopLine=4428
+LeftCol=1
+
+[View4]
+Module=C:\Program Files\Borland\Delphi6\Projects\SimpleWebScript\UnitOS.pas
+CursorX=1
+CursorY=66
+TopLine=45
+LeftCol=1
+
+[View5]
+Module=C:\Program Files\Borland\Delphi6\Projects\SimpleWebScript\UnitWindows.pas
+CursorX=1
+CursorY=109
+TopLine=103
+LeftCol=1
+
+[View6]
+Module=C:\Program Files\Borland\Delphi6\Projects\SimpleWebScript\UnitMessages.pas
+CursorX=1
+CursorY=119
+TopLine=99
+LeftCol=1
+
+[View7]
+Module=C:\Program Files\Borland\Delphi6\Projects\SimpleWebScript\CoreFunctions.pas
+CursorX=23
+CursorY=1600
+TopLine=1577
+LeftCol=1
+
+[View8]
+Module=C:\Program Files\Borland\Delphi6\Projects\SimpleWebScript\config.inc
+CursorX=1
+CursorY=4
+TopLine=1
+LeftCol=1
+
+[View9]
+Module=C:\Program Files\Borland\Delphi6\Projects\SimpleWebScript\GetPostCookieFileData.pas
+CursorX=6
+CursorY=31
+TopLine=1
+LeftCol=1
+
+[View10]
+Module=C:\Program Files\Borland\Delphi6\Projects\SimpleWebScript\path_ini.inc
+CursorX=7
+CursorY=2
+TopLine=1
+LeftCol=1
+
+[View11]
+Module=C:\Program Files\Borland\Delphi6\Projects\SimpleWebScript\Variable.pas
+CursorX=1
+CursorY=742
+TopLine=719
+LeftCol=1
+
+[View12]
+Module=C:\Program Files\Borland\Delphi6\Projects\SimpleWebScript\Code.pas
+CursorX=1
+CursorY=86
+TopLine=66
+LeftCol=1
+
+[View13]
+Module=C:\Program Files\Borland\Delphi6\Projects\SimpleWebScript\Extension.pas
+CursorX=47
+CursorY=57
+TopLine=16
+LeftCol=1
+
+[Watches]
+Count=0
+
+[Breakpoints]
+Count=2
+Breakpoint0='C:\Program Files\Borland\Delphi6\Projects\SimpleWebScript\MaxExecutionTimer.pas',48,'',0,1,'',1,0,0,'',1,'','',''
+Breakpoint1='C:\Program Files\Borland\Delphi6\Projects\SimpleWebScript\Code.pas',435,'',0,1,'',1,0,0,'',1,'','',''
+
+[AddressBreakpoints]
+Count=0
+
+[Main Window]
+Create=1
+Visible=1
+State=2
+Left=17
+Top=611
+Width=1263
+Height=112
+MaxLeft=-4
+MaxTop=-4
+MaxWidth=1288
+MaxHeight=112
+ClientWidth=1280
+ClientHeight=78
+
+[ProjectManager]
+Create=1
+Visible=0
+State=0
+Left=370
+Top=372
+Width=437
+Height=303
+MaxLeft=-1
+MaxTop=-1
+ClientWidth=429
+ClientHeight=277
+TBDockHeight=303
+LRDockWidth=437
+Dockable=1
+
+[Components]
+Create=1
+Visible=0
+State=0
+Left=241
+Top=238
+Width=181
+Height=238
+MaxLeft=-1
+MaxTop=-1
+ClientWidth=173
+ClientHeight=212
+
+[CPUWindow]
+Create=1
+Visible=0
+State=0
+Left=491
+Top=387
+Width=533
+Height=353
+MaxLeft=-1
+MaxTop=-1
+ClientWidth=525
+ClientHeight=319
+DumpPane=79
+DisassemblyPane=187
+RegisterPane=231
+FlagPane=64
+
+[AlignmentPalette]
+Create=1
+Visible=0
+State=0
+Left=874
+Top=515
+Width=156
+Height=84
+MaxLeft=-1
+MaxTop=-1
+ClientWidth=150
+ClientHeight=60
+
+[PropertyInspector]
+Create=1
+Visible=0
+State=0
+Left=2
+Top=385
+Width=237
+Height=607
+MaxLeft=-1
+MaxTop=-1
+ClientWidth=229
+ClientHeight=581
+TBDockHeight=386
+LRDockWidth=229
+Dockable=1
+SplitPos=108
+ArrangeBy=Name
+SelectedItem=
+ExpandedItems=BorderIcons,Connection,Effects,Options,VisibleButtons
+HiddenCategories=
+
+[WatchWindow]
+Create=1
+Visible=0
+State=0
+Left=301
+Top=309
+Width=421
+Height=149
+MaxLeft=-1
+MaxTop=-1
+ClientWidth=413
+ClientHeight=123
+TBDockHeight=149
+LRDockWidth=421
+Dockable=1
+
+[BreakpointWindow]
+Create=1
+Visible=0
+State=0
+Left=149
+Top=437
+Width=737
+Height=197
+MaxLeft=-1
+MaxTop=-1
+ClientWidth=729
+ClientHeight=171
+TBDockHeight=197
+LRDockWidth=737
+Dockable=1
+Column0Width=100
+Column1Width=75
+Column2Width=200
+Column3Width=200
+Column4Width=75
+Column5Width=75
+
+[CallStackWindow]
+Create=1
+Visible=0
+State=0
+Left=365
+Top=303
+Width=294
+Height=161
+MaxLeft=-1
+MaxTop=-1
+ClientWidth=286
+ClientHeight=135
+TBDockHeight=161
+LRDockWidth=294
+Dockable=1
+
+[ThreadStatusWindow]
+Create=1
+Visible=0
+State=0
+Left=9
+Top=32
+Width=195
+Height=44
+MaxLeft=-1
+MaxTop=-1
+ClientWidth=187
+ClientHeight=18
+TBDockHeight=152
+LRDockWidth=187
+Dockable=1
+Column0Width=145
+Column1Width=100
+Column2Width=115
+Column3Width=250
+
+[ModuleWindow]
+Create=1
+Visible=0
+State=0
+Left=197
+Top=130
+Width=638
+Height=355
+MaxLeft=-1
+MaxTop=-1
+ClientWidth=630
+ClientHeight=329
+TBDockHeight=355
+LRDockWidth=638
+Dockable=1
+Column0Width=125
+Column1Width=100
+Column2Width=155
+EntryPointPane=225
+CompUnitPane=104
+
+[ObjectTree]
+Create=1
+Visible=0
+State=0
+Left=0
+Top=939
+Width=237
+Height=336
+MaxLeft=-1
+MaxTop=-1
+ClientWidth=229
+ClientHeight=310
+TBDockHeight=386
+LRDockWidth=229
+Dockable=1
+
+[DebugLogView]
+Create=1
+Visible=0
+State=0
+Left=303
+Top=238
+Width=572
+Height=388
+MaxLeft=-1
+MaxTop=-1
+ClientWidth=564
+ClientHeight=362
+TBDockHeight=291
+LRDockWidth=417
+Dockable=1
+
+[LocalVarsWindow]
+Create=1
+Visible=0
+State=0
+Left=273
+Top=197
+Width=421
+Height=192
+MaxLeft=-1
+MaxTop=-1
+ClientWidth=413
+ClientHeight=166
+TBDockHeight=192
+LRDockWidth=421
+Dockable=1
+
+[ToDo List]
+Create=1
+Visible=0
+State=0
+Left=155
+Top=168
+Width=744
+Height=250
+MaxLeft=-1
+MaxTop=-1
+ClientWidth=736
+ClientHeight=224
+TBDockHeight=250
+LRDockWidth=744
+Dockable=1
+Column0Width=200
+Column1Width=30
+Column2Width=319
+Column3Width=70
+Column4Width=120
+SortOrder=0
+ShowHints=1
+ShowChecked=1
+
+[CodeExplorer@EditWindow0]
+Create=1
+Visible=1
+State=0
+Left=0
+Top=12
+Width=140
+Height=848
+MaxLeft=-1
+MaxTop=-1
+ClientWidth=140
+ClientHeight=848
+TBDockHeight=305
+LRDockWidth=140
+Dockable=1
+
+[MessageView@EditWindow0]
+Create=1
+Visible=0
+State=0
+Left=12
+Top=0
+Width=1268
+Height=52
+MaxLeft=-1
+MaxTop=-1
+ClientWidth=1268
+ClientHeight=52
+TBDockHeight=52
+LRDockWidth=443
+Dockable=1
+
+[DockHosts]
+DockHostCount=0
+

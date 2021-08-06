@@ -1,0 +1,159 @@
+<?xml version="1.0"?>
+<CONFIG>
+  <ProjectOptions>
+    <PathDelim Value="\"/>
+    <Version Value="6"/>
+    <General>
+      <MainUnit Value="0"/>
+      <IconPath Value="./"/>
+      <TargetFileExt Value=".exe"/>
+      <ActiveEditorIndexAtStart Value="1"/>
+    </General>
+    <VersionInfo>
+      <ProjectVersion Value=""/>
+      <Language Value=""/>
+      <CharSet Value=""/>
+    </VersionInfo>
+    <PublishOptions>
+      <Version Value="2"/>
+      <IgnoreBinaries Value="False"/>
+      <IncludeFileFilter Value="*.(pas|pp|inc|lfm|lpr|lrs|lpi|lpk|sh|xml)"/>
+      <ExcludeFileFilter Value="*.(bak|ppu|ppw|o|so);*~;backup"/>
+    </PublishOptions>
+    <RunParams>
+      <local>
+        <FormatVersion Value="1"/>
+        <CommandLineParams Value="-d -file essai.sws"/>
+        <LaunchingApplication PathPlusParams="/usr/X11R6/bin/xterm -T 'Lazarus Run Output' -e $(LazarusDir)/tools/runwait.sh $(TargetCmdLine)"/>
+      </local>
+    </RunParams>
+    <Units Count="6">
+      <Unit0>
+        <Filename Value="SimpleWebScript.dpr"/>
+        <IsPartOfProject Value="True"/>
+        <CursorPos X="30" Y="175"/>
+        <TopLine Value="165"/>
+        <EditorIndex Value="0"/>
+        <UsageCount Value="20"/>
+        <Loaded Value="True"/>
+      </Unit0>
+      <Unit1>
+        <Filename Value="Functions.pas"/>
+        <UnitName Value="Functions"/>
+        <CursorPos X="1" Y="3532"/>
+        <TopLine Value="3514"/>
+        <EditorIndex Value="2"/>
+        <UsageCount Value="10"/>
+        <Loaded Value="True"/>
+      </Unit1>
+      <Unit2>
+        <Filename Value="UnitMath.pas"/>
+        <UnitName Value="UnitMath"/>
+        <CursorPos X="57" Y="947"/>
+        <TopLine Value="924"/>
+        <EditorIndex Value="1"/>
+        <UsageCount Value="10"/>
+        <Loaded Value="True"/>
+      </Unit2>
+      <Unit3>
+        <Filename Value="MD5Api.pas"/>
+        <UnitName Value="MD5Api"/>
+        <CursorPos X="6" Y="11"/>
+        <TopLine Value="1"/>
+        <EditorIndex Value="3"/>
+        <UsageCount Value="10"/>
+        <Loaded Value="True"/>
+      </Unit3>
+      <Unit4>
+        <Filename Value="config.inc"/>
+        <CursorPos X="6" Y="8"/>
+        <TopLine Value="1"/>
+        <EditorIndex Value="4"/>
+        <UsageCount Value="10"/>
+        <Loaded Value="True"/>
+      </Unit4>
+      <Unit5>
+        <Filename Value="path_ini.inc"/>
+        <CursorPos X="7" Y="2"/>
+        <TopLine Value="1"/>
+        <EditorIndex Value="5"/>
+        <UsageCount Value="10"/>
+        <Loaded Value="True"/>
+      </Unit5>
+    </Units>
+    <JumpHistory Count="13" HistoryIndex="12">
+      <Position1>
+        <Filename Value="UnitMath.pas"/>
+        <Caret Line="1" Column="1" TopLine="1"/>
+      </Position1>
+      <Position2>
+        <Filename Value="UnitMath.pas"/>
+        <Caret Line="704" Column="45" TopLine="683"/>
+      </Position2>
+      <Position3>
+        <Filename Value="UnitMath.pas"/>
+        <Caret Line="845" Column="63" TopLine="824"/>
+      </Position3>
+      <Position4>
+        <Filename Value="UnitMath.pas"/>
+        <Caret Line="941" Column="21" TopLine="920"/>
+      </Position4>
+      <Position5>
+        <Filename Value="UnitMath.pas"/>
+        <Caret Line="847" Column="21" TopLine="824"/>
+      </Position5>
+      <Position6>
+        <Filename Value="UnitMath.pas"/>
+        <Caret Line="704" Column="47" TopLine="683"/>
+      </Position6>
+      <Position7>
+        <Filename Value="UnitMath.pas"/>
+        <Caret Line="703" Column="45" TopLine="683"/>
+      </Position7>
+      <Position8>
+        <Filename Value="UnitMath.pas"/>
+        <Caret Line="849" Column="20" TopLine="828"/>
+      </Position8>
+      <Position9>
+        <Filename Value="Functions.pas"/>
+        <Caret Line="3534" Column="1" TopLine="3513"/>
+      </Position9>
+      <Position10>
+        <Filename Value="MD5Api.pas"/>
+        <Caret Line="1" Column="1" TopLine="1"/>
+      </Position10>
+      <Position11>
+        <Filename Value="config.inc"/>
+        <Caret Line="1" Column="1" TopLine="1"/>
+      </Position11>
+      <Position12>
+        <Filename Value="path_ini.inc"/>
+        <Caret Line="1" Column="1" TopLine="1"/>
+      </Position12>
+      <Position13>
+        <Filename Value="UnitMath.pas"/>
+        <Caret Line="849" Column="20" TopLine="828"/>
+      </Position13>
+    </JumpHistory>
+  </ProjectOptions>
+  <CompilerOptions>
+    <Version Value="5"/>
+    <PathDelim Value="\"/>
+    <CodeGeneration>
+      <Generate Value="Faster"/>
+    </CodeGeneration>
+    <Other>
+      <CompilerPath Value="$(CompPath)"/>
+    </Other>
+  </CompilerOptions>
+  <Debugging>
+    <Exceptions Count="2">
+      <Item1>
+        <Name Value="ECodetoolError"/>
+      </Item1>
+      <Item2>
+        <Name Value="EFOpenError"/>
+      </Item2>
+    </Exceptions>
+  </Debugging>
+</CONFIG>

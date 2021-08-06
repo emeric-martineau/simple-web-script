@@ -1,0 +1,150 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html><head><title>String functions</title>
+
+<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1"></head>
+<body style="color: rgb(0, 0, 0); background-color: rgb(255, 255, 255);">
+<h1>String functions</h1>
+<h2>die<a name="die"></a></h2>
+<p>die('message') : Show message then exit script</p>
+<h2>echo<a name="echo"></a></h2>
+<p>echo "message" + $var : Show message</p>
+<h2>strAddSlashes<a name="strcopy"></a></h2>
+<p>string strAddSlashes(value) : add slash (\) before ", ' and \</p>
+<h2>strBase64Encode<a name="strbase64encode"></a></h2>
+<p>string strBase64Encode(string) : return a string in base64
+code.</p>
+<h2>strcspn</h2>
+int strcspn(string&nbsp;str1,
+string&nbsp;str2&nbsp; [, int&nbsp;start&nbsp; [,
+int&nbsp;length&nbsp;
+]] ) : Returns the length of the initial segment of str1 which does not
+contain any of the characters in str2 . <br>
+<h2>strCopy<a name="strcopy"></a></h2>
+<p>string strCopy(value, start, end) : return a sub string</p>
+<h2>strDelete<a name="strdelete"></a></h2>
+<p>string strDelete(string, int index, int count) : return a string who
+have delete at index length count</p>
+<h2>strDeleteSlashes<a name="strdeleteslashes"></a></h2>
+<p>string strDeleteSlashes(string) : return a string who have
+delete all escape slash.</p>
+<h2>strExplode<a name="strexplode"></a></h2>
+<p>array strExplode(separator, string) : explode a string who are
+delimited by separator in array.</p>
+<h2>strImplode<a name="strimplode"></a></h2>
+<p>string strImplode(separator, array) : implode array in string
+separated by separator.</p>
+<h2>strInsert<a name="strdelete"></a></h2>
+<p>string strInsert(source, string, int index) : return a string who
+have add source in string at position index.</p>
+<h2>striPos<a name="stripos"></a></h2>
+<p>same as strpos but insensitive case</p>
+<h2>striReplace<a name="strdelete"></a></h2>
+<p>Same as strReplace but insensitive case.</p>
+<h2>strLoadFromFile<a name="strloadfromfile"></a></h2>
+<p>array stLoadFromFile(filename) : load text file in array.</p>
+<h2>strLowerCase<a name="strlowercase"></a></h2>
+<p>string strLowerCase(value) : return string in lower case</p>
+<h2>strNumberFloat<a name="strnumberfloat"></a></h2>
+<p>int strNumberFloat(float, [string floatseparator, string
+millierseparator]) : display a float or integer in human format. If
+floatseparator or millierseparator not specified, function use&nbsp;floatseparator or millierseparator defined in <a href="miscellaneous.htm#setlocal">setlocal</a> function.</p><h2>strPos<a name="strpos"></a></h2>
+<p>int strPos(substring, string [, int start index]) : search a
+substring in string</p>
+<h2>strPrintR<a name="strprintr"></a></h2>
+<p>string strPrintf(format, variables, variables2...) : print
+variablse with type.</p>
+<p> format</p>
+<p> The format string is composed of zero or more directives:
+ordinary characters (excluding %) that are copied directly to the
+result, and conversion specifications, each of which results in
+fetching its own parameter. This applies to both sprintf() and printf().</p>
+<p> Each conversion specification consists of a percent sign (%),
+followed by one or more of these elements, in order:</p>
+<p> 1. An optional sign specifier that forces a sign (+) to be
+used on a number. By default, only the - sign is used on a number if
+it's negative.<br>
+2. An optional information can be force by #. In octal number (o) add 0
+before, in hexa (x, X) add 0x or 0X.<br>
+3. An optional padding specifier that says what character will be used
+for padding the results to the right string size. This may be a space
+character or a 0 (zero character). The default is to pad with spaces.
+An alternate padding character can be specified by prefixing it with a
+single quote ('). See the examples below.<br>
+4. An optional alignment specifier that says if the result should be
+left-justified or right-justified. The default is right-justified; a -
+character here will make it left-justified.<br>
+5. An optional number, a width specifier that says how many characters
+(minimum) this conversion should result in.<br>
+6. An optional precision specifier that says how many decimal digits
+should be displayed for floating-point numbers. When using this
+specifier on a string, it acts as a cutoff point, setting a maximum
+character limit to the string.<br>
+7. A type specifier that says what type the argument data should be
+treated as. Possible types:<br>
+* % - a literal percent character. No argument is required.<br>
+* b - the argument is treated as an integer, and presented as a binary
+number.<br>
+* c - the argument is treated as an integer, and presented as the
+character with that ASCII value.<br>
+* d - the argument is treated as an integer, and presented as a
+(signed) decimal number.<br>
+* e - the argument is treated as scientific notation (e.g. 1.2e+2). <br>
+* u - the argument is treated as an integer, and presented as an
+unsigned decimal number.<br>
+* f - the argument is treated as a float, and presented as a
+floating-point number (locale aware).<br>
+* o - the argument is treated as an integer, and presented as an octal
+number.<br>
+* s - the argument is treated as and presented as a string.<br>
+* x - the argument is treated as an integer and presented as a
+hexadecimal number (with lowercase letters).<br>
+* X - the argument is treated as an integer and presented as a
+hexadecimal number (with uppercase letters).</p>
+<p>sprintf('%6.2f', 145.23) is equivalent to sprintf('%*.*f', 6,
+2, 145.23)</p>
+<h2>strPrintR<a name="strprintr"></a></h2>
+<p>void strPrintr(variable) : print variable with type.</p>
+<h2>strRepeatString<a name="strrepeatstring"></a></h2>
+<p>string strRepeatString(texttorepeat, int count) : repeat a string</p>
+<h2>strReplace<a name="strreplace"></a></h2>
+<p>string strReplace(substr, str, replacetext [, int count]) :
+search substr in str and replace by replacetext. If $count is
+specified, retourn number of occurence was found. substr can be an
+array.</p>
+<h2>strReplaceAccent</h2>
+string strReplaceAccent(string) : replace all caractere with accent by equivalence witout accent<br>
+<h2>strRev<a name="strrev"></a></h2>
+<p>string strRev(string) : return string in reverse order</p>
+<h2>strrPos<a name="strpos"></a></h2>
+<p>string strPos(substring, string [, int start index]) : search a
+substring in string begin at end of string</p>
+<h2>strriPos<a name="strpos"></a></h2>
+<p>Same as strrPos but insensitive case.</p>
+<h2>strSaveToFile<a name="strsavetofile"></a></h2>
+<p>bool strSaveToFile(array, filename) : write an arry in text
+file. Return false if failed.</p>
+<h2>strSoundEx<a name="strsavetofile"></a></h2>
+<p>string strSoundEx(string) : return soundex equivalent of
+passed string.</p>
+<h2>strspn</h2>
+same as strcspn but return length of containt char.<br>
+<h2>strTr<a name="strtrim"></a></h2>
+<p>string strTr(string, value_to_replace, remplement_value) :
+replace value by other valeur. Value and remplacement can be an array
+or string</p>
+<p>Exemple : echo strTr('abababa', 'ab', 'ba') =&gt; bababa</p>
+<h2>strTrim<a name="strtrim"></a></h2>
+<p>string strTrim(value) : delete space at begin and end of string</p>
+<h2>strTrimLeft<a name="strtrimleft"></a></h2>
+<p>string strTrimLeft(value) : delete space at end of string</p>
+<h2>strTrimRight<a name="strtrimright"></a></h2>
+<p>string strTrimRight(value) : delete space at begin of string</p>
+<h2>strUcFirst<a name="strucfirst"></a></h2>
+<p>string strUcFirst(value) : return string with fist caractere
+in uppercase</p>
+<h2>strUcWords<a name="strucfirst"></a></h2>
+<p>string strUcWords(value) : return string with all fist
+caractere in uppercase</p>
+<h2>strUpperCase<a name="struppercase"></a></h2>
+<p>string strUpperCase(value) : return string in upper case</p>
+</body></html>

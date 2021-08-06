@@ -1,0 +1,60 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html><head>
+
+<title>In nutshell</title><meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1"></head>
+<body bgcolor="#ffffff" text="#000000">
+<h1>In nutshell </h1>
+<h2>Pointer and array structure<a name="structure"></a></h2>
+<h3>Pointer </h3>
+<p>Pointer begin by"p{" end end by "}". Between, you find 
+  internal id who point on TVaraibles and variable name.la variable.</p>
+<h3>Array</h3>
+<p>Array begin by "a{" end end by"}". Each item are in "" 
+  and separeted by ;</p>
+<h2>Add function<a name="addfunction"></a></h2>
+<p>To add internal function, create a unit :</p>
+<p>unit xxxxFunctions;</p>
+<p>interface</p>
+<p>uses Classes, SysUtils, UnitMessages, InternalFunction ;</p>
+<p>procedure xxxxxxxFunctionsInit ;<br>
+  procedure xxxxxxxCommande(arguments : TStrings) ;<br>
+  <br>
+  procedure xxxxxxxCommande(arguments : TStrings) ;<br>
+  begin<br>
+  { delete myfunction command }<br>
+  arguments.Delete(0);</p>
+<p> DeleteVirguleAndParenthese(arguments) <br>
+  <br>
+  ResultFunction = 'my result of my function'<br>
+  end ;</p>
+<p>procedure xxxxxxxFunctionsInit ;<br>
+  begin<br>
+  { true argument is parser i.e. translate variable value }<br>
+  ListFunction.Add('myfunction', @xxxxxxxCommande, true/false) ;<br>
+  end ;<br>
+  end. </p>
+<p>And in SimpleWebScript.dpr file, in uses add your unit et add call of xxxxxxxFunctionsInit 
+  under CoreFunctionsInit ;.</p>
+<h2>Create an extension<a name="createextension"></a></h2>
+<p>To create an extension, use exemple of extension in ext directory.<br>
+  Extension must have 3 exported function.</p>
+<h3>Execute</h3>
+<p>This function run commande and return true if command is manage by extension, 
+  false else. If command faile use GlobalError (parameter 7)do not return false.<br>
+  Function have 6 parameters.<br>
+  Parameter 1 : is command to be executed (string with 0 terminate)<br>
+  Parameter 2 : parameter of commande (strings with 0 and another 0 to and of 
+  parameters : "param1"0"param2"00)<br>
+  Parameter 3 : name script of current script (string with 0 terminate)<br>
+  Parameter 4 : version of Simple Web Script (string with 0 terminate)<br>
+  Parameter 5 : current line number (Integer)<br>
+  Parameter 6 : Length of result (if result is string, do not add 0 at end) (Pointer 
+  on integer)<br>
+  Parameter 7 : if error occur (Pointer on boolean)</p>
+<h3>GetResult</h3>
+<p>First parameter is pointeur of char who contain result (no 0 at end). Return length of result.</p>
+<h3>Init</h3>
+<p>This fonction copy parameters of Simple Web Script. There have 3
+parameters. DocRoot, TmpDir and SafeMode. Function must copy parameters
+in internal.</p>
+</body></html>

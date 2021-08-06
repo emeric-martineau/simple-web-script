@@ -1,0 +1,209 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html><head><title>Miscellaneous functions</title>
+
+<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1"></head>
+<body style="color: rgb(0, 0, 0); background-color: rgb(255, 255, 255);">
+<h1>Miscellaneous functions</h1>
+<h2>bintohex<a name="bintohex"></a></h2>
+<p>string bintohex(binary_string) : return binary string in hexa format (withou 0x at begin).</p><h2>crc32<a name="crc32"></a></h2>
+<p>int crc32(string) : return crc32 value of string.</p>
+<h2>getCookie<a name="getcookie"></a></h2>
+<p>string getCookie('cookiename') : return value of cookie with
+name. Return empty string if not set. Data return with escape (\)
+charactere.</p>
+<h2>getCookieNumber<a name="getcookienumber"></a></h2>
+<p>string getCookieNumber : return number cookie send by browser.</p>
+<h2>getEnv<a name="getenv"></a></h2>
+<p>string getEnv('envname') : return value of get environement.
+Return empty string if not set. Data return with escape (\) charactere.</p>
+<h2>getGet<a name="getget"></a></h2>
+<p>string getGet('getname') : return value of get parameter with
+name. Return empty string if not set. Data return with escape (\)
+charactere.</p>
+<h2>getGetNumber<a name="getcookienumber"></a></h2>
+<p>string getGetNumber : return number cookie send by browser.</p>
+<h2>getCfgVars<a name="getcfgvars"></a></h2>
+<p>string getCfgVars : return configuration of Simple Web Script.</p>
+<ul>
+<li>max_execution_time : maximum time in second when script can
+be executed,</li>
+<li>memory_limit : maximum of memory can be allowed to a script,</li>
+<li>disabled_function : list fonction disabled.</li>
+</ul>
+<h2>getFile<a name="getfile"></a></h2>
+<p>string getFile('postname') : return array of file. 1 : tempory
+file name, 2 : content/type : 3, filename, 4 : size.</p>
+<h2>getPost<a name="getpost"></a></h2>
+<p>string getPost(postname') : return value of post form with
+name. Return empty string if not set. Data return with escape (\)
+charactere.</p>
+<h2>getPostNumber<a name="getcookienumber"></a></h2>
+<p>int getPostNumber : return number element send by browser by
+post form.</p>
+<h2>header<a name="header"></a></h2>
+<p>bool header(string) : send header to browser. Return true if
+succes, false else. </p>
+<h2>OutputBufferClear<a name="outputbufferclear"></a></h2>
+<p>void outPutBufferStart() : clear current output buffer</p>
+<h2>OutputBufferGet<a name="outputbufferget"></a></h2>
+<p>string outPutBufferGet() : return current output buffer</p>
+<h2>OutputBufferStart<a name="outputbufferstart"></a></h2>
+<p>bool outPutBufferStart(["name of script function"]) : After
+call, no output is done. When a value is output, function passed by
+parameter was call. Result function is new value for output. Return
+false if user function not found, not have argument or have more one
+argument. Exemple :<br>
+function essai($buffer)<br>
+&nbsp; &nbsp; $result = strlowercase($buffer)<br>
+endfunc<br>
+<br>
+OutPutBufferStart("essai")</p>
+<h2>OutputBufferStop<a name="outputbufferstop"></a></h2>
+<p>void outPutBufferStop) : stop buffering output. Not send
+buffer. You must use <a href="#outputbufferwrite">OutPutBufferWrite</a>.</p>
+<h2>OutputBufferWrite<a name="outputbufferwrite"></a></h2>
+<p>void outPutBufferStart() :&nbsp;write current output
+buffer and empty this</p>
+<h2>Rol<a name="rol"></a></h2>
+<p>void Rol(byte value, [int decalage]) : rotate bit at left (127 (10000000) &gt; 1)</p><h2>Ror<a name="ror"></a></h2>
+<p>void Ror(byte value, [int decalage]) : rotate bit at right (1 &gt; 127 (10000000)</p><h2>setCookie<a name="setcookie"></a></h2>
+<div class="refsect1 description"> Description <br>
+<br>
+<div> <span><b><b>setcookie</b></b></span>
+( <span><span class="type">string</span>
+<tt>$name</tt></span> [, <span><span class="type">string</span>
+<tt>$value</tt></span> [, <span><span class="type">int</span>
+<tt>$expire</tt></span> [, <span><span class="type">string</span>
+<tt>$path</tt></span> [, <span><span class="type">string</span>
+<tt>$domain</tt></span> [, <span><span class="type">bool</span>
+<tt>$secure</tt></span> [, <span><span class="type">bool</span>
+<tt>$httponly</tt></span>
+]]]]]] )</div>
+<p> <b>setcookie()</b> defines a
+cookie to be sent along with the rest of the HTTP headers. Like other
+headers, cookies must be sent <em>before</em>
+any output from your script (this is a protocol restriction). This
+requires that you place calls to this function prior to any output,
+including <em>&lt;html&gt;</em>
+and <em>&lt;head&gt;</em>
+tags as well as any whitespace. </p>
+<p> Parameters</p>
+</div>
+<div>
+<p> All the arguments except the <em><tt>name</tt></em>
+argument are
+optional. You may also replace an argument with an empty string (<em>""</em>)
+in order to skip that
+argument. Because the <em><tt>expire</tt></em>
+argument is integer, it cannot be skipped with an empty string, use a
+zero (<em>0</em>) instead. </p>
+<p> See <a href="http://wp.netscape.com/newsref/std/cookie_spec.html">Netscape
+cookie specification</a>
+for specifics on how each <b>setcookie()</b> parameter
+works</p>
+<dl>
+<dt><span><tt>name</tt></span></dt>
+<dd>
+<p>The name of the cookie.</p>
+</dd>
+<dt><span><em><tt>value</tt>
+</em></span></dt>
+<dd>
+<p>The value of the
+cookie. This value
+is stored on the clients computer; do not store sensitive information.
+Assuming the <em><tt>name</tt></em>
+is 'cookiename', this value is retrieved through <var>$_COOKIE['cookiename']</var>
+</p>
+</dd>
+<dt><span><em><tt>expire</tt>
+</em></span></dt>
+<dd>
+<p>The time the cookie expires. This is
+a Unix timestamp so is in number of seconds since the epoch. In other
+words, you'll most likely set this with the <a href="date.htm#time" class="function">time()</a> function plus the number
+of seconds before you want it to expire. Or you might use <a href="date.htm#mktime" class="function">mktime()</a>.
+<em>time()+60*60*24*30</em> will
+set the cookie to expire in 30 days. If set to 0, or omitted, the
+cookie will expire at the end of the session (when the browser closes).
+</p>
+<p>
+</p>
+<blockquote>
+<p><b>Note</b>:
+set 0 if
+you don't want send expire value<br>
+<em><tt>expire</tt></em>
+is compared to the client's time which can differ from server's time. <br>
+</p>
+</blockquote>
+</dd>
+<dt>
+<span><em><tt>path</tt> </em></span></dt>
+<dd>
+<p>The path on the server in which the
+cookie will be available on. If set to <em>'/'</em>,
+the cookie will be available within the entire <em><tt>domain</tt></em>
+. If set to <em>'/foo/'</em>, the cookie will only be
+available within the <em>/foo/</em>
+directory and all sub-directories such as <em>/foo/bar/</em>
+of <em><tt>domain</tt></em>
+. The default value is the current directory that the cookie is being
+set in.</p>
+</dd>
+<dt>
+<span><em><tt>domain</tt> </em></span>
+</dt>
+<dd>
+<p>The domain that the cookie is
+available. To make the cookie available on all subdomains of
+example.com then you'd set it to <em>'.example.com'</em>.
+The <em>.</em> is not required but
+makes it compatible with more browsers. Setting it to <em>www.example.com
+will make the
+cookie only available in the <em>www
+subdomain. Refer to tail matching in the <a href="http://wp.netscape.com/newsref/std/cookie_spec.html">spec</a>
+for details. </em></em></p>
+</dd>
+<dt>
+<span><em><em><tt>secure</tt> </em></em></span>
+</dt>
+<dd>
+<p>Indicates that the cookie should only
+be transmitted over a secure HTTPS connection from the client. When set
+to <strong><tt>$TRUE</tt></strong>, the cookie
+will only
+be set if a secure connection exists. The default is <strong><tt>$FALSE</tt></strong>.
+On the server-side, it's on the programmer to send this kind of cookie
+only on secure connection.</p>
+</dd>
+<dt>
+<span><em><em><tt>httponly</tt></em>
+</em></span></dt>
+<dd>
+<p>When <strong><tt>$TRUE</tt></strong>
+the cookie will be made accessible only through the HTTP protocol. This
+means that the cookie won't be accessible by scripting languages, such
+as JavaScript. This setting can effectly help to reduce identity theft
+through XSS attacks (although it is not supported by all browsers). <b><tt>$TRUE</tt>
+or <strong><tt>$FALSE</tt> </strong></b></p>
+</dd>
+</dl>
+</div>
+<h2>setLocal<a name="setlocal"></a></h2>
+<p>void
+setlocal(parameter, value) : setup local parameter.<br>
+'shortdayname' : setup short day names (use by <a href="date.htm#date">date</a>).<br>
+'longdayname' : setup long day names (use by <a href="date.htm#date">date</a>).<br>
+'shortmonthname' : setup short month names (use by <a href="date.htm#date">date</a>).<br>
+'longmonthname' : setup long month names (use by <a href="date.htm#date">date</a>).<br>
+'floatseparator' : setup float separator (use by <a href="string.htm#strnumberformat">strNumberFormat</a>).<br>
+'millierseparator' : setup milliers separator (use by <a href="string.htm#strnumberformat">strNumberFormat</a>).<br>'charset' : setup default charset (use by <a href="#swsinfo">swsinfo</a>, <a href="html.htm#htmlspecialcharsencode">htmlspecialcharsencode</a>, <a href="html.htm#htmlspecialcharsdecode">htmlspecialcharsdecode</a>)</p>
+<h2>swsInfo<a name="swsinfo"></a></h2>
+<p>void
+sleep(delay) : wait delay milliseconds.</p>
+<h2>swsInfo<a name="swsinfo"></a></h2>
+<p>void
+swsinfo() : show information about Simple Web Script.
+</p>
+</body></html>

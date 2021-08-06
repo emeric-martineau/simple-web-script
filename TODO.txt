@@ -1,0 +1,334 @@
+MATHEMATIQUE
+---------------
+pi()
+decbin (utiliser fonction dans functions)
+dechex (utiliser fonction dans functions)
+decoct : renvoie la valeur octal d'un nombre (utiliser fonction dans functions)
+hexdec : convertir un hexa en dec
+max,(arg, ...) et min : renvoie la plus grand/petit valeur
+bindec : convertit un chiffre binaire en nombre
+exp(x) : renvoie e elevé à la puissance x
+
+Odd() renvoie true si nombre paire
+
+getrendmax : renvoie la plus grande valeur pouvant être renvoyé par rand
+acos, atan2,
+cos, sin, tan, ln, abs, frac, acs, acosh, asin, asinh, atan, atanh (hyperbolique)
+ceil, Log10, LogN, Log2, Pi
+et toute les fonctions dans l'aide Int (ceil... unite Math)
+Fontion flottant et mathématique
+http://info.sio2.be/delphi/3/7.php
+rand (initialiser le nombre aléatoir automatiquement) > ou Mt_rand (http://www-personal.umich.edu/~wagnerr/MersenneTwister.html)
+Abs, fonction
+Renvoie une valeur absolue.
+Ceil, fonction
+Arrondit des variables vers plus l'infini.
+EnsureRange, fonction
+Renvoie la valeur la plus proche de la valeur spécifiée, dans l'intervalle indiqué.
+Exp, fonction
+Renvoie la valeur exponentielle de X.
+Floor, fonction
+Arrondit les variables vers moins l'infini.
+Frexp, procédure
+Sépare la mantisse et l'exposant de X
+InRange, fonction
+Indique si une valeur appartient à l'intervalle spécifié.
+Ldexp, fonction
+Calcule X * (2**P)
+Ln, fonction
+Renvoie le logarithme naturel d'une expression réelle.
+LnXP1, fonction
+Renvoie le logarithme naturel de (X+1)
+Log10, fonction
+Calcule le logarithme en base 10.
+Log2, fonction
+Calcule le logarithme en base 2.
+LogN, fonction
+Calcule le logarithme de X dans la base spécifiée.
+Max, fonction
+Renvoie la plus grande de deux valeurs numériques.
+Min, fonction
+Renvoie la plus petite de deux valeurs numériques.
+Poly, fonction
+Evalue une polynomiale uniforme d'une variable à la valeur X.
+Round, fonction
+Renvoie la valeur de X arrondie au plus proche entier.
+RoundTo, fonction
+Arrondit une valeur en virgule flottante au nombre de chiffres, ou puissance de dix, spécifié, en utilisant "l'arrondi de banque".
+SameValue, fonction
+Indique si deux valeurs en virgule flottante sont (approximativement) égales.
+Sqrt, fonction
+Renvoie la racine carrée de X.
+mathématique p755
+
+Sortir 0.1
+-------------------------------------------------------------------
+
+UTF-8
+------
+
+REGEX
+-----
+1 - http://delphi.developpez.com/faq/?page=regex#utiliserregexp
+1.1 -> http://www.regexpstudio.com/TRegExpr/TRegExpr.html
+1.2 -> (expression perl c'est mieux en plus) http://www.renatomancuso.com/software/dpcre/dpcre.htm
+ereg
+ereg_replace (casesensitive)
+
+DATE/HEURE
+------------
+
+Caption := FormatDateTime('ddd, dd-mmm-yyyy hh:nn:ss', now) + ' GMT' ;
+Utiliser les fonctions ci-dessous
+function DateTimeToUnix(ConvDate: TDateTime): Longint;
+function UnixToDateTime(USec: Longint): TDateTime;
+
+mktime TryEncodeDateTime puis EncodeDateTime
+voir ShortDateFormat
+time = DateTimeToTimeStamp + EncodeDateTime + IsValidDateTime
+--> affichage de l'heure TimeStampToDateTime
+string date(format [, timestamp]) = http://fr3.php.net/manual/en/function.date.php >> utiliser explodestrings
+-->format est représenté par un caractère à chaque fois. Il faut translatter vers FormatDateTime.
+Fuseau horaire :
+procedure TForm1.FormCreate(Sender: TObject);
+
+{pour calculer l'écart entre l'heure réelle et l'heure système}
+var heure,minute,seconde,milliseconde:word;
+    DateEtHeure : TSystemTime;
+begin
+ DecodeTime(Time,Heure,minute,seconde,Milliseconde); // décompose l'heure réelle du micro de type TDateTime en heure minute etc.
+ GetSystemTime(DateEtHeure); // récupère la date et l'heure système (GMT ?)
+ EcartHeures:=heure-DateEtHeure.wHour; // calcul de l'écart entre l'heure réelle et l'heure système
+ Label12.Caption:=IntToStr(EcartHeures)+' heure(s)';
+end;
+
+
+DateSqlToDate
+DateTimeToJulianDate, fonction
+DaysInMonth
+DayOf(date)
+DayOfTheMonth
+DayOfTheWeek
+DayOfTheYear
+DaysInAYear
+DaySpan
+MonthOf(date)
+YearOf(date)
+DayOfTheWeek : renvoie le jour de la semain repésenté par l'heure
+DaysInMonth
+HourOfTheMonth
+HourOfTheWeek
+HourOfTheYear
+HoursBetween
+HourSpan
+IncDay
+IncHour
+IncSecond
+IncMinute
+IncMillisecond
+IncWeek
+IncYear
+IsInLeapYear
+IsPM
+IsValidDate
+IsValidDateTime
+IsValidTime
+JulianDateToDateTime
+MinuteOf
+MinuteOfTheDay
+MinuteOfTheMonth
+MinuteOfTheWeek
+MinuteOfTheYear
+MinutesBetween
+MinuteSpan
+MonthOf
+MonthsBetween
+MonthSpan
+RecodeDateTime(annee, mois, jour, heure, minute, second, milliseconde, datetime) si -1 ne recode pas l'élément
+-->RecodeDay
+-->RecodeHour
+-->RecodeMilliSecond
+-->RecodeMinute
+-->RecodeMonth
+-->RecodeSecond
+-->RecodeYear
+SecondOf
+SecondOfTheDay
+SecondOfTheHour
+SecondOfTheMinute
+SecondOfTheMonth
+SecondOfTheWeek
+SecondOfTheYear
+SecondsBetween
+SecondSpan
+WeekOf
+WeekOfTheMonth
+WeekOfTheYear
+WeeksBetween
+WeekSpan
+YearOf
+YearsBetween
+YearSpan
+
+
+Sortir 0.2
+
+----------------------------------------------------------------------------
+
+FICHIER
+-------
+$varfichier := '#file(nb)' (à la fin du programme libérer ressource associée au fichier) ou alors simplement la valeur de now qui nous assure que le numéro du descripteur est unique
+fopen : http://fr3.php.net/manual/fr/function.fopen.php + option 'b' pour fichier binaire
+ReadFileLn,
+fread, fwrite mode binaire : http://fr3.php.net/manual/fr/function.fwrite.php
+fgets, fputs : mode texte > ReadLine metre dans Functions et gérer ligne uniw/mac/windows (utiliser seek et FilePos)
+fClose, fEof
+fseek
+fpos
+http://bodman.developpez.com/ESdelphi/
+ShowFile affiche un fichier sur la sortie standard
+fprintf
+realpath -> Functions.RealPath
+renomer/deplacer
+cd modifier doc_root. vérifier si safe_mode qu'on n'essaye pas d'accèder à un répertoire sous doc_root
+fdelete
+frename
+fsize(fichier)
+        function TFrmB49.SizeOfFile(FileName : String) : Int64 ;
+        var sr : TSearchRec ;
+        begin
+            if FindFirst(FileName, faAnyFile, sr) = 0
+            then begin
+                Result := (sr.FindData.nFileSizeHigh shl 32) + sr.FindData.nFileSizeLow ;
+                FindClose(sr) ;
+            end
+            else
+                Result := 0 ;
+        end ;
+
+FExists
+lire droit d'accès/changer droit d'accès
+    Mode (read, write, append)
+    Structure de donnée numer string, fichier textfile
+ExtractFileName, ExtractFileDrive, ExtractFileDir
+attribut de fichier (configurer/lire)
+isReadable
+isWriteable
+isExecutable
+FileDateTime en date sql
+disk_free_space
+disk_total_space
+copy (copie de fichier)
+chown
+chmod
+fileatime
+filectime
+filemtime
+is_executable
+filecopy
+
+Sortir 0.3
+
+----------------------------------------------------------------------------
+
+REPERTOIRE
+-----------
+opendir
+readdir
+closedir
+isdir
+DirExists
+chdir
+getCurrentDir
+rmdir (option récursif)
+scandir
+realpath (est déjà dans l'unit UnitDirectory)
+
+Sortir 0.4
+
+IMAGE
+------
+$img := imagecreate(color[ 2, 8, 16, 32], dimenssionx, dimenssiony) ;
+imagecreatefromfile
+imagegetHeight
+imagegetWidth
+imageselectpencolor
+imageselectpenwidth
+imagegetpixel
+imagesave($image, format[bmp, jpg, png, wbmp])
+imageclose($img)
+imagedrawpoint
+imagedrawline
+imagedrawcircle
+imagedrawfillcircle
+imagedrawrectangle
+imagedrawfillrectangle
+imagedrawarc
+imagedrawstring texte horizontal
+imagedrawstringup verticale
+imageloadfont
+imagedrawpolygon
+imagecopy
+---------------------------------------------------------------------------
+
+INI
+---
+$varfichier := '#inifile(nb)' (à la fin du programme libérer ressource associée au fichier)
+ReadBinaryStream
+ReadBool
+ReadDate
+ReadDateTime
+ReadFloat
+ReadInteger
+ReadTime
+SectionExists
+WriteBinaryStream
+WriteBool
+WriteDate
+WriteDateTime
+WriteFloat
+WriteInteger
+WriteTime
+ValueExists
+DeleteKey
+EraseSection
+ReadSection
+ReadSections
+ReadSectionValues
+ReadString
+UpdateFile
+WriteString
+
+Sortir 0.6
+
+--------------------------------------------------------------------------------
+
+Base de données
+----------------
+CdsDevProduits.FieldCount
+CdsDevProduits.FieldList.count
+CdsDevProduits.FieldList[i]
+CdsDevProduits.First
+CdsDevProduits.Next
+CdsDevProduits.Eof
+CdsDevProduits.Fields[j].AsString
+CdsDevProduits.FieldByName('toto')
+mysqlSeek -> faire à la main. Partir de First. 1ère ligne 1, 2ème 2...
+
+Sortir 0.7
+
+------------------------------------------------------------------------------
+
+SESSION
+
+Sortir 0.8
+
+------------------------------------------------------------------------------
+XML (http://www.thomas-zastrow.de/texte/fpcxml/dom-reading.php)
+
+Sortir 0.9
+
+-----------------------------------------------------------------------------
+Linux
+
+Sortir 1.0

@@ -1,0 +1,4 @@
+echo "coucou"
+$var=1+1
+includeonce('essai/sample1.sws')
+includeonce('essai/sample1.sws')

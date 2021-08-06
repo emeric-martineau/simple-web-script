@@ -1,0 +1,336 @@
+<html>
+<head>
+<title>Langage</title>
+<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+</head>
+
+<body bgcolor="#FFFFFF" text="#000000">
+
+<h1>Langage</h1>
+<h2>Variables<a name="variables"></a></h2>
+<p>Les variables commence toujours par $. Il n'y a pas constantes, tout est variable. 
+  Ainsi, TRUE ou FALSE s'&eacute;crivent $true (ou $TRUE=1) et $false (ou $FALSE=0), 
+  ce sont simplement des variables pr&eacute;d&eacute;finies (comme $version et 
+  $coreversion, réspectivement la version de OpenAutoKey et la version du coeur 
+  du langage). Toutefois, elle ne sont pas modifiable.<br>
+  Si vous mettez deux $ (exemple $$var) c'est le r&eacute;sultat ou la variable 
+  contenu dans $var qui sera affect&eacute;e. Le nom de la variable peut &ecirc;tre 
+  ou nom pr&eacute;c&eacute;d&eacute; du $, c'est &agrave; dire que $var=mavariable 
+  &eacute;quivaut &agrave; $var=&quot;$mavariable&quot;.<br>
+  Les variables sont de type chaines, de type entier (de &#150;2147483648..2147483647, 
+  sur architecture 32 bits, convertie en interne en chaines) ou flottant (3.6 
+  x 10^&#150;4951 .. 1.1 x 10^4932).</p>
+<p>Pour d&eacute;finire une variable, utilisez SET (SET $mavar mavaleur + 1)<br>
+  Pour supprimer une variable, utilisez UNSET (UNSET $mavariable, $var2...)<br>
+  Pour savoir si une variable existe utilisez ISSET (ISSET $monresultat $mavariable)</p>
+<p>Vous pouvez utiliser l'op&eacute;rateur * devant le nom de la variabel. Reportez 
+  vous au chapitre Pointeur pour plus d'information.<br>
+  Vous pouvez notez les chiffres en hexad&eacute;cimal comme ceci 0x1234.</p>
+<p>Les variables ne sont pas interpr&eacute;t&eacute;e dans les chaines de caract&egrave;res. 
+  Ainsi, "$truc" donne "$truc" et non pas la valeur de la variable $truc</p>
+<p>La variable $_VERSION d&eacute;finit la version de Simple Web Script.<br>
+  La variable $_LINE d&eacute;finit le num&eacute;ro de ligne courante. <br>
+  La variable $_SCRIPTNAME d&eacute;finit le script actuellement execut&eacute;</p>
+<p>Les chaine supportent \n (retour &agrave; la ligne) \r (retour debut ligne) 
+  \0 (valeur nul) \t (tabulation).</p>
+
+<h2>Saut GOTO<a name="goto"></a></h2>
+<p>On peut si on le souhaite sauter un endroit du programme avec l'instruction 
+  GOTO (ou goto). Exemple :<br>
+  Label:<br>
+  Instruction1<br>
+  Instruction2<br>
+  GOTO Label<br>
+  <br>
+  L'instruction GOTO sort des fonctions ou des boucles.<br>
+  Si vous souhaitez sauter dans une fonction, utiliser LOCALGOTO.</p>
+<p>ATTENTION : Les labels ne peuvent pas commencer par un chiffre et se termine 
+  obligatoirement par les deux points (:).</p>
+<h2>Boucle de contr&ocirc;le WHILE, REPEAT, FOR, BREAK<a name="boucle"></a></h2>
+OpenAutoKey est dot&eacute; de boucle de contr&ocirc;le.
+<h3>WHILE</h3>
+<p>C'est instruction ce lit TANT QUE vrai FAIRE<br>
+  La fin du WHILE est marqu&eacute; par ENDWHILE.<br />
+  WHILE $a = $true<br>
+  Instruction<br>
+  ENDWHILE</p>
+
+  <h3>REPEAT</h3>
+
+<p>Le REPEAT se traduit par faire jusqu'&agrave;<br>
+  REPEAT<br>
+  Instruction<br>
+  UNTIL vrai</p>
+<h3>FOR</h3>
+<p>FOR $var = startvalue to endvalue step incrementvalue<br>
+  Instruction<br>
+  ENDFOR </p>
+<h3>BREAK</h3>
+<p>Quitte un boucle FOR, REPEAT, WHILE</p>
+
+<h2>SWITCH<a name="switch"></a></h2>
+<p>Vous pouvez utiliser les switchs de la mani&egrave;re suivante :</p>
+<p>SWITCH $var<br>
+  CASE &quot;value1&quot;, &quot;value2&quot; :<br>
+  Instruction1<br>
+  break<br>
+  DEFAULT<br>
+  Default instruction<br>
+  ENDSWITCH </p>
+<h2>Condition IF/ELSE<a name="condition"></a></h2>
+<p>Le IF est tr&egrave;s simple.</p>
+<p>IF $a = 'c' and $a&lt;&gt;'g' or $a&gt;'t' xor $a&lt;='g'<br>
+  Instruction<br>
+  ELSEIF $a = 'ccc'<br>
+  Instruction <br>
+  ELSE<br>
+  Instruction<br>
+  ENDIF</p>
+<p>ATTENTION ! Le IF est sur une ligne seulement.</p>
+<h2> Commentaires<a name="commentaire"></a></h2>
+<p>Les commentaires d&eacute;butent pas le caract&egrave;re di&egrave;se (#) ou 
+  //. Ils peuvent &ecirc;tre sur la m&ecirc;me ligne qu'une instruction.<br>
+  Vous pouvez utiliser les /* */ ou (* *) pour un commentaire multi-ligne mais 
+  impossible d'avoir sur la m&ecirc;me ligne qu'une instruction.</p>
+<h2>Inclusion dans des pages xHTML<a name="inclusion"></a></h2>
+<p>Pour inclure du code SWS dans une page xHTML, il suffit de mettre le code entre 
+  &lt;@ et @&gt;. Exemple :</p>
+<p>&lt;html&gt;<br>
+  &lt;body&gt;<br>
+  &lt;@ echo 'hello world!' @&gt;<br>
+  &lt;/body&gt;<br>
+  &lt;/html&gt; </p>
+<h2>Arr&ecirc;ter le programme avec EXIT<a name="exit"></a></h2>
+<p>Pour terminer le programme ou une fonction utiliser l'instruction EXIT.</p>
+<h2>Op&eacute;rateurs<a name="operators"></a></h2>
+<p>Voici la liste des op&eacute;rateurs class&eacute;s par ordre de priorit&eacute;.
+  N'oubliez pas que les chaines lignes de code sont lu de gauche &agrave; droite.</p>
+<table width="0" border="0" cellspacing="0" cellpadding="0">
+  <tr>
+    <td>in</td>
+    <td>&quot;texte&quot; in [&quot;chaine de comparaison 1&quot;, &quot;chaine 
+      de comparaison 2&quot;]. Le premier &eacute;l&eacute;ment est 1. Si pas 
+      d'&eacute;l&eacute;ment trouv&eacute;, la valeur false est renvoy&eacute;.</td>
+  </tr>
+  <tr> 
+    <td>~</td>
+    <td>inverse all bit</td>
+  </tr>
+  <tr> 
+    <td>^</td>
+    <td>power</td>
+  </tr>
+  <tr> 
+    <td>*</td>
+    <td>multiplication</td>
+  </tr>
+  <tr> 
+    <td>%</td>
+    <td>modulo</td>
+  </tr>
+  <tr> 
+    <td>+</td>
+    <td>addition ou joint 2 chaines de caractères</td>
+  </tr>
+  <tr> 
+    <td>-</td>
+    <td>substraction</td>
+  </tr>
+  <tr> 
+    <td>&lt;&lt;</td>
+    <td>shift bit left</td>
+  </tr>
+  <tr> 
+    <td>&gt;&gt;</td>
+    <td>shift bit right</td>
+  </tr>
+  <tr> 
+    <td>&amp;</td>
+    <td>bit and</td>
+  </tr>
+  <tr> 
+    <td>&amp;|</td>
+    <td>bit xor</td>
+  </tr>
+  <tr> 
+    <td>|</td>
+    <td>bit or</td>
+  </tr>
+  <tr> 
+    <td>and</td>
+    <td>logical and</td>
+  </tr>
+  <tr> 
+    <td>xor</td>
+    <td>logical xor</td>
+  </tr>
+  <tr> 
+    <td>or</td>
+    <td>logical or</td>
+  </tr>
+  <tr> 
+    <td>not</td>
+    <td>inverse la valeur condition. Si la valeur tester est diff&eacute;rente 
+      de $false alors elle est consid&eacute;r&eacute;e comme $true</td>
+  </tr>
+  <tr> 
+    <td>.</td>
+    <td>joint 2 chaines de caractères</td>
+  </tr>
+</table>
+<br>
+<p>Les conditions de tests (=, <, >, <=, >=, <>) sont comparées à false. Donc, 
+  si la valeur est différente de 0, c'est considéré comme vrai</p>
+<h2>Pointeurs<a name="pointer"></a></h2>
+<p>Si vous souhaitez modifier une variable (ou retourner une valeur) depuis une 
+  fonction vers le programme appelant, il faut passer un pointeur de variable. 
+  Exemple :</p>
+<p>procedure maprocedure<br>
+  if $argcount &gt; 0<br>
+  ; L'&eacute;toile indique qu'on prend la valeur du pointeur de la variable arg[0]<br>
+  set *arg[0] *arg[0] * 2<br>
+  endif <br>
+  end </p>
+<p>; &amp; retourne le pointeur sur la varaible $mavariable<br>
+  maprocedure &amp;$mavariable<br>
+  <br>
+  ATTENTION : vous ne pouvez pas avoir &amp;$$var ou *$$var.<br>
+  <br>
+  Vous pouvez, &agrave; travers les pointeurs modifier les valeurs de $true, $false, 
+  $version, $coreversion</p>
+<h2>Fonction<a name="function"></a></h2>
+<p>Si vous souhaitez cr&eacute;er un fonction, utiliser le mot clef FUNCTION. 
+  Example :</p>
+<p><b>function MyFunction</b><br>
+  commande<br>
+  <b>endfunc</b> </p>
+<p>Vous pouvez avoir des param&egrave;tres :</p>
+<p><b>function MyFunction($arg1, $arg2)</b><br>
+  ou <br>
+  <b>function MyFunction($arg1, $arg2)</b> </p>
+<p>Des param&egrave;tres optionels :</p>
+<p><b>function MyFunction($arg1=1)</b><br>
+  ou<br>
+  <b>function MyFunction($arg1=$true)</b><br>
+  ou<br>
+  <b>function MyFunction($fixed_parameter, $arg1=1) </b></p>
+<p>Ou des param&egrave;tres illimit&eacute;s :</p>
+<p><b>function MyFunction(...)</b><br>
+  ou <br>
+  <b>function MyFunction($arg1, ...)</b></p>
+<p>Les arguments seront dans le tableau <b>$args</b>. Pour connaitre le nomrbe 
+  d'argument utiliser <b>$argcount</b>.</p>
+<p>Pour quitter une proc&eacute;dure utilisez <b>exit</b>.</p>
+<p>Pour retourner une valeur utilisez la variable <b>$result</b>.</p>
+<p>Les fonctions usilisateurs ou internes peuvent &ecirc;tre appel&eacute;e avec 
+  ou sans parenth&egrave;ses.</p>
+<h2>EXIT<a name="exit"></a></h2>
+<p>Pour terminer le programme ou une fonction, utiliser le mot clef exit.</p>
+<h2>Tableau<a name="array"></a></h2>
+<p>Vous pouvez utiliser les tableaux (et tableaux multidimensionnel).<br>
+  Pour initialiser un tableau utiliser $montableau[1] = &quot;Ma premi&egrave;re 
+  valeur&quot; ou $montableau = array(&quot;Ma premi&egrave;re valeur&quot;)<br>
+  Le premier &eacute;l&eacute;ment du tableau est 1 et non 0</p>
+<h2>Chaine de caract&egrave;res<a name="string"></a></h2>
+<p>Pour utiliser les chaines, d&eacute;limitez les avec &quot; ou '.</p>
+<h2>Mots r&eacute;serv&eacute;s<a name="reservedword"></a></h2>
+<p>Les mots suivant sont r&eacute;serv&eacute;s et ne peuvent nommer une fonction 
+  : in, or, xor, and, not, to, step.</p>
+<h2>Op&eacute;rateur @<a name="arobase"></a></h2>
+<p>L'arobase (@) devant une commande d&eacute;sactive les warning.</p>
+<h1>Fonctions de base</h1>
+<h2>array<a name="array"></a></h2>
+<p>$var=array("item1", "item2"...) : cr&eacute;er un tableau</p>
+<h2>arrayChunk<a name="arraychunk"></a></h2>
+<p>arrayChunk($array, size). Explose un tableau en x tableau</p>
+<h2>arrayExchange<a name="arrayexchange"></a></h2>
+<p>arrayExchange($array, index1, index2). Echange deux donn&eacute;es d'un tableau</p>
+<h2>arrayFill<a name="arrayfill"></a></h2>
+<p>arrayFill($array, value). Rempli un tableau</p>
+<h2>arrayInsert<a name="arrayinsert"></a></h2>
+<p>arrayInsert($array, Index, &quot;value&quot;) ins&egrave;re un &eacute;l&eacute;ment 
+  dans un tableau.</p>
+<h2>arrayMerge<a name="arraymerge"></a></h2>
+<p>arrayMerge($array, $array1, $array2, ...). Concat&egrave;ne des tableaux</p>
+<h2>arrayPop<a name="arraypop"></a></h2>
+<p>$valueretrun=arrayPop($array). Retourne et supprime le dernier &eacute;l&eacute;ment 
+  du tableau.</p>
+<h2>arrayPush<a name="arraypush"></a></h2>
+<p>arrayPush($array, &quot;value&quot;) ajoute un &eacute;l&eacute;ment &agrave; 
+  la fin du tableau</p>
+<h2>arraySearch<a name="arraysort"></a></h2>
+<p>$var=arraySearch($array, &quot;string to find&quot;, case_sensitive) Retourne 
+  la position dans le tableau ou 0 sinon.</p>
+<h2></h2>
+<h2>arraySort<a name="arraysort"></a></h2>
+<p>$var=arraySort($array) Renvoie le tableau tri&eacute;.</p>
+<h2>call<a name="call"></a></h2>
+<p>$resultfunction=call(&quot;name_of_command&quot;, arg1...) Appel dynamiquement 
+  une fonction. Les pointeurs de fonction n'existant pas, utiliser cette commande 
+  pour y palier. Attention, les fonctions agisant sur une variable (isset, unset...) 
+  ne fonctionnerons pas.</p>
+<h2>chr<a name="chr"></a></h2>
+<p>$var=chr(45) Renvoie le caract&egrave;re correspondant au nombre pass&eacute; 
+  en param&egrave;tre.</p>
+<h2>count<a name="count"></a></h2>
+<p>$var=count(array()) retourne le nombre d'&eacute;l&eacute;ment d'un tableau.</p>
+<h2>eval<a name="eval"></a></h2>
+<p>$resultfunction=eval(<i>string or array</i>) ex&eacute;cute la/les commandes 
+  pass&eacute;e(s) en param&egrave;tre. Retourn false s'il y a eu une erreur, 
+  true sinon.</p>
+<h2>extensionLoad<a name="extensionload"></a></h2>
+<p>$returnvalue=extensionload('extension') : charge une extension. Les extensions 
+  sont sous Windows des DLLs. Il faut indiquer le nom de la dll, sans chemin ni 
+  extension. Retourn true si l'extention a pu ou &eacute;tait d&eacute;j&agrave; 
+  charg&eacute;e. </p>
+<h2>extensionUnLoad<a name="extensionunload"></a></h2>
+<p>extensionunload('extension') : d&eacute;charge une extension. Automatiquement 
+  l'extension est d&eacute;charg&eacute;e &agrave; la fin du script. </p>
+<h2>functionDelete<a name="functionDelete"></a></h2>
+<p>$returnvalue=functionDelete(&quot;function1&quot;, &quot;function2&quot;). 
+  Supprime une ou plusieurs fonction. Retour false si une des fonctions n'est 
+  pas trouv&eacute;e.</p>
+<h2>functionExists<a name="functionDelete"></a></h2>
+<p>$returnvalue=functionExists(&quot;function1&quot;). Retourn true si une fonction 
+  est trouv&eacute;e (interne ou utilisateur).</p>
+<h2></h2>
+<h2>functionRename<a name="functionDelete"></a></h2>
+<p>$returnvalue=functionExists(&quot;old name&quot;, &quot;new name&quot;). Renome 
+  une fonction. Retourne false si la fonction n'a pas &eacute;t&eacute; trouv&eacute;e, 
+  true sinon.</p>
+<h2>global<a name="global"></a></h2>
+<p>global $var1, $var2... Dans une fonction, passe une variable globale dans la 
+  fonction et &agrave; la fin de la fonction fait l'inverse.</p>
+<h2>include/includeonce<a name="isnumeric"></a></h2>
+Pour inclure un fichier, utilisez la commande include suivi du nom du fichier 
+(attention, utilisez le slash / pour s&eacute;parer les r&eacute;pertoires m&ecirc;me 
+sous windows). <br>
+Si vous souhaitez n'inclure qu'une fois le fichier, utiliser includeonce 
+<h2>isArray<a name="isarray"></a></h2>
+$var=isarray(<i>variable)</i>.Indique si la variable est un tableau. 
+<h2>isExtensionLoaded<a name="isextensionloaded"></a></h2>
+$returnvalue=isextensionloaded(<i>'extension')</i>.Indique si une extension est 
+charg&eacute;e. 
+<h2>isFloat<a name="isfloat"></a></h2>
+<p>$var=isfloat($var <i>variable ou valeur)</i>.Indique si c'est un nombre &agrave; 
+  virgule floattant.</p>
+<h2>isHexa<a name="ishexa"></a></h2>
+<p>$var=ishexa(<i>variable ou valeur)</i>.Indique si c'est une chaine repr&eacute;sentant 
+  un nombre hexa d&eacute;cimal.</p>
+<h2>isInteger<a name="isinteger"></a></h2>
+<p>$var=isinteger(<i>variable ou valeur)</i>.Indique si c'est un nombre entier.</p>
+<h2>isNumeric<a name="isnumeric"></a></h2>
+<p>$var=isnumeric(<i>variable ou valeur)</i>.Indique si c'est un nombre (entier 
+  ou flottant)</p>
+<h2>isString<a name="isstring"></a></h2>
+<p>$var=isstring(<i>variable ou valeur</i>).Indique si c'est une chaine</p>
+<h2>length<a name="lenght"></a></h2>
+<p>$len=LENGHT($variable/chaine de caract&egrave;re) : retourne la longueur de 
+  la chaine de caract&egrave;re ou de la variable</p>
+<h2>ord<a name="ord"></a></h2>
+<p>$var=chr(&quot;e&quot;)<br>
+  or<br>
+  $var=chr(&quot;etrer&quot;) Renvoie la valeur ascii du/des caract&egrave;res.</p>
+<p>&nbsp;</p>
+</body>
+</html>

@@ -1,0 +1,66 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html><head>
+
+<title>Au coeur du système</title><meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1"></head>
+<body bgcolor="#ffffff" text="#000000">
+
+<h1>Au coeurs du système</h1>
+<h2>Structures des pointeurs et tableaux<a name="structure"></a></h2>
+<h3>Pointeur </h3>
+<p>Les pointeurs commence par "p{" et se termine par "}". 
+  Entre les deux il y a un identifiant unique qui identifie la classe TVariables 
+  avec, collé, le nom de la variable.</p>
+<h3>Tableau</h3>
+<p>Les tableaux commence par "a{" et finissent par "}". Chaque 
+  élément du tableau est entouré de ". Chaque élément 
+  est séparé par ;</p>
+<h2>Ajouter une fonction<a name="addfunction"></a></h2>
+<p>Pour ajouter une fonction interne, créer un unité de ce type 
+  :</p>
+<p>unit xxxFunctions;</p>
+<p>interface</p>
+<p>uses Classes, SysUtils, UnitMessages, InternalFunction ;</p>
+<p>procedure xxxxxxxFunctionsInit ;<br>
+  procedure xxxxxxxCommande(arguments : TStrings) ;<br>
+  <br>
+  procedure xxxxxxxCommande(arguments : TStrings) ;<br>
+  begin<br>
+  { delete myfunction command }<br>
+  arguments.Delete(0);</p>
+<p> DeleteVirguleAndParenthese(arguments) <br>
+  <br>
+  ResultFunction = 'my result of my function'<br>
+  end ;</p>
+<p>procedure xxxxxxxFunctionsInit ;<br>
+  begin<br>
+  { true argument is parser i.e. translate variable value } <br>
+  ListFunction.Add('myfunction', @xxxxxxxCommande, true/false) ;<br>
+  end ;<br>
+  end. </p>
+<p>Ensuite dans le fichier SimpleWebScript.dpr dans les uses, ajouter votre unite 
+  et ajouter l'appel de xxxxxxxFunctionsInit sous CoreFunctionsInit ;.</p>
+<h2>Créer une extension<a name="createextension"></a></h2>
+<p>Pour créer une extension, reportez vous à l'exemple dans le répertoire 
+  ext.<br>
+  L'extension doit avoir 3 fonctions exportées.</p>
+<h3>Execute</h3>
+<p>Cette fonction exécute une commande. Retourn true si la commande est 
+  gérée false sinon.S'il y a une erreur dans une commande, utiliser 
+  GlobalError (paramètre 7) et ne retournez pas false à cette fonction.<br>
+  Il y a 6 paramètres.<br>
+  Parameter 1 : la commande (string with 0 terminate)<br>
+  Parameter 2 : paramètre de la commande (strings with 0 and another 0 
+  to and of parameters : "param1"0"param2"00)<br>
+  Parameter 3 : nom du script courrant (string with 0 terminate)<br>
+  Parameter 4 : version de Simple Web Script (string with 0 terminate)<br>
+  Parameter 5 : ligne courrante (Integer)<br>
+  Parameter 6 : longueur du résultat (si c'est une chaine de caractère, 
+  ne mettez pas de 0 final) (Pointer on integer)<br>
+  Parameter 7 : indique s'il y a eu une erreur (Pointer on boolean)</p>
+<h3>GetResult</h3>
+<p>Le seul paramètre est un pointeur sur le tableau de caractères contenant le résultat. Retourne la taille du résultat.</p>
+<h3>Init</h3>
+<p>Cette fonction à pour paramètre le DocRoot, TmpDir et SafeMode. La fonction doit mémoriser ces paramètres en interne.</p>
+<p>&nbsp;</p>
+<p>&nbsp; </p>
+</body></html>

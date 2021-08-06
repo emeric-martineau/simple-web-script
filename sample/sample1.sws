@@ -1,0 +1,308 @@
+if extensionload('exemple')
+    echo essai_extension
+endif
+
+$var = 'machin'
+if $var in ['coucou', 'machin']
+echo "yes!"
+endif
+
+
+function essai
+    $Result = 1
+endfunc
+
+echo 1 + essai
+
+
+swsinfo() 
+
+setcookie('nom', 'valeur', 0, 'chemin', 'domaine', $true, $true) 
+echo "coucou" + uniqid
+
+echo "machin"
+
+$var = "coucou"
+
+$var[1] = 't'
+
+$var = array("champ1", "champ2")
+
+$var[1] = 'truc'
+
+echo -1 * - 2 + -3
+
+echo strbase64decode('azeryt')
+
+echo strprintf('/%*.*f/', 8, 2, 45)
+#d,e,f
+
+echo ExtractIntPart(16.25)
+echo ExtractFloatPart(16.25)
+
+
+
+echo $var
+
+$var1 = 'coucou'
+
+$var2 = '12345'
+$var3 = '123.45'
+$var4 = '0x45'
+
+$vararray1 = array($var1, $var2, $var3, $var4)
+$vararray2 = array($var1, $var2, $vararray1, $var3, $var4)
+
+strprintr($vararray2)
+
+$var = strloadfromfile("sample/sample1.txt")
+$var = strsavetofile($var, "sample/strsavetofile.txt") 
+
+$var = urldecode('fusion_visited=yes; emeric=coucou; emeric2=coucou2%5C%22%E9')
+$var = urlencode('&é"\'(-è_çà)= ?')
+
+$var = getcookie('emeric2')
+
+$var = strimplode(';', array('champ1', 'champ2', 'champ3'))
+
+$var=strexplode(';', 'champ1;champ2;;')
+
+#substr, str, replacetext [, $count]
+$var=strreplace('a', 'aBaBaBaa', 'c', $count)
+
+$var=strreplace(array('t', 'g', 'f'), 'aBtBgBfatgf', '8')
+
+$var=strreplace('a', 'aBaBaBaa', 'c')
+
+$var = strtrim("  r  ")
+$var = "/" + strtrimleft("  r  ") + "/"
+$var = "/" + strtrimright("  r  ") + "/"
+
+$var=$var1
+
+@$var=$var2
+
+eval(array("$var=1", "exit", "coucou"))
+eval('$var="coucou"')
+
+extensionload("exemple")
+
+if isextensionloaded('exemple')
+    $var = essai_extension("truc", "machin")
+	
+    for $i = 1 to length($var) step 1
+	    $var1 = ord($var[$i])
+	endfor
+
+	essai_extension_error
+	
+    extensionunload("exemple")
+endif
+
+# commentaire monoligne
+	{ Commentaire multi ligne
+
+		}
+include("sample/sample2.sws")
+
+function essai
+endfunc
+
+$var=essai
+
+$var="eevv"
+
+switch $var
+    case "ee" :
+	           $var="cas1"
+			   
+			   break
+	case "aa", "ccccce" :
+	           $var="cas2"
+	default
+	           $var = "default"
+               goto fin			   
+endswitch
+
+$i=0
+
+repeat
+    goto fin
+until $i < 5
+
+while $i < 5
+    goto fin
+endwhile
+
+for $i = 0 to 5 step 1
+goto fin
+$var="ee"
+    
+endfor
+
+if 0
+$var="if"
+elseif 0
+$var="elseif"
+else
+$var="else"
+goto fin
+endif
+
+$var="ccccce"
+
+switch $var
+    case "ee" :
+	           $var="cas1"
+			   break
+	case "aa", "ccccce" :
+	           $var="cas2"
+	default
+	           $var = "default" 
+endswitch
+$truc=10
+
+switch $var
+    case "zz" :
+	           $var="cas1"
+			   break
+	case "cc" :
+	           $var="cas2"
+	default
+	           $var = "default" 
+endswitch
+
+
+{gggggggggggg
+}
+#ddddd
+functiondelete("arrayexchange", "arrayexchange2")
+
+$var1=array("a", "z")
+
+arraypush($var1, "e")
+
+arrayinsert($var1, 1, "coucou")
+
+$var=arraypop($var1)
+
+arrayexchange($var1, 1, 2)
+
+arraychunk($var1, 2)
+
+
+$var=array(1,2)
+$var1=array(3,4)
+
+$var2=arraymerge($var, $var1)
+
+arrayfill($var, "z")
+
+unset($var, $var1)
+
+
+function essai2($argument1, $argument11, ...)
+    global $var1
+
+
+
+    $var1=123
+endfunc
+
+labelessai:
+
+$var1=1
+
+$var=isset($var1)
+
+$var=essai2 &$var1, ((1+2)) * (3+5), 45, 66, 78
+
+
+function essai3 ...
+endfunc
+
+essai3 "er", 1, "erer", 4
+
+
+goto fin
+
+$var=2
+
+$var1=$var = 1 ? "coucou" : "annuler"
+
+$var=array("2", "4", "3", "1")
+
+$var1=arraysearch($var, "4", $false)
+
+arrayfill($var, 1+5+6)
+
+function essai
+    *$args[1] = 0
+
+    for $i = 2 to $argcount step 1
+        $var=$args[$i]
+    endfor
+
+    $result='coucou'
+endfunc
+
+$var1=3
+
+$var=essai &$var1 (1+3) (2+5) 
+
+$var=array 3, 4
+
+$var=array(3)
+$var=array((3+1), (4+1))
+
+$var=3
+
+if $var = 1
+    $var=7
+elseif $var = 2
+    $var=8
+elseif $var = 4
+    $var=9
+else
+    $var=6
+endif
+
+$var=array(2 + 1, "machin")
+
+$var1=array("troisième")
+
+$var2=array('quatrième')
+
+$var4=arraymerge($var, $var1, $var2)
+
+length("cocuc")
+
+isset($var)
+
+procedure essai
+    set $result 'coucou'
+endproc
+
+#$var=essai
+
+$var=essai("arg1", "arg2", "arg3")
+
+set $var essai
+
+set $var isinteger(125)
+set $var ''
+set $var isstring('ccc')
+set $var 'a{"truc"}'
+set $var issarray($var)
+
+set $var isfloat(125.2)
+set $var isnumeric(125)
+
+set $var 'coucou'
+set $var isset($var)
+
+set $var length("coucou")
+
+$var="cc"
+
+fin:

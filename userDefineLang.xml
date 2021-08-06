@@ -1,0 +1,25 @@
+<NotepadPlus>
+    <UserLang name="Simple Web Script" ext="sws">
+        <Settings>
+            <Global caseIgnored="yes" />
+            <TreatAsSymbol comment="yes" commentLine="yes" />
+            <Prefix words1="no" words2="yes" words3="no" words4="yes" />
+        </Settings>
+        <KeywordLists>
+		<!-- &quot;&apos;0&quot;&apos;0'&apos;0'&apos;0 -->
+            <Keywords name="Delimiters">"0 "0 '1 '1</Keywords>
+            <Keywords name="Operators">( ) - + / ^ : ? % [ ] . = ,</Keywords>
+            <Keywords name="Comment">0# 0// 1/* 2*/ 1(* 2*)</Keywords>
+            <Keywords name="Words1">if elseif else endif for endfor while endwhile repeat until switch case endswitch goto break to step in or xor and not default function endfunc localgoto</Keywords>
+        </KeywordLists>
+        <Styles>
+            <WordsStyle name="DEFAULT" styleID="11" fgColor="000000" bgColor="FFFFFF" fontName="Courier New" fontStyle="0" fontSize="10" />
+            <WordsStyle name="KEYWORD1" styleID="5" fgColor="0000FF" bgColor="FFFFFF" fontName="Courier New" fontStyle="1" fontSize="10" />
+            <WordsStyle name="COMMENT" styleID="1" fgColor="008000" bgColor="FFFFFF" fontName="Courier New" fontStyle="0" fontSize="10" />
+            <WordsStyle name="COMMENT LINE" styleID="2" fgColor="008000" bgColor="FFFFFF" fontName="Courier New" fontStyle="0" fontSize="10" />
+            <WordsStyle name="NUMBER" styleID="4" fgColor="FF8000" bgColor="FFFFFF" fontName="Courier New" fontStyle="0" fontSize="10" />
+            <WordsStyle name="OPERATOR" styleID="10" fgColor="8000FF" bgColor="FFFFFF" fontName="Courier New" fontStyle="1" fontSize="10" />
+            <WordsStyle name="DELIMINER1" styleID="14" fgColor="808080" bgColor="FFFFFF" fontName="Courier New" fontStyle="0" fontSize="10" />			
+        </Styles>
+	</UserLang>
+</NotepadPlus>
