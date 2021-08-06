@@ -1,3 +1,3 @@
 <@
-echo htmlSpecialCharsEncode('e"ee\'eee', #ENT_QUOTES, "cocuouc", true) ;
+echo 2 ^ 2 ;
 @>

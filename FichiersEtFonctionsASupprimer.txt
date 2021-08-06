@@ -1,0 +1,31 @@
+Variable.Pas
+listpointeroftvariables.pas
+
+GetString.inc
+ExplodeString.inc
+getpointeurofvariable.inc
+getreferencefrompointer.inc
+getreferencefromvar.inc
+getvalueofstrings.inc
+getvarnameofvariable.inc
+indexoftstringlist.inc
+isvar.inc
+isconst.inc
+issetconst.inc
+issetreference.inc
+setvar.inc
+setconst.inc
+unsetreference.inc
+
+trueCommande
+falseCommande
+
+Créer variable :
+_GET
+_POST
+_FILE
+_COOKIE
+_ENV
+_SERVER
+
+Faire un Makefile

@@ -9,7 +9,7 @@
       </Flags>
       <MainUnit Value="0"/>
       <TargetFileExt Value=".exe"/>
-      <ActiveEditorIndexAtStart Value="2"/>
+      <ActiveEditorIndexAtStart Value="1"/>
     </General>
     <VersionInfo>
       <ProjectVersion Value=""/>
@@ -29,13 +29,13 @@
         <LaunchingApplication PathPlusParams="/usr/X11R6/bin/xterm -T 'Lazarus Run Output' -e $(LazarusDir)/tools/runwait.sh $(TargetCmdLine)"/>
       </local>
     </RunParams>
-    <Units Count="27">
+    <Units Count="28">
       <Unit0>
         <Filename Value="simplewebscript.dpr"/>
         <IsPartOfProject Value="True"/>
         <CursorPos X="36" Y="294"/>
         <TopLine Value="272"/>
-        <EditorIndex Value="4"/>
+        <EditorIndex Value="0"/>
         <UsageCount Value="109"/>
         <Loaded Value="True"/>
       </Unit0>
@@ -44,9 +44,7 @@
         <UnitName Value="Functions"/>
         <CursorPos X="1" Y="5019"/>
         <TopLine Value="4991"/>
-        <EditorIndex Value="2"/>
         <UsageCount Value="48"/>
-        <Loaded Value="True"/>
       </Unit1>
       <Unit2>
         <Filename Value="unitmath.pas"/>
@@ -66,7 +64,9 @@
         <Filename Value="config.inc"/>
         <CursorPos X="3" Y="4"/>
         <TopLine Value="1"/>
+        <EditorIndex Value="1"/>
         <UsageCount Value="46"/>
+        <Loaded Value="True"/>
       </Unit4>
       <Unit5>
         <Filename Value="path_ini.inc"/>
@@ -79,9 +79,7 @@
         <UnitName Value="UnitMessages"/>
         <CursorPos X="3" Y="65"/>
         <TopLine Value="92"/>
-        <EditorIndex Value="1"/>
         <UsageCount Value="25"/>
-        <Loaded Value="True"/>
       </Unit6>
       <Unit7>
         <Filename Value="internalfunction.pas"/>
@@ -116,9 +114,7 @@
         <UnitName Value="GetPostCookieFileData"/>
         <CursorPos X="6" Y="1"/>
         <TopLine Value="1"/>
-        <EditorIndex Value="7"/>
         <UsageCount Value="23"/>
-        <Loaded Value="True"/>
       </Unit11>
       <Unit12>
         <Filename Value="corefunctions.pas"/>
@@ -132,27 +128,21 @@
         <UnitName Value="UnitStr"/>
         <CursorPos X="49" Y="2382"/>
         <TopLine Value="2368"/>
-        <EditorIndex Value="0"/>
         <UsageCount Value="28"/>
-        <Loaded Value="True"/>
       </Unit13>
       <Unit14>
         <Filename Value="code.pas"/>
         <UnitName Value="Code"/>
-        <CursorPos X="17" Y="56"/>
-        <TopLine Value="33"/>
-        <EditorIndex Value="10"/>
+        <CursorPos X="53" Y="48"/>
+        <TopLine Value="27"/>
         <UsageCount Value="36"/>
-        <Loaded Value="True"/>
       </Unit14>
       <Unit15>
         <Filename Value="unitwindows.pas"/>
         <UnitName Value="UnitWindows"/>
         <CursorPos X="59" Y="28"/>
         <TopLine Value="1"/>
-        <EditorIndex Value="3"/>
         <UsageCount Value="13"/>
-        <Loaded Value="True"/>
       </Unit15>
       <Unit16>
         <Filename Value="unithtml.pas"/>
@@ -166,9 +156,7 @@
         <UnitName Value="UnitMiscellaneous"/>
         <CursorPos X="6" Y="40"/>
         <TopLine Value="33"/>
-        <EditorIndex Value="11"/>
         <UsageCount Value="36"/>
-        <Loaded Value="True"/>
       </Unit17>
       <Unit18>
         <Filename Value="uniturl.pas"/>
@@ -182,18 +170,14 @@
         <UnitName Value="UnitCore"/>
         <CursorPos X="45" Y="125"/>
         <TopLine Value="111"/>
-        <EditorIndex Value="6"/>
         <UsageCount Value="14"/>
-        <Loaded Value="True"/>
       </Unit19>
       <Unit20>
         <Filename Value="doublestrings.pas"/>
         <UnitName Value="DoubleStrings"/>
         <CursorPos X="6" Y="1"/>
         <TopLine Value="33"/>
-        <EditorIndex Value="8"/>
         <UsageCount Value="12"/>
-        <Loaded Value="True"/>
       </Unit20>
       <Unit21>
         <Filename Value="extension.pas"/>
@@ -207,9 +191,7 @@
         <UnitName Value="Variable"/>
         <CursorPos X="1" Y="1"/>
         <TopLine Value="10"/>
-        <EditorIndex Value="5"/>
         <UsageCount Value="17"/>
-        <Loaded Value="True"/>
       </Unit22>
       <Unit23>
         <Filename Value="unitdirectory.pas"/>
@@ -238,101 +220,39 @@
         <UnitName Value="Constantes"/>
         <CursorPos X="1" Y="1"/>
         <TopLine Value="1"/>
-        <EditorIndex Value="9"/>
         <UsageCount Value="20"/>
-        <Loaded Value="True"/>
       </Unit26>
+      <Unit27>
+        <Filename Value="integerlist.pas"/>
+        <UnitName Value="IntegerList"/>
+        <CursorPos X="2" Y="209"/>
+        <TopLine Value="66"/>
+        <UsageCount Value="10"/>
+      </Unit27>
     </Units>
-    <JumpHistory Count="21" HistoryIndex="20">
+    <JumpHistory Count="2" HistoryIndex="1">
       <Position1>
-        <Filename Value="code.pas"/>
-        <Caret Line="102" Column="1" TopLine="93"/>
-      </Position1>
-      <Position2>
-        <Filename Value="code.pas"/>
-        <Caret Line="54" Column="19" TopLine="45"/>
-      </Position2>
-      <Position3>
-        <Filename Value="unitcore.pas"/>
-        <Caret Line="68" Column="6" TopLine="49"/>
-      </Position3>
-      <Position4>
-        <Filename Value="functions.pas"/>
-        <Caret Line="33" Column="27" TopLine="21"/>
-      </Position4>
-      <Position5>
-        <Filename Value="functions.pas"/>
-        <Caret Line="123" Column="11" TopLine="106"/>
-      </Position5>
-      <Position6>
-        <Filename Value="functions.pas"/>
-        <Caret Line="35" Column="42" TopLine="16"/>
-      </Position6>
-      <Position7>
-        <Filename Value="functions.pas"/>
-        <Caret Line="1" Column="1" TopLine="1"/>
-      </Position7>
-      <Position8>
-        <Filename Value="functions.pas"/>
-        <Caret Line="119" Column="24" TopLine="102"/>
-      </Position8>
-      <Position9>
-        <Filename Value="unitwindows.pas"/>
-        <Caret Line="453" Column="9" TopLine="437"/>
-      </Position9>
-      <Position10>
-        <Filename Value="unitwindows.pas"/>
-        <Caret Line="25" Column="56" TopLine="1"/>
-      </Position10>
-      <Position11>
-        <Filename Value="unitwindows.pas"/>
-        <Caret Line="1" Column="1" TopLine="1"/>
-      </Position11>
-      <Position12>
         <Filename Value="simplewebscript.dpr"/>
         <Caret Line="351" Column="10" TopLine="113"/>
-      </Position12>
-      <Position13>
+      </Position1>
+      <Position2>
         <Filename Value="simplewebscript.dpr"/>
         <Caret Line="60" Column="1" TopLine="41"/>
-      </Position13>
-      <Position14>
-        <Filename Value="variable.pas"/>
-        <Caret Line="80" Column="7" TopLine="65"/>
-      </Position14>
-      <Position15>
-        <Filename Value="variable.pas"/>
-        <Caret Line="690" Column="42" TopLine="666"/>
-      </Position15>
-      <Position16>
-        <Filename Value="code.pas"/>
-        <Caret Line="253" Column="71" TopLine="241"/>
-      </Position16>
-      <Position17>
-        <Filename Value="functions.pas"/>
-        <Caret Line="131" Column="28" TopLine="122"/>
-      </Position17>
-      <Position18>
-        <Filename Value="functions.pas"/>
-        <Caret Line="43" Column="1" TopLine="49"/>
-      </Position18>
-      <Position19>
-        <Filename Value="functions.pas"/>
-        <Caret Line="66" Column="18" TopLine="49"/>
-      </Position19>
-      <Position20>
-        <Filename Value="functions.pas"/>
-        <Caret Line="4160" Column="48" TopLine="4138"/>
-      </Position20>
-      <Position21>
-        <Filename Value="functions.pas"/>
-        <Caret Line="72" Column="1" TopLine="51"/>
-      </Position21>
+      </Position2>
     </JumpHistory>
   </ProjectOptions>
   <CompilerOptions>
     <Version Value="8"/>
     <PathDelim Value="\"/>
+    <SearchPaths>
+      <OtherUnitFiles Value="core\;core\class\;core\function\;core\os\;core\languagefunction\"/>
+    </SearchPaths>
+    <Parsing>
+      <SyntaxOptions>
+        <CStyleOperator Value="False"/>
+        <CPPInline Value="False"/>
+      </SyntaxOptions>
+    </Parsing>
     <CodeGeneration>
       <SmartLinkUnit Value="True"/>
       <SmallerCode Value="True"/>
@@ -350,15 +270,11 @@
     </Other>
   </CompilerOptions>
   <Debugging>
-    <BreakPoints Count="2">
+    <BreakPoints Count="1">
       <Item1>
         <Source Value="SimpleWebScript.dpr"/>
         <Line Value="72"/>
       </Item1>
-      <Item2>
-        <Source Value="functions.pas"/>
-        <Line Value="5019"/>
-      </Item2>
     </BreakPoints>
     <Exceptions Count="2">
       <Item1>

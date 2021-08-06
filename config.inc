@@ -1,6 +1,6 @@
 {$DEFINE WINDOWS}
 
 // Set this to use Simple Web Script in command line
-//{$DEFINE COMMANDLINE}
+{$DEFINE COMMANDLINE}
 
 // Don't modify

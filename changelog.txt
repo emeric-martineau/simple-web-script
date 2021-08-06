@@ -125,3 +125,6 @@
 - delete goto and localgoto,
 - add break with label,
 - add continue commande,
+
+0.1.3 :
+- correct bug for switch introduce by label,

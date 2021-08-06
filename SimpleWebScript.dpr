@@ -72,7 +72,31 @@ uses
   UnitHtml,
   Constantes,
   IntegerList ;
-
+{
+  SysUtils,
+  Classes,
+  Windows,
+  UnitOS in 'core/os/unitos.pas',
+  DoubleStrings in 'core/class/doublestrings.pas',
+  Functions in 'core/function/functions.pas',
+  GetPostCookieFileData 'core/class/getpostcookiefiledata.pas',
+  UnitCore in 'core/languagefunction/unitcore.pas',
+  Code in 'core/function/code.pas',
+  Variable in 'core/class/variable.pas',
+  UserFunction in 'core/class/userfunction.pas',
+  InternalFunction in 'core/class/internalfunction.pas',
+  ListPointerOfTVariables in 'core/class/listpointeroftvariables.pas',
+  Extension in 'core/class/extension.pas',
+  UnitMessages in 'core/unitmessages.pas',
+  UnitStr in 'core/languagefunction/unitstr.pas',
+  UnitUrl in 'core/languagefunction/uniturl.pas',
+  UnitMath in 'core/languagefunction/unitmath.pas',
+  UnitMiscellaneous in 'core/languagefunction/unitmiscellaneous.pas',
+  IniFiles,
+  UnitHtml in 'core/languagefunction/unithtml.pas',
+  Constantes in 'core/class/constantes.pas',
+  IntegerList in 'core/class/integerlist.pas' ;
+}
 {$I config.inc}
 
 {$I path_ini.inc}
